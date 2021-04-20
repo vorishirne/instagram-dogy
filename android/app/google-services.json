@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1072204895457",
+    "firebase_url": "https://fcmdemo-6a2dc.firebaseio.com",
+    "project_id": "fcmdemo-6a2dc",
+    "storage_bucket": "fcmdemo-6a2dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072204895457:android:172e7c7fc1d529cd7313a0",
+        "android_client_info": {
+          "package_name": "com.dodogy.www"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1072204895457-3ei4l681r5qj4citbmptojajph61hglr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dodogy.www",
+            "certificate_hash": "463f86de0956c7db2791cb74805aa9641a591103"
+          }
+        },
+        {
+          "client_id": "1072204895457-j1956b6htvotig2bh2i7ua9jia948e69.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCovXrVh_MLDvdc5FbMIBTWVrxAHoQLy4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1072204895457-j1956b6htvotig2bh2i7ua9jia948e69.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1072204895457-49ri7ldgriec4ccbi90d7sv0f0fi6otb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dodogy.www"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
