@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1072204895457-49ri7ldgriec4ccbi90d7sv0f0fi6otb.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1072204895457-49ri7ldgriec4ccbi90d7sv0f0fi6otb</string>
+	<key>API_KEY</key>
+	<string>AIzaSyARB1MYMdT_usUBwALX55JmV7l_wbln3Zg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1072204895457</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.dodogy.www</string>
+	<key>PROJECT_ID</key>
+	<string>fcmdemo-6a2dc</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fcmdemo-6a2dc.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1072204895457:ios:9076fa16183e02617313a0</string>
+	<key>DATABASE_URL</key>
+	<string>https://fcmdemo-6a2dc.firebaseio.com</string>
+</dict>
+</plist>
