@@ -134,7 +134,6 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-
     focusNode.dispose();
     _formLoadingController.dispose();
     _pageController.dispose();
@@ -305,7 +304,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                   theme: theme,
                   child: _LoginCard(
                     key: _cardKey,
-                    focusNode: focusNode,
+                    //focusNode: focusNode,
                     loadingController: _isLoadingFirstTime
                         ? _formLoadingController
                         : (_formLoadingController..value = 1.0),
@@ -321,7 +320,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                 )
               : _RecoverCard(
                   key: _ncardkey,
-                  focusNode:focusNode,
+                  focusNode: focusNode,
                   passwordValidator: widget.passwordValidator,
                   onSwitchLogin: () => _switchRecovery(false),
                   onSubmitCompleted: () {
@@ -356,16 +355,16 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 }
 
 class _LoginCard extends StatefulWidget {
-  _LoginCard({
-    Key key,
-    this.loadingController,
-    @required this.emailValidator,
-    @required this.passwordValidator,
-    @required this.onSwitchRecoveryPassword,
-    this.onSwitchAuth,
-    this.onSubmitCompleted,
-    this.focusNode
-  }) : super(key: key);
+  _LoginCard(
+      {Key key,
+      this.loadingController,
+      @required this.emailValidator,
+      @required this.passwordValidator,
+      @required this.onSwitchRecoveryPassword,
+      this.onSwitchAuth,
+      this.onSubmitCompleted,
+      this.focusNode})
+      : super(key: key);
   final FocusNode focusNode;
   final AnimationController loadingController;
   final FormFieldValidator<String> emailValidator;
@@ -458,8 +457,6 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
-
     _loadingController?.removeStatusListener(handleLoadingAnimationStatus);
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
@@ -467,6 +464,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
     _submitController.dispose();
+    super.dispose();
   }
 
   void _switchAuthMode() {
@@ -536,7 +534,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   Widget _buildNameField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
-      initialValue: "",
+      //initialValue: "",
       formatter: [maskFormatter],
       controller: _nameController,
       width: width,
@@ -643,7 +641,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
                   if (!_formKey.currentState.validate()) {
                     return false;
                   }
-                  FocusScope.of(context).requestFocus(widget.focusNode);
+                  //FocusScope.of(context).requestFocus(widget.focusNode);
 
                   widget.onSwitchRecoveryPassword();
                 }
@@ -675,8 +673,6 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           ),
         ));
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -733,14 +729,14 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
                 _buildForgotPassword(theme, messages),
                 _buildSubmitButton(theme, messages, auth),
                 _buildSwitchAuthButton(theme, messages, auth),
-                SizedBox(height: 29),
+                SizedBox(height: 20),
                 Text(
                   "Signin with social networking?",
                   key: kRecoverPasswordDescriptionKey,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Color.fromRGBO(127, 127, 127, 1)),
                 ),
-                SizedBox(height: 27),
+                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -800,9 +796,7 @@ class _RecoverCard extends StatefulWidget {
       @required this.passwordValidator,
       @required this.onSwitchLogin,
       @required this.onSubmitCompleted,
-        this.focusNode
-
-      })
+      this.focusNode})
       : super(key: key);
   final FocusNode focusNode;
   final FormFieldValidator<String> passwordValidator;
@@ -838,8 +832,8 @@ class _RecoverCardState extends State<_RecoverCard>
 
   @override
   void dispose() {
-    super.dispose();
     _submitController.dispose();
+    super.dispose();
   }
 
   Future<bool> _submit2() async {

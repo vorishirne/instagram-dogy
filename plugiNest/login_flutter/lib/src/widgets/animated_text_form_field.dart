@@ -209,10 +209,10 @@ class AnimatedTextFormFieldState extends State<AnimatedTextFormField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    widget.controller.text=widget.initialValue;
+    if (!(widget.initialValue==null)){
+    widget.controller.text=widget.initialValue;}
     Widget textField = TextFormField(
       //key: widget.key,
-
 
       inputFormatters: widget.formatter,
       controller: widget.controller,

@@ -149,6 +149,7 @@ class __HeaderState extends State<_Header> {
             widget.logoPath,
             filterQuality: FilterQuality.high,
             height: logoHeight,
+      width: MediaQuery.of(context).size.width*.6,
           )
         : NullWidget();
 
@@ -187,7 +188,7 @@ class __HeaderState extends State<_Header> {
         children: <Widget>[
           if (displayLogo)
             Padding(
-              padding: EdgeInsets.only(top: 0.0, bottom: 0),
+              padding: EdgeInsets.only(top: 0.0, bottom: 30),
               child: FadeIn(
                 controller: widget.logoController,
                 offset: .25,
@@ -195,14 +196,14 @@ class __HeaderState extends State<_Header> {
                 child: logo,
               ),
             ),
-          Padding(
-              padding: EdgeInsets.all(0),
-              child: FadeIn(
-                controller: widget.titleController,
-                offset: .5,
-                fadeDirection: FadeDirection.topToBottom,
-                child: title,
-              )),
+//          Padding(
+//              padding: EdgeInsets.all(0),
+//              child: FadeIn(
+//                controller: widget.titleController,
+//                offset: .5,
+//                fadeDirection: FadeDirection.topToBottom,
+//                child: title,
+//              )),
         ],
       ),
     );
@@ -556,7 +557,11 @@ class _FlutterLoginState extends State<FlutterLogin>
     );
   }
 
-  Widget serviceAgreement = Column(children: [
+  Widget serviceAgreement = FadeIn(
+                duration: Duration(milliseconds: 2500),
+                offset: .5,
+                fadeDirection: FadeDirection.topToBottom,
+                child: Column(children: [
     RichText(
       text: new TextSpan(
         children: [
@@ -604,7 +609,7 @@ class _FlutterLoginState extends State<FlutterLogin>
         ],
       ),
     )
-  ]);
+  ]));
 
   @override
   Widget build(BuildContext context) {

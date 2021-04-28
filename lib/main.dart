@@ -15,18 +15,19 @@ void main() {
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       systemNavigationBarColor:
-      SystemUiOverlayStyle.dark.systemNavigationBarColor,
+          SystemUiOverlayStyle.dark.systemNavigationBarColor,
     ),
   );
   runApp(StatefulApp());
 }
 
-GoogleSignIn _googleSignIn = GoogleSignIn();
+
 
 class StatefulApp extends StatefulWidget {
   @override
   MyApp createState() => MyApp();
 }
+
 FirebaseAuth _auth = FirebaseAuth.instance;
 
 class MyApp extends State<StatefulApp> {
@@ -35,65 +36,59 @@ class MyApp extends State<StatefulApp> {
   String _verificationId;
   var signed = false;
 
-
   @override
   void initState() {
     super.initState();
-    _auth.onAuthStateChanged.listen((FirebaseUser user){
-
-        setState(() {
-
-        print(user);
-        if (user==null){
-          signed=false;
-          _verificationId="";
-        }
-        else{
-          signed=true;
-        }
-      });
-    });
-
-    _googleSignIn.onCurrentUserChanged
-        .listen((GoogleSignInAccount currentAccount) {
+    _auth.onAuthStateChanged.listen((FirebaseUser user) {
       setState(() {
-        _currentUser = currentAccount;
-        print(_currentUser);
+        print(user);
+        if (user == null) {
+          signed = false;
+          _verificationId = "";
+        } else {
+          signed = true;
+        }
       });
-      if (_currentUser == null) {
-        print(
-            "##############################logged out%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-      }
     });
-    _googleSignIn.signInSilently();
 
+//    _googleSignIn.onCurrentUserChanged
+//        .listen((GoogleSignInAccount currentAccount) {
+//      setState(() {
+//        _currentUser = currentAccount;
+//        print(_currentUser);
+//      });
+//      if (_currentUser == null) {
+//        print(
+//            "##############################logged out%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+//      }
+//    });
+  //    _googleSignIn.signInSilently();
   }
 
-  Future<String> verifyPhoneNumber(phonen) async{
-    phonen="+91"+phonen;
+  Future<String> verifyPhoneNumber(phonen) async {
+    phonen = "+91" + phonen;
     setState(() {
       _message = '';
     });
 
-
     final PhoneVerificationCompleted verificationCompleted = null;
-    var a=  (FirebaseUser phoneAuthCredential) {
+    var a = (FirebaseUser phoneAuthCredential) {
       setState(() {
-        _message ="The message from ready made function"+ 'Received phone auth credential: $phoneAuthCredential';
+        _message = "The message from ready made function" +
+            'Received phone auth credential: $phoneAuthCredential';
         print("The message from ready made function");
         print(phoneAuthCredential);
       });
       Navigator.of(context).popUntil((route) => route.isFirst);
-      return Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (BuildContext context) => homy()));
+      return Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (BuildContext context) => homy()));
     };
 
     final PhoneVerificationFailed verificationFailed =
         (AuthException authException) {
       setState(() {
         _message =
-        'Oh yes Phone number verification failed. Code: ${authException
-            .code}. Message: ${authException.message}';
+            'Oh yes Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}';
         print(authException);
       });
     };
@@ -126,56 +121,115 @@ class MyApp extends State<StatefulApp> {
     return null;
   }
 
-
   Future<String> signInWithPhoneNumber(LoginData lgd) async {
-
-    final AuthCredential credential = PhoneAuthProvider.getCredential(
-      verificationId: _verificationId,
-      smsCode: lgd.password,
-    );
-    print("precious creds");
-    print(lgd.password);
-    print(credential);
-    final FirebaseUser user =
-    (await _auth.signInWithCredential(credential));
-    print("precious user <3");
-    print(user);
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-    print("toka more");
-    var om=(await user.getIdToken());
-    print(om);
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    return Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (BuildContext context) => homy()));
-    setState(() {
-      if (user != null) {
-        _message = 'Successfully signed in, uid: ' + user.uid;
-      } else {
-        _message = 'Sign in failed';
-      }
-    });
-    return null;
-  }
-
-
-  Future<void> loginGoog() async {
     try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      print(error);
+      final AuthCredential credential = PhoneAuthProvider.getCredential(
+        verificationId: _verificationId,
+        smsCode: lgd.password,
+      );
+      print("precious creds");
+      print(lgd.password);
+      print(credential);
+      final FirebaseUser user = (await _auth.signInWithCredential(credential));
+      print("precious user <3");
+      print(user);
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.uid == currentUser.uid);
+      print("toka more");
+      var om = (await user.getIdToken());
+      print(om);
+//    Navigator.of(context).popUntil((route) => route.isFirst);
+//    return Navigator.of(context)
+//        .pushReplacement(MaterialPageRoute(builder: (BuildContext context) => homy()));
+//    setState(() {
+//      if (user != null) {
+//        signed = true;
+//      } else {
+//        signed = false;
+//      }
+//    });
+      print("got that page manually");
+      return null;
+
+    } catch (e) {
+      print("error during validating otp");
+      print(e);
+      String mesg="";
+      switch (e.code) {
+        case "ERROR_INVALID_VERIFICATION_CODE":
+          mesg="Seems you mistyped the OTP";
+          break;
+        default:
+          mesg="Oops! There was a problem :/\nYour OTP may be correct BTW";
+      }
+      return mesg;
+    }
+  }
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+  Future<void> gLogin() async{
+try {
+  try {
+    //await _googleSignIn.disconnect();
+    await _googleSignIn.signOut();
+  }
+  catch (e) {
+    print(e);
+  }
+  final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+  final GoogleSignInAuthentication googleAuth =
+  await googleUser.authentication;
+  final AuthCredential credential = GoogleAuthProvider.getCredential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+  final FirebaseUser user =
+  (await _auth.signInWithCredential(credential));
+  assert(user.email != null);
+  assert(user.displayName != null);
+  assert(!user.isAnonymous);
+  assert(await user.getIdToken() != null);
+
+  final FirebaseUser currentUser = await _auth.currentUser();
+  assert(user.uid == currentUser.uid);
+  setState(() {
+    if (user != null) {
+      signed = true;
+    } else {
+      signed = false;
+    }
+  });
+}
+catch(e)
+    {//ERROR_NETWORK_REQUEST_FAILED
+      //network_error
+      print("The problem with google sign was");
+      print(e);
+      print(e.code);
+
     }
   }
 
-  Future<void> logoutGoog() {
-    return _googleSignIn.disconnect();
-  }
+//  Future<void> loginGoog() async {
+//    try {
+//      await _googleSignIn.signIn();
+//    } catch (error) {
+//      print(error);
+//    }
+//  }
+//
+//  Future<void> logoutGoog() {
+//    return _googleSignIn.disconnect();
+//  }
 
   Widget loginPage() {
-    return LoginWidget(getOTP: signInWithPhoneNumber,getNumber: verifyPhoneNumber,lf: fLogin,
-    lg: gLogin,
-      lt: tLogin,
-    vexkey: vexkey,);
+    return LoginWidget(
+      getOTP: signInWithPhoneNumber,
+      getNumber: verifyPhoneNumber,
+      lf: gLogin,
+      lg: gLogin,
+      lt: gLogin,
+      //vexkey: vexkey,
+    );
 
 //    return Scaffold(
 ////    body:Builder(
@@ -199,51 +253,32 @@ class MyApp extends State<StatefulApp> {
 //            )));
   }
 
-  Future<bool> isSigned() async{
-
-    if (!(await _auth.currentUser() == null)){
-
-        return true;
-
-
-    }
-    else{
-      return false;
-    }
-  }
-
-
 
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Dodogy',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: signed?homy() :loginPage(),
+      home: signed ? homy() : loginPage(),
     );
   }
 }
-GlobalKey<AnimatedTextFormFieldState> vexkey = GlobalKey<AnimatedTextFormFieldState>();
-Future<void> fLogin(){
+
+GlobalKey<AnimatedTextFormFieldState> vexkey =
+    GlobalKey<AnimatedTextFormFieldState>();
+
+Future<void> fLogin() {
   print("logged in viax fb");
 }
-Future<void> gLogin(){
-  print("logged in viax gg");
-}
 
-Future<void> tLogin(){
+
+
+Future<void> tLogin() {
   print("logged in viax tw");
 }
-
-
-
-
-
-
 class SexyText extends StatefulWidget {
   final List<Color> clrs;
 

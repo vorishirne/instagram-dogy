@@ -33,6 +33,7 @@ dependencies:
   timeago: 2.0.17
   cached_network_image:
   flutter_svg:
+  progress_dialog: ^1.2.2
   flutter_login:
     path: ./plugiNest/login_flutter/
   font_awesome_flutter: ^8.5.0
