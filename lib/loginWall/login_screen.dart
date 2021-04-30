@@ -1,4 +1,4 @@
-import 'package:dodogy_challange/sample_pagge.dart';
+import 'package:dodogy_challange/homyz.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';

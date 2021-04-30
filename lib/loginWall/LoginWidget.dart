@@ -1,4 +1,4 @@
-import 'package:dodogy_challange/sample_pagge.dart';
+import 'package:dodogy_challange/homyz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'login_screen.dart';

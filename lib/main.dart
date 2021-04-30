@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dodogy_challange/pages/create_account.dart';
 import 'package:dodogy_challange/pages/home.dart';
+import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +14,8 @@ import 'loginWall/LoginWidget.dart';
 import 'package:flutter_login/src/models/login_data.dart';
 import 'package:flutter_login/src/widgets/animated_text_form_field.dart';
 
+import 'models/user.dart';
+
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -18,10 +23,8 @@ void main() {
           SystemUiOverlayStyle.dark.systemNavigationBarColor,
     ),
   );
-  runApp(StatefulApp());
+  runApp(MaterialApp(home: StatefulApp()));
 }
-
-
 
 class StatefulApp extends StatefulWidget {
   @override
@@ -29,26 +32,35 @@ class StatefulApp extends StatefulWidget {
 }
 
 FirebaseAuth _auth = FirebaseAuth.instance;
+final usersRef = Firestore.instance.collection('users');
 
 class MyApp extends State<StatefulApp> {
   GoogleSignInAccount _currentUser;
   String _message = '';
+  String stale="";
   String _verificationId;
-  var signed = false;
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+  String signed = "";
 
   @override
   void initState() {
     super.initState();
     _auth.onAuthStateChanged.listen((FirebaseUser user) {
-      setState(() {
-        print(user);
-        if (user == null) {
-          signed = false;
+      print(user);
+
+      if (user == null) {
+        stale="out";
+        setState(() {
+          signed = "false";
           _verificationId = "";
-        } else {
-          signed = true;
-        }
-      });
+        });
+      } else {
+        stale=="in";
+        createUserInFirestore();
+        setState(() {
+          signed = "true";
+        });
+      }
     });
 
 //    _googleSignIn.onCurrentUserChanged
@@ -62,7 +74,45 @@ class MyApp extends State<StatefulApp> {
 //            "##############################logged out%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 //      }
 //    });
-  //    _googleSignIn.signInSilently();
+    //    _googleSignIn.signInSilently();
+  }
+
+  createUserInFirestore() async {
+    // 1) check if user exists in users collection in database (according to their id)
+    final FirebaseUser user = await _auth.currentUser();
+    DocumentSnapshot doc;
+    print("%^%0987%^&%6%^&*&&*(*&*(***(*");
+    int i = 0;
+    while (i < 3) {
+      try {
+        print("trying babe");
+        doc = await usersRef.document(user.uid).get();
+        i=0;
+        break;
+      } catch (e) {
+        print(e);
+        i += 1;
+      }
+    }
+
+    if (!doc.exists) {
+      // 2) if the user doesn't exist, then we want to take them to the create account page
+      final username = await Navigator.push(
+          context, MaterialPageRoute(builder: (context) => CreateAccount()));
+
+      // 3) get username from create account, use it to make new user document in users collection
+      final DateTime timestamp = DateTime.now();
+
+      usersRef.document(user.uid).setData({
+        "id": user.uid,
+        "username": username,
+        "photoUrl": "",
+        "email": "",
+        "displayName": "",
+        "bio": "",
+        "timestamp": timestamp
+      });
+    }
   }
 
   Future<String> verifyPhoneNumber(phonen) async {
@@ -150,62 +200,51 @@ class MyApp extends State<StatefulApp> {
 //    });
       print("got that page manually");
       return null;
-
     } catch (e) {
       print("error during validating otp");
       print(e);
-      String mesg="";
+      String mesg = "";
       switch (e.code) {
         case "ERROR_INVALID_VERIFICATION_CODE":
-          mesg="Seems you mistyped the OTP";
+          mesg = "Seems you mistyped the OTP";
           break;
         default:
-          mesg="Oops! There was a problem :/\nYour OTP may be correct BTW";
+          mesg = "Oops! There was a problem :/\nYour OTP may be correct BTW";
       }
       return mesg;
     }
   }
-  GoogleSignIn _googleSignIn = GoogleSignIn();
-  Future<void> gLogin() async{
-try {
-  try {
-    //await _googleSignIn.disconnect();
-    await _googleSignIn.signOut();
-  }
-  catch (e) {
-    print(e);
-  }
-  final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-  final GoogleSignInAuthentication googleAuth =
-  await googleUser.authentication;
-  final AuthCredential credential = GoogleAuthProvider.getCredential(
-    accessToken: googleAuth.accessToken,
-    idToken: googleAuth.idToken,
-  );
-  final FirebaseUser user =
-  (await _auth.signInWithCredential(credential));
-  assert(user.email != null);
-  assert(user.displayName != null);
-  assert(!user.isAnonymous);
-  assert(await user.getIdToken() != null);
 
-  final FirebaseUser currentUser = await _auth.currentUser();
-  assert(user.uid == currentUser.uid);
-  setState(() {
-    if (user != null) {
-      signed = true;
-    } else {
-      signed = false;
-    }
-  });
-}
-catch(e)
-    {//ERROR_NETWORK_REQUEST_FAILED
+  Future<void> gLogin() async {
+    try {
+      try {
+        //await _googleSignIn.disconnect();
+        await _googleSignIn.signOut();
+      } catch (e) {
+        print(e);
+      }
+      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final FirebaseUser user = (await _auth.signInWithCredential(credential));
+      assert(user.email != null);
+      assert(user.displayName != null);
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
+
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.uid == currentUser.uid);
+
+    } catch (e) {
+      //ERROR_NETWORK_REQUEST_FAILED
       //network_error
       print("The problem with google sign was");
       print(e);
       print(e.code);
-
     }
   }
 
@@ -220,7 +259,6 @@ catch(e)
 //  Future<void> logoutGoog() {
 //    return _googleSignIn.disconnect();
 //  }
-
   Widget loginPage() {
     return LoginWidget(
       getOTP: signInWithPhoneNumber,
@@ -252,9 +290,15 @@ catch(e)
 //              ],
 //            )));
   }
-
-
-
+Widget choose(){
+    if(signed=="true"){
+      return homy();
+    }
+    if (signed=="false"){
+      return loginPage();
+    }
+    return sample_pagge();
+}
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -262,7 +306,7 @@ catch(e)
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: signed ? homy() : loginPage(),
+      home: choose(),
     );
   }
 }
@@ -274,11 +318,10 @@ Future<void> fLogin() {
   print("logged in viax fb");
 }
 
-
-
 Future<void> tLogin() {
   print("logged in viax tw");
 }
+
 class SexyText extends StatefulWidget {
   final List<Color> clrs;
 
@@ -287,7 +330,9 @@ class SexyText extends StatefulWidget {
   @override
   _SexyTextDrive createState() => _SexyTextDrive();
 }
+
 GlobalKey sexyTextKey = GlobalKey();
+
 Shader getTextGradient(RenderBox renderBox, List<Color> clrs) {
   if (renderBox == null) return null;
   return LinearGradient(
@@ -298,6 +343,7 @@ Shader getTextGradient(RenderBox renderBox, List<Color> clrs) {
       renderBox.size.width,
       renderBox.size.height));
 }
+
 class _SexyTextDrive extends State<SexyText> {
   RenderBox textRenderObject;
 
@@ -327,6 +373,7 @@ class _SexyTextDrive extends State<SexyText> {
     );
   }
 }
+
 class SignBut extends StatelessWidget {
   final dynamic callb;
 
