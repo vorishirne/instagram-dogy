@@ -6,8 +6,11 @@ import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../main.dart';
+
 class Search extends StatefulWidget {
+  final CollectionReference usersRef;
+  Search(CollectionReference this.usersRef);
+
   @override
   _SearchState createState() => _SearchState();
 }
@@ -15,24 +18,20 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
+
   Container buildNoContent() {
     final Size size = MediaQuery.of(context).size;
     return Container(
       child: Center(
         child: ListView(
           shrinkWrap: true,
-
           children: <Widget>[
-            Image.asset(
-              'assets/images/search.png',
-              height: max(size.height/8,size.width/5)
-
-            ),
+            Image.asset('assets/images/search.png',
+                height: max(size.height / 8, size.width / 5)),
             Text(
               "Get me some company.. . .",
               textAlign: TextAlign.center,
               style: TextStyle(
-
                 color: Color.fromRGBO(127, 127, 127, 1),
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.w200,
@@ -44,21 +43,25 @@ class _SearchState extends State<Search> {
       ),
     );
   }
+
   handleSearch(String query) {
-    Future<QuerySnapshot> users = usersRef
+    Future<QuerySnapshot> users = widget.usersRef
         .where("username", isGreaterThanOrEqualTo: query)
         .getDocuments();
-    print("me got that "+query);
+    print("me got that " + query);
     setState(() {
-      if (query==""){
-        searchResultsFuture=null;
-      }else{
-      searchResultsFuture = users;}
+      if (query == "") {
+        searchResultsFuture = null;
+      } else {
+        searchResultsFuture = users;
+      }
     });
   }
+
   AppBar buildSearchField() {
     return AppBar(
-      backgroundColor: Colors.white,
+
+      backgroundColor: Color.fromRGBO(24, 115, 172, 1),
       title: TextFormField(
         controller: searchController,
         decoration: InputDecoration(
@@ -79,8 +82,9 @@ class _SearchState extends State<Search> {
   }
 
   clearSearch() {
-    setState(() {searchController.clear();
-    searchResultsFuture=null;
+    setState(() {
+      searchController.clear();
+      searchResultsFuture = null;
     });
   }
 
@@ -104,18 +108,16 @@ class _SearchState extends State<Search> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: buildSearchField(),
       body:
-      searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
+          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
     );
   }
 }
-
 
 class UserResult extends StatelessWidget {
   final User user;
@@ -125,30 +127,33 @@ class UserResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).primaryColor.withOpacity(0.7),
+      color: Colors.white,
       child: Column(
         children: <Widget>[
           GestureDetector(
             onTap: () => print('tapped'),
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.grey,
-                //backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-              ),
+              leading: CachedNetworkImage(
+                  imageUrl: user.photoUrl,
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: imageProvider,
+                      ),
+                  errorWidget: (context, url, error) => new Icon(Icons.error)),
               title: Text(
                 user.username,
                 style:
-                TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
                 user.username,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.grey),
               ),
             ),
           ),
           Divider(
-            height: 2.0,
-            color: Colors.white54,
+            height: 8.0,
+            color: Colors.grey,
           ),
         ],
       ),

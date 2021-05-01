@@ -1,4 +1,5 @@
 import 'package:dodogy_challange/homyz.dart';
+import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'login_screen.dart';
@@ -78,7 +79,7 @@ class LoginWidg extends State<LoginWidget> {
           lg: widget.lg,
           lt: widget.lt,
             vexkey: widget.vexkey),
-        "/homy": (context) => homy(),
+        "/homy": (context) => sample_pagge(),
       },
     );
   }

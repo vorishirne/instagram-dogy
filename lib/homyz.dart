@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/profile.dart';
 import 'package:dodogy_challange/pages/search.dart';
@@ -8,11 +9,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 class homy extends StatefulWidget{
+  final FirebaseUser user;
+  homy
+      (FirebaseUser this.user);
   @override
   homystate createState() => homystate();
 }
 
 class homystate extends State<homy> {
+  FirebaseUser curUser;
+  CollectionReference usersRef;
+  CollectionReference postsRef;
+  CollectionReference connsRef;
   PageController pageController;
   int pageIndex = 0;
 
@@ -20,6 +28,12 @@ class homystate extends State<homy> {
   void initState() {
     super.initState();
     pageController = PageController();
+    curUser = widget.user;
+    usersRef =  Firestore.instance.collection('users');
+    postsRef =  Firestore.instance.collection('posts');
+    connsRef =  Firestore.instance.collection('connections');
+
+
   }
 
   @override
@@ -48,10 +62,9 @@ class homystate extends State<homy> {
   }
 
   onTap(int pageIndex) {
-    pageController.animateToPage(
+    pageController.jumpToPage(
       pageIndex,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+
     );
   }
 
@@ -71,8 +84,8 @@ class homystate extends State<homy> {
             },
           ),
           ActivityFeed(),
-          Upload(),
-          Search(),
+          Upload(curUser,usersRef,postsRef),
+          Search(usersRef),
           Profile(),
         ],
         controller: pageController,
@@ -82,18 +95,19 @@ class homystate extends State<homy> {
       bottomNavigationBar: CupertinoTabBar(
           currentIndex: pageIndex,
           onTap: onTap,
-          activeColor: Theme.of(context).primaryColor,
+          activeColor: Color.fromRGBO(24, 115, 172, 1),
+          inactiveColor: Colors.black,
           items: [
+            BottomNavigationBarItem(icon: Icon(Icons.near_me)),
             BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
-            BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.photo_camera,
                 size: 35.0,
               ),
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.search)),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle)),
+            BottomNavigationBarItem(icon: Icon(Icons.supervisor_account)),
+            BottomNavigationBarItem(icon: Icon(Icons.accessibility_new)),
           ]),
     );
   }

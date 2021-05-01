@@ -32,6 +32,7 @@ class _CreateAccountState extends State<CreateAccount> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: header(context,
+
           titleText: "Set up your profile", removeBackButton: true),
       body: ListView(
         children: <Widget>[
@@ -80,7 +81,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     height: 50.0,
                     width: 350.0,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: Color.fromRGBO(24, 115, 172, 1),
                       borderRadius: BorderRadius.circular(7.0),
                     ),
                     child: Center(

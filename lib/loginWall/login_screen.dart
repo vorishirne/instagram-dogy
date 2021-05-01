@@ -1,4 +1,5 @@
 import 'package:dodogy_challange/homyz.dart';
+import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
@@ -201,7 +202,8 @@ class LoginScree extends State<LoginScreen> {
       },
       onSubmitAnimationCompleted: () {
         Navigator.of(context).pushReplacement(FadePageRoute(
-          builder: (context) => homy(),
+          builder: (context) => sample_pagge(),
+
         ));
       },
       onRecoverPassword: (name) {
