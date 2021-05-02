@@ -31,9 +31,9 @@ void initState() {
       backgroundColor: Colors.white,
       appBar: AppBar(
           centerTitle: true,
-          elevation: 12,
+          elevation: 7,
           title: Text(
-            "Look for mah guys!",
+            "Mah guys!",
             style: TextStyle(color: Color.fromRGBO(24, 115, 172, 1),fontWeight: FontWeight.w300),
           ),
           actions: <Widget>[
@@ -133,29 +133,32 @@ class UserResult extends StatelessWidget {
           GestureDetector(
             onTap: () => print('tapped'),
             child: ListTile(
-              leading: CachedNetworkImage(
-                  imageUrl: user.photoUrl,
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        backgroundImage: imageProvider,
-                      ),
-                  errorWidget: (context, url, error) => new Icon(Icons.error)),
+              leading: Padding(
+                padding: const EdgeInsets.only(right:8.0),
+                child: CachedNetworkImage(
+                    imageUrl: user.photoUrl,
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          backgroundImage: imageProvider,
+                        ),
+                    errorWidget: (context, url, error) => new Icon(Icons.error)),
+              ),
               title: Text(
                 user.username,
                 style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
               ),
               subtitle: Text(
                 user.username,
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.grey,fontWeight: FontWeight.w300),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right:8.0,left: 8),
+            padding: const EdgeInsets.only(right:55.0,left: 55),
             child: Divider(
               height: 8.0,
-              color: Colors.grey,
+              color: Color.fromRGBO(24, 115, 172, 1),
             ),
           ),
         ],
@@ -174,14 +177,18 @@ class DataSearch extends SearchDelegate<String> {
     return [
       IconButton(
         icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
+          icon: AnimatedIcons.menu_close,
+          color: Color.fromRGBO(24, 115, 172, 1),
           progress: transitionAnimation,
         ),
-        onPressed: null,
+        onPressed: (){
+         query="";
+        },
       ),
       IconButton(
           icon: AnimatedIcon(
             icon: AnimatedIcons.list_view,
+            color: Color.fromRGBO(24, 115, 172, 1),
             progress: transitionAnimation,
           ),
           onPressed: null)
@@ -192,10 +199,13 @@ class DataSearch extends SearchDelegate<String> {
   Widget buildLeading(BuildContext context) {
     return IconButton(
       icon: AnimatedIcon(
-        icon: AnimatedIcons.search_ellipsis,
+        icon: AnimatedIcons.menu_arrow,
+        color: Color.fromRGBO(24, 115, 172, 1),
         progress: transitionAnimation,
       ),
-      onPressed: null,
+      onPressed: (){
+        close(context, null);
+      },
     );
   }
 
