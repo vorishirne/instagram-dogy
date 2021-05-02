@@ -93,22 +93,24 @@ class homystate extends State<homy> {
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
+        border: Border(top:BorderSide(color: Color.fromRGBO(24, 115, 172, 1),width: .5)),
         //backgroundColor: ,
           currentIndex: pageIndex,
           onTap: onTap,
+          backgroundColor: Colors.white,
           activeColor: Color.fromRGBO(24, 115, 172, 1),
-          inactiveColor: Color.fromRGBO(34, 135, 190, .29),
+          inactiveColor: Color.fromRGBO(34, 135, 190, .2),
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.near_me)),
-            BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.game_controller_solid)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.heart_solid)),
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.photo_camera,
                 size: 35.0,
               ),
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.supervisor_account)),
-            BottomNavigationBarItem(icon: Icon(Icons.accessibility_new)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.group_solid)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.book_solid)),
           ]),
     );
   }

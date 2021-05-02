@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 class Search extends StatefulWidget {
   final CollectionReference usersRef;
+
   Search(CollectionReference this.usersRef);
 
   @override
@@ -18,18 +19,40 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
-
-
+@override
+void initState() {
+    // TODO: implement initState
+    super.initState();
+    handleSearch();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: buildSearchField(),
-      body:
-          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
+      appBar: AppBar(
+          centerTitle: true,
+          elevation: 12,
+          title: Text(
+            "Look for mah guys!",
+            style: TextStyle(color: Color.fromRGBO(24, 115, 172, 1),fontWeight: FontWeight.w300),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                CupertinoIcons.search,
+                color: Color.fromRGBO(24, 115, 172, 1),
+                size: 40,
+
+              ),
+              onPressed: () {
+                showSearch(
+                    context: context, delegate: DataSearch(widget.usersRef));
+              },
+            )
+          ]),
+      body: searchResultsFuture==null ?  buildNoContent():buildSearchResults(),
     );
   }
-
 
 //=========================================================================================================================================
   Container buildNoContent() {
@@ -40,9 +63,9 @@ class _SearchState extends State<Search> {
           shrinkWrap: true,
           children: <Widget>[
             Image.asset('assets/images/search.png',
-                height: max(size.height / 8, size.width / 5)),
+                height: max(size.height / 7, size.width / 5)),
             Text(
-              "Get me some company.. . .",
+              "Get me some buddy.. . .",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color.fromRGBO(127, 127, 127, 1),
@@ -56,55 +79,15 @@ class _SearchState extends State<Search> {
       ),
     );
   }
-  handleSearch(String query) {
-    Future<QuerySnapshot> users = widget.usersRef
-        .where("username", isGreaterThanOrEqualTo: query)
-        .getDocuments();
-    print("me got that " + query);
-    setState(() {
-      if (query == "") {
-        searchResultsFuture = null;
-      } else {
-        searchResultsFuture = users;
-      }
-    });
-  }
-  AppBar buildSearchField() {
-    return AppBar(
-
-      backgroundColor: Color.fromRGBO(24, 115, 172, 1),
-      title: TextFormField(
-        controller: searchController,
-        decoration: InputDecoration(
-          hintText: "Search",
-          filled: true,
-          prefixIcon: Icon(
-            Icons.account_box,
-            size: 28.0,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.clear),
-            onPressed: clearSearch,
-          ),
-        ),
-        onChanged: handleSearch,
-      ),
-    );
-  }
-  clearSearch() {
-    setState(() {
-      searchController.clear();
-      searchResultsFuture = null;
-    });
-  }
   buildSearchResults() {
+  print("I am being(*&*(*()*((((((((((((((((((((((((((((((((((((((((((((((((((((((99");
     return FutureBuilder(
       future: searchResultsFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        List<UserResult> searchResults = [];
+        List<Widget> searchResults = [Padding(padding: EdgeInsets.only(top: 12))];
         snapshot.data.documents.forEach((doc) {
           User user = User.fromDocument(doc);
           UserResult searchResult = UserResult(user);
@@ -115,6 +98,24 @@ class _SearchState extends State<Search> {
         );
       },
     );
+  }
+  handleSearch() {
+    Future<QuerySnapshot> users = widget.usersRef
+        .where("username", isGreaterThanOrEqualTo: "as")
+        .getDocuments();
+
+    setState(() {
+        searchResultsFuture = users;
+    });
+  }
+
+
+
+  clearSearch() {
+    setState(() {
+      searchController.clear();
+      searchResultsFuture = null;
+    });
   }
 }
 
@@ -150,12 +151,89 @@ class UserResult extends StatelessWidget {
               ),
             ),
           ),
-          Divider(
-            height: 8.0,
-            color: Colors.grey,
+          Padding(
+            padding: const EdgeInsets.only(right:8.0,left: 8),
+            child: Divider(
+              height: 8.0,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class DataSearch extends SearchDelegate<String> {
+  final CollectionReference usersRef;
+
+  DataSearch(this.usersRef);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
+        ),
+        onPressed: null,
+      ),
+      IconButton(
+          icon: AnimatedIcon(
+            icon: AnimatedIcons.list_view,
+            progress: transitionAnimation,
+          ),
+          onPressed: null)
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.search_ellipsis,
+        progress: transitionAnimation,
+      ),
+      onPressed: null,
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    Future<QuerySnapshot> users = usersRef
+        .where("username", isGreaterThanOrEqualTo: query)
+        .getDocuments();
+    print("me got that " + query);
+    return buildSearchResults(users);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    Future<QuerySnapshot> users = usersRef
+        .where("username", isGreaterThanOrEqualTo: query)
+        .getDocuments();
+    print("me too got that " + query);
+    return buildSearchResults(users);
+  }
+
+  buildSearchResults(Future<QuerySnapshot> searchResultsFuture) {
+    return FutureBuilder(
+      future: searchResultsFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
+        List<UserResult> searchResults = [];
+        snapshot.data.documents.forEach((doc) {
+          User user = User.fromDocument(doc);
+          UserResult searchResult = UserResult(user);
+          searchResults.add(searchResult);
+        });
+        return ListView(
+          children: searchResults,
+        );
+      },
     );
   }
 }
