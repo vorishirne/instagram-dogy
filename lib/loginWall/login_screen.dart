@@ -115,7 +115,7 @@ class LoginScree extends State<LoginScreen> {
         //   ),
         buttonStyle: TextStyle(
           fontWeight: FontWeight.w600,
-          color: Color.fromRGBO(127, 127, 127, 1),
+          color: Color.fromRGBO(24, 115, 172, 1)
         ),
         //   cardTheme: CardTheme(
         //     color: Colors.yellow.shade100,
@@ -137,33 +137,33 @@ class LoginScree extends State<LoginScreen> {
           labelStyle: TextStyle(fontSize: 12, color: Colors.blueGrey),
           enabledBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: Color.fromRGBO(127, 127, 127, 1), width: .8),
+                BorderSide(color: Color.fromRGBO(24, 115, 172, 1), width: .8),
             borderRadius: inputBorder,
           ),
           focusedBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: Color.fromRGBO(127, 127, 127, 1), width: .8),
+                BorderSide(color: Color.fromRGBO(24, 115, 172, 1), width: .8),
             borderRadius: inputBorder,
           ),
           errorBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: Color.fromRGBO(127, 127, 127, 1), width: .8),
+                BorderSide(color: Color.fromRGBO(24, 115, 172, 1), width: .8),
             borderRadius: inputBorder,
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: Color.fromRGBO(127, 127, 127, 1), width: .8),
+                BorderSide(color: Color.fromRGBO(24, 115, 172, 1), width: .8),
             borderRadius: inputBorder,
           ),
           disabledBorder: OutlineInputBorder(
             borderSide:
-                BorderSide(color: Color.fromRGBO(127, 127, 127, 1), width: .8),
+                BorderSide(color: Color.fromRGBO(24, 115, 172, 1), width: .8),
             borderRadius: inputBorder,
           ),
         ),
         buttonTheme: LoginButtonTheme(
           splashColor: Color.fromRGBO(24, 115, 172, 1),
-          backgroundColor: Color(0xc9fffbea),
+          backgroundColor: Color.fromRGBO(222, 253, 255, .6),//Color(0xc9fffbea),
           highlightColor: Color.fromRGBO(222, 253, 255, 1),
           elevation: 9.0,
           highlightElevation: 6.0,

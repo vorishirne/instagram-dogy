@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:splashscreen/splashscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/create_account.dart';
 import 'package:dodogy_challange/pages/home.dart';
@@ -292,6 +292,19 @@ class MyApp extends State<StatefulApp> {
 //              ],
 //            )));
   }
+
+
+  Widget oops(story){
+    return new SplashScreen(
+      seconds: 5,
+      backgroundColor: Color.fromRGBO(222, 253, 255, 1),
+      image: Image.asset('assets/images/search.png'),
+      title: Text("dodoggy_challange"),
+      photoSize: 50.0,
+      loaderColor: Color.fromRGBO(24, 115, 172, .4),
+      navigateAfterSeconds: story(),
+    );
+  }
 Widget choose(){
     if(signed=="true"){
       return homy(cUser);
@@ -431,3 +444,7 @@ MaterialColor createMaterialColor(Color color) {
   });
   return MaterialColor(color.value, swatch);
 }
+
+
+
+

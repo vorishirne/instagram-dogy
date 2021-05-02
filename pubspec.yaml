@@ -39,6 +39,8 @@ dependencies:
   font_awesome_flutter: ^8.5.0
   intl: ^0.16.1
   url_launcher: 5.4.2
+  splashscreen:
+
 dependency_overrides:
   flushbar: ^1.10.2
 dev_dependencies:
@@ -90,8 +92,6 @@ flutter:
   assets:
   - assets/images/ep2.png
   - assets/images/ecorp.png
-  - assets/images/ecorp-lightblue.png
-  - assets/images/ecorp-lightgreen.png
   - assets/images/search.png
 
   fonts:

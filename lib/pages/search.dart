@@ -19,6 +19,19 @@ class _SearchState extends State<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: buildSearchField(),
+      body:
+          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
+    );
+  }
+
+
+//=========================================================================================================================================
   Container buildNoContent() {
     final Size size = MediaQuery.of(context).size;
     return Container(
@@ -43,7 +56,6 @@ class _SearchState extends State<Search> {
       ),
     );
   }
-
   handleSearch(String query) {
     Future<QuerySnapshot> users = widget.usersRef
         .where("username", isGreaterThanOrEqualTo: query)
@@ -57,7 +69,6 @@ class _SearchState extends State<Search> {
       }
     });
   }
-
   AppBar buildSearchField() {
     return AppBar(
 
@@ -80,14 +91,12 @@ class _SearchState extends State<Search> {
       ),
     );
   }
-
   clearSearch() {
     setState(() {
       searchController.clear();
       searchResultsFuture = null;
     });
   }
-
   buildSearchResults() {
     return FutureBuilder(
       future: searchResultsFuture,
@@ -105,16 +114,6 @@ class _SearchState extends State<Search> {
           children: searchResults,
         );
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: buildSearchField(),
-      body:
-          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
     );
   }
 }

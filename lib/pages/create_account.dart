@@ -30,10 +30,25 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext parentContext) {
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: header(context,
+      bottomNavigationBar: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right:23.0),
+            child: Image.asset("assets/images/ep2.png",height: MediaQuery.of(context).size.height*.42,),
 
-          titleText: "Set up your profile", removeBackButton: true),
+          ),
+        ],
+      ),
+      key: _scaffoldKey,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Let's first setup",style: TextStyle(color: Color.fromRGBO(24, 115, 172, 1)),),
+
+        elevation: 0,
+        backgroundColor: Colors.white,
+
+      ),
       body: ListView(
         children: <Widget>[
           Container(
@@ -43,8 +58,8 @@ class _CreateAccountState extends State<CreateAccount> {
                   padding: EdgeInsets.only(top: 25.0),
                   child: Center(
                     child: Text(
-                      "Create a username",
-                      style: TextStyle(fontSize: 25.0),
+                      "The only thing needed is how can we call ya..",
+                      style: TextStyle(fontSize: 15.0,color: Color(0Xff7f7f7f)),
                     ),
                   ),
                 ),
@@ -86,7 +101,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     ),
                     child: Center(
                       child: Text(
-                        "Submit",
+                        "Feels Recognizable",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.0,
@@ -95,9 +110,11 @@ class _CreateAccountState extends State<CreateAccount> {
                     ),
                   ),
                 ),
+
               ],
             ),
-          )
+          ),
+          //Positioned(child: Text("ok"),bottom: 2,right: 5,)
         ],
       ),
     );

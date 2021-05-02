@@ -95,7 +95,7 @@ MaterialColor createMaterialColor(Color color) {
   }
   strengths.forEach((strength) {
     final double ds = 0.5 - strength;
-    swatch[(strength * 1000).round()] = Color(0xc9fffbea);
+    swatch[(strength * 1000).round()] = Color.fromRGBO(222, 253, 255, .5);
   });
   return MaterialColor(color.value, swatch);
 }

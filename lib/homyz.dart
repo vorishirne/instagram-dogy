@@ -88,15 +88,16 @@ class homystate extends State<homy> {
           Search(usersRef),
           Profile(),
         ],
-        controller: pageController,
+        controller: pageController, 
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
+        //backgroundColor: ,
           currentIndex: pageIndex,
           onTap: onTap,
           activeColor: Color.fromRGBO(24, 115, 172, 1),
-          inactiveColor: Colors.black,
+          inactiveColor: Color.fromRGBO(34, 135, 190, .29),
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.near_me)),
             BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
