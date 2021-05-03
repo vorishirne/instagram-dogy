@@ -12,7 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:image_cropper/image_cropper.dart';
 class Upload extends StatefulWidget {
   final CollectionReference usersRef;
   final CollectionReference postsRef;
@@ -270,8 +270,9 @@ bottomNavigationBar: Container(width: 0,height: 0,),
       file = null;
     });
   }
-
+//#
   compressImage() async {
+
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
@@ -307,12 +308,14 @@ bottomNavigationBar: Container(width: 0,height: 0,),
       "likes": {},
     });
   }
-
+//$
   handleSubmit() async {
     setState(() {
       isUploading = true;
     });
-    await compressImage();
+
+    //await compressImage();
+
     String mediaUrl = await uploadImage(file);
     createPostInFirestore(
       mediaUrl: mediaUrl,
@@ -337,14 +340,17 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     setState(() {
       this.file = file;
     });
+    await cropImage();
   }
 
   handleChooseFromGallery() async {
     //
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
+
     setState(() {
       this.file = file;
     });
+    await cropImage();
     //Navigator.pop(context);
   }
 
@@ -446,4 +452,46 @@ bottomNavigationBar: Container(width: 0,height: 0,),
   bool get wantKeepAlive {
     return true;
   }
+
+  Future<Null> cropImage() async {
+    File croppedFile = await ImageCropper.cropImage(
+      compressQuality: 65,
+        sourcePath: file.path,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ]
+            : [
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio5x3,
+          CropAspectRatioPreset.ratio5x4,
+          CropAspectRatioPreset.ratio7x5,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Edit',
+            toolbarColor: Color.fromRGBO(24, 115, 172, 1),
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            activeControlsWidgetColor: Color.fromRGBO(24, 115, 172, 1),
+
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Edit',
+        ));
+    if (croppedFile != null) {
+
+      setState(() {
+        file= croppedFile;
+      });
+    }
+  }
+
 }
