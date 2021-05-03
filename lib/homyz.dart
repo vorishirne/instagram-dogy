@@ -7,11 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'models/user.dart';
+
 FirebaseAuth _auth = FirebaseAuth.instance;
 class homy extends StatefulWidget{
   final FirebaseUser user;
+  final User curruser;
   homy
-      (FirebaseUser this.user);
+      (FirebaseUser this.user, User this.curruser);
   @override
   homystate createState() => homystate();
 }
@@ -28,7 +31,7 @@ class homystate extends State<homy> {
   void initState() {
     super.initState();
     pageController = PageController();
-    curUser = widget.user;
+    //curUser = widget.user;
     usersRef =  Firestore.instance.collection('users');
     postsRef =  Firestore.instance.collection('posts');
     connsRef =  Firestore.instance.collection('connections');
@@ -84,7 +87,7 @@ class homystate extends State<homy> {
             },
           ),
           ActivityFeed(),
-          Upload(curUser,usersRef,postsRef),
+          Upload(widget.user,widget.curruser,usersRef,postsRef),
           Search(usersRef),
           Profile(),
         ],

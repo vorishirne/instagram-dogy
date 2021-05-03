@@ -91,6 +91,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
   - assets/images/ep2.png
+  - assets/images/upload.png
   - assets/images/ecorp.png
   - assets/images/search.png
 

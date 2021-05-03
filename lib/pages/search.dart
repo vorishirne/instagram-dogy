@@ -136,12 +136,12 @@ class UserResult extends StatelessWidget {
               leading: Padding(
                 padding: const EdgeInsets.only(right:8.0),
                 child: CachedNetworkImage(
-                    imageUrl: user.photoUrl,
+                    imageUrl: user.photoUrl??"https://www.asjfkfhdgihdknjskdjfeid.com",
                     imageBuilder: (context, imageProvider) => CircleAvatar(
                           backgroundColor: Colors.grey,
                           backgroundImage: imageProvider,
                         ),
-                    errorWidget: (context, url, error) => new Icon(Icons.error)),
+                    errorWidget: (context, url, error) => new Icon(CupertinoIcons.person_solid)),
               ),
               title: Text(
                 user.username,
@@ -155,10 +155,10 @@ class UserResult extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right:55.0,left: 55),
+            padding: const EdgeInsets.only(right:75.0,left: 75),
             child: Divider(
               height: 8.0,
-              color: Color.fromRGBO(24, 115, 172, 1),
+              color: Color.fromRGBO(222, 253, 255, 1),
             ),
           ),
         ],

@@ -35,8 +35,7 @@ FirebaseAuth _auth = FirebaseAuth.instance;
 final usersRef = Firestore.instance.collection('users');
 FirebaseUser cUser ;
 class MyApp extends State<StatefulApp> {
-  GoogleSignInAccount _currentUser;
-  String _message = '';
+
   String stale="";
   String _verificationId;
   GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -45,12 +44,13 @@ class MyApp extends State<StatefulApp> {
   @override
   void initState() {
     super.initState();
-    _auth.onAuthStateChanged.listen((FirebaseUser user) {
+    _auth.onAuthStateChanged.listen((FirebaseUser user) async{
       print(user);
 
       if (user == null) {
         stale="out";
         cUser=user;
+        currentUser=null;
         setState(() {
           signed = "false";
           _verificationId = "";
@@ -58,7 +58,9 @@ class MyApp extends State<StatefulApp> {
       } else {
         stale=="in";
         cUser=user;
-        createUserInFirestore();
+
+        await createUserInFirestore();
+        currentUser = User.fromDocument(await usersRef.document(user.uid).get());
         setState(() {
           signed = "true";
         });
@@ -120,27 +122,25 @@ class MyApp extends State<StatefulApp> {
   Future<String> verifyPhoneNumber(phonen) async {
     phonen = "+91" + phonen;
     setState(() {
-      _message = '';
+
     });
 
     final PhoneVerificationCompleted verificationCompleted = null;
     var a = (FirebaseUser phoneAuthCredential) {
       setState(() {
-        _message = "The message from ready made function" +
-            'Received phone auth credential: $phoneAuthCredential';
+
         print("The message from ready made function");
         print(phoneAuthCredential);
       });
       Navigator.of(context).popUntil((route) => route.isFirst);
       return Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (BuildContext context) => homy(cUser)));
+          MaterialPageRoute(builder: (BuildContext context) => homy(cUser,currentUser)));
     };
 
     final PhoneVerificationFailed verificationFailed =
         (AuthException authException) {
       setState(() {
-        _message =
-            'Oh yes Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}';
+
         print(authException);
       });
     };
@@ -307,7 +307,7 @@ class MyApp extends State<StatefulApp> {
   }
 Widget choose(){
     if(signed=="true"){
-      return homy(cUser);
+      return homy(cUser,currentUser);
     }
     if (signed=="false"){
       return loginPage();
