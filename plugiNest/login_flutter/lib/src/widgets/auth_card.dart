@@ -913,7 +913,7 @@ class _RecoverCardState extends State<_RecoverCard>
   Widget _buildRecoverNameField(
       double width, LoginMessages messages, Auth auth) {
     var maskFormatter = new MaskTextInputFormatter(
-        mask: '#-#-#-#-#-#', filter: {"#": RegExp(r'[0-9*]')});
+        mask: '#-#-#-#-#-#', filter: {"#": RegExp(r'[0-9]')});
     return AnimatedTextFormField(
       initialValue: "#-#-#-#-#-#",
       key: auth.vexKey,

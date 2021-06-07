@@ -13,7 +13,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:flutter_video_compress/flutter_video_compress.dart';
+
 class Upload extends StatefulWidget {
+
   final CollectionReference usersRef;
   final CollectionReference postsRef;
   final FirebaseUser user;
@@ -28,10 +31,12 @@ class Upload extends StatefulWidget {
 
 class _UploadState extends State<Upload>
     with AutomaticKeepAliveClientMixin<Upload> {
+  final _flutterVideoCompress = FlutterVideoCompress();
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   final StorageReference storageRef = FirebaseStorage.instance.ref();
   File file;
+  bool isPic = true;
   bool isUploading = false;
   String postId = Uuid().v4();
 
@@ -196,10 +201,13 @@ class _UploadState extends State<Upload>
 
 
   Widget withImage() {
+    print("is pic");
+    print(isPic);
     return
         Container(
           decoration: BoxDecoration(
-              image: DecorationImage(image: FileImage(file), fit: BoxFit.cover)),
+
+              image: DecorationImage(image: isPic ? FileImage(file) : AssetImage("assets/images/ep2.png"), fit: BoxFit.cover)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -272,22 +280,31 @@ bottomNavigationBar: Container(width: 0,height: 0,),
   }
 //#
   compressImage() async {
-
-    final tempDir = await getTemporaryDirectory();
-    final path = tempDir.path;
-    Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$postId.jpg')
-      ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 65));
+    print("####################################3");
+    print(file.path);
+    final MediaInfo info = await _flutterVideoCompress.compressVideo(
+      file.path,
+      deleteOrigin: false,
+      quality: VideoQuality.HighestQuality,
+    );
+    print("%^&^%#@#%^*U&^%");
+//    final tempDir = await getTemporaryDirectory();
+//    final path = tempDir.path;
+//    Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
+//    final compressedImageFile = File('$path/img_$postId.jpg')
+//      ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 65));
     setState(() {
-      file = compressedImageFile;
+      file = info.file;
     });
   }
-
+//windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
   Future<String> uploadImage(imageFile) async {
+    String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4"; 
     StorageUploadTask uploadTask =
-        storageRef.child("post_$postId.jpg").putFile(imageFile);
+        storageRef.child(name).putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
+    print(downloadUrl);
     return downloadUrl;
   }
 
@@ -315,6 +332,13 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     });
 
     //await compressImage();
+//yh hoga fir
+    //yh hoga fir
+    //yh hoga fir
+    //yh hoga fir //yh hoga fir
+    //yh hoga fir
+    //yh hoga fir
+    //yh hoga fir
 
     String mediaUrl = await uploadImage(file);
     createPostInFirestore(
@@ -332,7 +356,8 @@ bottomNavigationBar: Container(width: 0,height: 0,),
   }
 
   handleTakePhoto() async {
-    File file = await ImagePicker.pickImage(
+    isPic = true;
+        File file = await ImagePicker.pickImage(
       source: ImageSource.camera,
       maxHeight: 675,
       maxWidth: 960,
@@ -343,8 +368,37 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     await cropImage();
   }
 
+  handleTakeVideo() async {
+    isPic = false;
+    File file = await ImagePicker.pickVideo(
+      source: ImageSource.camera,
+    );
+    setState(() {
+      this.file = file;
+    });
+    await compressImage();
+  }
+
+  handleTakeVideoFromLibrary() async {
+    isPic = false;
+
+    File file = await ImagePicker.pickVideo(
+      source: ImageSource.gallery,
+    );
+    print("^^^^^^^^^^^^^^^^^^^^^^^^");
+    print(file.absolute);
+
+    final String path = (await getApplicationDocumentsDirectory()).path;
+    final File newImage = await file.copy("$path/xcv.mp4");
+    setState(() {
+      this.file = newImage;
+    });
+
+    await compressImage();
+  }
+
   handleChooseFromGallery() async {
-    //
+    isPic = true;
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -368,10 +422,23 @@ bottomNavigationBar: Container(width: 0,height: 0,),
                   handleTakePhoto();
                 }),
             FlatButton(
+                child: Text("Record with Camera"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  handleTakeVideo();
+                }),
+
+            FlatButton(
                 child: Text("Pick from Gallery"),
                 onPressed: () {
                   Navigator.pop(context);
                   handleChooseFromGallery();
+                }),
+            FlatButton(
+                child: Text("Pick from reel"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  handleTakeVideoFromLibrary();
                 }),
             FlatButton(
               child: Text(
