@@ -36,6 +36,7 @@ class _UploadState extends State<Upload>
   TextEditingController locationController = TextEditingController();
   final StorageReference storageRef = FirebaseStorage.instance.ref();
   File file;
+  File file2;
   bool isPic = true;
   bool isUploading = false;
   String postId = Uuid().v4();
@@ -206,8 +207,8 @@ class _UploadState extends State<Upload>
     return
         Container(
           decoration: BoxDecoration(
-
-              image: DecorationImage(image: isPic ? FileImage(file) : AssetImage("assets/images/ep2.png"), fit: BoxFit.cover)),
+              //AssetImage("assets/images/source.gif",)
+              image: DecorationImage(image: isPic ? FileImage(file) : Image.file(file2).image, fit: BoxFit.cover)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -232,7 +233,7 @@ class _UploadState extends State<Upload>
     super.build(context);
     return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.white70,
+            backgroundColor: Colors.white,
             centerTitle: true,
             title: Text(
               "Caption Post",
@@ -279,22 +280,32 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     });
   }
 //#
-  compressImage() async {
+  compressImage(File filed) async {
+    final snackBar = SnackBar(content: Text('Yay! Your Video is right on the way there!'),duration: Duration(seconds: 1000),backgroundColor: Color.fromRGBO(24, 115, 172, 1),);
+    Scaffold.of(context).showSnackBar(snackBar);
     print("####################################3");
-    print(file.path);
+    print(filed.path);
     final MediaInfo info = await _flutterVideoCompress.compressVideo(
-      file.path,
+      filed.path,
       deleteOrigin: false,
       quality: VideoQuality.HighestQuality,
     );
     print("%^&^%#@#%^*U&^%");
+    final File filex = await _flutterVideoCompress.convertVideoToGif(
+      info.file.path,
+      startTime: 0, // default(0)
+      duration: 5, // default(-1)
+       endTime: -1 // default(-1)
+    );
 //    final tempDir = await getTemporaryDirectory();
 //    final path = tempDir.path;
 //    Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
 //    final compressedImageFile = File('$path/img_$postId.jpg')
 //      ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 65));
+    Scaffold.of(context).hideCurrentSnackBar();
     setState(() {
       file = info.file;
+      file2 = filex;
     });
   }
 //windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
@@ -370,31 +381,33 @@ bottomNavigationBar: Container(width: 0,height: 0,),
 
   handleTakeVideo() async {
     isPic = false;
-    File file = await ImagePicker.pickVideo(
+    File filed = await ImagePicker.pickVideo(
       source: ImageSource.camera,
     );
-    setState(() {
-      this.file = file;
-    });
-    await compressImage();
+    await compressImage(filed);
+//    setState(() {
+//      this.file = file2;
+//    });
+
   }
 
   handleTakeVideoFromLibrary() async {
     isPic = false;
 
-    File file = await ImagePicker.pickVideo(
+    File filed = await ImagePicker.pickVideo(
       source: ImageSource.gallery,
     );
     print("^^^^^^^^^^^^^^^^^^^^^^^^");
-    print(file.absolute);
+    print(filed.absolute);
 
     final String path = (await getApplicationDocumentsDirectory()).path;
-    final File newImage = await file.copy("$path/xcv.mp4");
-    setState(() {
-      this.file = newImage;
-    });
+    final File newImage = await filed.copy("$path/xcv.mp4");
+    await compressImage(newImage);
+//    setState(() {
+//      this.file = newImage;
+//    });
 
-    await compressImage();
+
   }
 
   handleChooseFromGallery() async {

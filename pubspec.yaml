@@ -98,6 +98,7 @@ flutter:
   - assets/images/upload.png
   - assets/images/ecorp.png
   - assets/images/search.png
+  - assets/images/source.gif
 
   fonts:
     - family: OpenSans
