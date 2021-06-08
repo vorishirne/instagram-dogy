@@ -101,7 +101,7 @@ void initState() {
   }
   handleSearch() {
     Future<QuerySnapshot> users = widget.usersRef
-        .where("username", isGreaterThanOrEqualTo: "as")
+        .where("username", isGreaterThanOrEqualTo: "a")
         .getDocuments();
 
     setState(() {
@@ -212,22 +212,22 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     Future<QuerySnapshot> users = usersRef
-        .where("username", isGreaterThanOrEqualTo: query)
+        .where("username", isGreaterThanOrEqualTo: "a")
         .getDocuments();
     print("me got that " + query);
-    return buildSearchResults(users);
+    return buildSearchResults(users,query);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     Future<QuerySnapshot> users = usersRef
-        .where("username", isGreaterThanOrEqualTo: query)
+        .where("username", isGreaterThanOrEqualTo: "a")
         .getDocuments();
     print("me too got that " + query);
-    return buildSearchResults(users);
+    return buildSearchResults(users,query);
   }
 
-  buildSearchResults(Future<QuerySnapshot> searchResultsFuture) {
+  buildSearchResults(Future<QuerySnapshot> searchResultsFuture,String query) {
     return FutureBuilder(
       future: searchResultsFuture,
       builder: (context, snapshot) {
@@ -237,8 +237,18 @@ class DataSearch extends SearchDelegate<String> {
         List<UserResult> searchResults = [];
         snapshot.data.documents.forEach((doc) {
           User user = User.fromDocument(doc);
+
+          String xmas =user.username.toLowerCase();
+          print("xxx");
+          print(xmas);
+          print(query == "");
+          print(user.photoUrl);
+          print(xmas.contains(query.toLowerCase()));
+
+          if ((query == "" && user.photoUrl !=null) || (query != "" && xmas.contains(query.toLowerCase())) ){
+            print(user.username);
           UserResult searchResult = UserResult(user);
-          searchResults.add(searchResult);
+          searchResults.add(searchResult);}
         });
         return ListView(
           children: searchResults,

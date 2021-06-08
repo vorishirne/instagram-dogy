@@ -181,9 +181,13 @@ class LoginScree extends State<LoginScreen> {
         return null;
       },
       passwordValidator: (value) {
-        if (!(value.length == 11)) {
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5");
+        print(value);
+        if (!(value.replaceAll('-', '').length == 6)) {
+
           return "OTP should be 6 barks long";
         }
+          print(value.replaceAll('|', '').length);
         return null;
       },
       onLogin: (loginData) {
