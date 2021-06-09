@@ -285,32 +285,31 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     Scaffold.of(context).showSnackBar(snackBar);
     print("####################################3");
     print(filed.path);
-    final MediaInfo info = await _flutterVideoCompress.compressVideo(
-      filed.path,
-      deleteOrigin: false,
-      quality: VideoQuality.HighestQuality,
-    );
     print("%^&^%#@#%^*U&^%");
     final File filex = await _flutterVideoCompress.convertVideoToGif(
-      info.file.path,
+      filed.path,
       startTime: 0, // default(0)
-      duration: 5, // default(-1)
+      duration: 3, // default(-1)
        endTime: -1 // default(-1)
     );
-//    final tempDir = await getTemporaryDirectory();
-//    final path = tempDir.path;
-//    Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-//    final compressedImageFile = File('$path/img_$postId.jpg')
-//      ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 65));
     Scaffold.of(context).hideCurrentSnackBar();
     setState(() {
-      file = info.file;
+      file = filed;
       file2 = filex;
     });
   }
 //windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
   Future<String> uploadImage(imageFile) async {
-    String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4"; 
+    String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4";
+    if (!isPic){
+
+      final MediaInfo info = await _flutterVideoCompress.compressVideo(
+        imageFile.path,
+        deleteOrigin: false,
+        quality: VideoQuality.HighestQuality,
+      );
+      imageFile = info.file;
+    }
     StorageUploadTask uploadTask =
         storageRef.child(name).putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
