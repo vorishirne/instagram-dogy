@@ -18,6 +18,7 @@ class User {
   });
 
   factory User.fromDocument(DocumentSnapshot doc) {
+
     return User(
       id: doc['id'],
       email: doc['email'],

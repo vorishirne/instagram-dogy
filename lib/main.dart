@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/create_account.dart';
-import 'package:dodogy_challange/pages/home.dart';
-import 'package:dodogy_challange/homyz.dart';
+//import 'package:dodogy_challange/pages/home.dart';
+import 'package:dodogy_challange/homyz.dart' hide currentUser;
 import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +17,19 @@ import 'package:flutter_login/src/widgets/animated_text_form_field.dart';
 import 'models/user.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       systemNavigationBarColor:
           SystemUiOverlayStyle.dark.systemNavigationBarColor,
     ),
   );
+  Firestore.instance.settings(timestampsInSnapshotsEnabled: true).then((_) {
+    print("Timestamps enabled in snapshots\n");
+  }, onError: (_) {
+    print("Error enabling timestamps in snapshots\n");
+  });
+  //WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(home: StatefulApp()));
 }
 
@@ -30,7 +37,7 @@ class StatefulApp extends StatefulWidget {
   @override
   MyApp createState() => MyApp();
 }
-
+User currentUser;
 FirebaseAuth _auth = FirebaseAuth.instance;
 final usersRef = Firestore.instance.collection('users');
 FirebaseUser cUser ;
@@ -106,7 +113,7 @@ class MyApp extends State<StatefulApp> {
 
       // 3) get username from create account, use it to make new user document in users collection
       final DateTime timestamp = DateTime.now();
-
+      final followersRef = Firestore.instance.collection('followers');
       usersRef.document(user.uid).setData({
         "id": user.uid,
         "username": username,
@@ -116,6 +123,11 @@ class MyApp extends State<StatefulApp> {
         "bio": "",
         "timestamp": timestamp
       });
+      followersRef
+          .document(user.uid)
+          .collection('userFollowers')
+          .document(user.uid)
+          .setData({});
     }
   }
 

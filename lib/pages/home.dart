@@ -12,7 +12,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 
-User currentUser;
+
 
 class Home extends StatefulWidget {
   @override
@@ -78,7 +78,7 @@ class _HomeState extends State<Home> {
       doc = await usersRef.document(user.id).get();
     }
 
-    currentUser = User.fromDocument(doc);
+    //currentUser = User.fromDocument(doc);
   }
 
   @override

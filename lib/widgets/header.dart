@@ -5,14 +5,14 @@ AppBar header(context,
   return AppBar(
     automaticallyImplyLeading: removeBackButton ? false : true,
     title: Text(
-      isAppTitle ? "FlutterShare" : titleText,
+      isAppTitle ? "Dodogy" : titleText,
       style: TextStyle(
-        color: Colors.white,
-        fontFamily: isAppTitle ? "Signatra" : "",
-        fontSize: isAppTitle ? 50.0 : 22.0,
-      ),
+          color: Color.fromRGBO(24, 115, 172, 1),
+          fontWeight: FontWeight.w300),
+
+      overflow: TextOverflow.ellipsis,
     ),
+    backgroundColor: Colors.white,
     centerTitle: true,
-    backgroundColor: Theme.of(context).accentColor,
   );
 }

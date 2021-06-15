@@ -54,7 +54,7 @@ class _UploadState extends State<Upload>
                     backgroundImage: imageProvider,
                   ),
               errorWidget: (context, url, error) =>
-                  new Icon(CupertinoIcons.person_solid)),
+                  new Icon(CupertinoIcons.person_solid,size: 20,)),
           title: Container(
             width: 250.0,
             child: TextField(

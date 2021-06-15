@@ -149,7 +149,7 @@ class UserResult extends StatelessWidget {
                     TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
               ),
               subtitle: Text(
-                user.username,
+                user.displayName,
                 style: TextStyle(color: Colors.grey,fontWeight: FontWeight.w300),
               ),
             ),

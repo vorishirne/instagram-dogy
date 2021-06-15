@@ -3,38 +3,59 @@ import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/profile.dart';
 import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/pages/upload.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'models/user.dart';
 
-FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseAuth vauth = _auth;
+//FirebaseUser curUser;
+CollectionReference usersRef;
+CollectionReference postsRef;
+CollectionReference commentsRef;
+CollectionReference activityFeedRef;
+CollectionReference followersRef;
+CollectionReference followingRef;
+CollectionReference timelineRef;
+StorageReference storageRef ;
+FirebaseUser user;
+User curruser;
+User currentUser;
+
 class homy extends StatefulWidget{
-  final FirebaseUser user;
-  final User curruser;
+  final FirebaseUser userx;
+  final User curruserx;
   homy
-      (FirebaseUser this.user, User this.curruser);
+      (FirebaseUser this.userx, User this.curruserx) ;
+
   @override
   homystate createState() => homystate();
 }
 
 class homystate extends State<homy> {
-  FirebaseUser curUser;
-  CollectionReference usersRef;
-  CollectionReference postsRef;
-  CollectionReference connsRef;
+
   PageController pageController;
   int pageIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    user = widget.userx;
+    curruser = widget.curruserx;
+    currentUser = widget.curruserx;
     pageController = PageController();
     //curUser = widget.user;
     usersRef =  Firestore.instance.collection('users');
     postsRef =  Firestore.instance.collection('posts');
-    connsRef =  Firestore.instance.collection('connections');
+    commentsRef = Firestore.instance.collection('comments');
+    activityFeedRef = Firestore.instance.collection('feed');
+    followersRef = Firestore.instance.collection('followers');
+    followingRef = Firestore.instance.collection('following');
+    timelineRef = Firestore.instance.collection('timeline');
+    storageRef = FirebaseStorage.instance.ref();
 
 
   }
@@ -87,9 +108,9 @@ class homystate extends State<homy> {
             },
           ),
           ActivityFeed(),
-          Upload(widget.user,widget.curruser,usersRef,postsRef),
+          Upload(user,curruser,usersRef,postsRef),
           Search(usersRef),
-          Profile(),
+          Profile(profileId: curruser.id,),
         ],
         controller: pageController, 
         onPageChanged: onPageChanged,

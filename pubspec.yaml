@@ -26,11 +26,12 @@ dependencies:
   geolocator: 5.0.1
   uuid: ^2.0.0
   image: ^2.0.7
-  animator: 0.1.4
+  animator: 1.0.0+5
   cupertino_icons: ^0.1.2
   path_provider: ^1.6.1
   firebase_messaging: ^4.0.0+1
   timeago: 2.0.17
+  video_player: ^0.10.11+2
   cached_network_image:
   flutter_svg:
   progress_dialog: ^1.2.2
