@@ -21,6 +21,8 @@ class Post extends StatefulWidget {
   final String description;
   final String mediaUrl;
   final dynamic likes;
+  final bool addDivider;
+  final BuildContext masterContext;
 
   Post({
     this.postId,
@@ -30,9 +32,11 @@ class Post extends StatefulWidget {
     this.description,
     this.mediaUrl,
     this.likes,
+    this.addDivider = false,
+    this.masterContext = null
   });
 
-  factory Post.fromDocument(DocumentSnapshot doc,{bool addDivider = false}) {
+  factory Post.fromDocument(DocumentSnapshot doc,{bool addDivider = false, BuildContext masterContext = null}) {
     return Post(
       postId: doc['postId'],
       ownerId: doc['ownerId'],
@@ -41,6 +45,8 @@ class Post extends StatefulWidget {
       description: doc['description'],
       mediaUrl: doc['mediaUrl'],
       likes: doc['likes'],
+      addDivider: addDivider,
+      masterContext : masterContext
     );
   }
 
@@ -150,6 +156,9 @@ class _PostState extends State<Post> {
                   onPressed: () {
                     Navigator.pop(context);
                     deletePost();
+                    if (widget.masterContext != null){
+                      Navigator.pop(widget.masterContext);
+                    }
 
 
                   },
@@ -398,13 +407,13 @@ class _PostState extends State<Post> {
         buildPostHeader(context),
         buildPostImage(),
         buildPostFooter(),
-        Padding(
+        (widget.addDivider)? Padding(
           padding: const EdgeInsets.only(right:75.0,left: 75,top:20,bottom: 20),
           child: Divider(
             height: 8.0,
             color: Color.fromRGBO(222, 253, 255, 1),
           ),
-        )
+        ):Text(""),
       ],
     );
   }
