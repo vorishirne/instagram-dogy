@@ -1,11 +1,12 @@
 import 'dart:math';
-
+import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:dodogy_challange/homyz.dart';
 
 class Search extends StatefulWidget {
   final CollectionReference usersRef;
@@ -16,17 +17,22 @@ class Search extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
-class _SearchState extends State<Search> {
+class _SearchState extends State<Search>
+    with AutomaticKeepAliveClientMixin<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
-@override
-void initState() {
+
+  @override
+  void initState() {
     // TODO: implement initState
     super.initState();
-    handleSearch();
   }
+
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -34,7 +40,9 @@ void initState() {
           elevation: 7,
           title: Text(
             "Mah guys!",
-            style: TextStyle(color: Color.fromRGBO(24, 115, 172, 1),fontWeight: FontWeight.w300),
+            style: TextStyle(
+                color: Color.fromRGBO(24, 115, 172, 1),
+                fontWeight: FontWeight.w300),
           ),
           actions: <Widget>[
             IconButton(
@@ -42,7 +50,6 @@ void initState() {
                 CupertinoIcons.search,
                 color: Color.fromRGBO(24, 115, 172, 1),
                 size: 40,
-
               ),
               onPressed: () {
                 showSearch(
@@ -50,7 +57,7 @@ void initState() {
               },
             )
           ]),
-      body: searchResultsFuture==null ?  buildNoContent():buildSearchResults(),
+      body: buildSearchResults(),
     );
   }
 
@@ -65,7 +72,7 @@ void initState() {
             Image.asset('assets/images/search.png',
                 height: max(size.height / 7, size.width / 5)),
             Text(
-              "Get me some buddy.. . .",
+              "ComeOn! Get me some company.. . .",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color.fromRGBO(127, 127, 127, 1),
@@ -79,37 +86,68 @@ void initState() {
       ),
     );
   }
+
   buildSearchResults() {
-  print("I am being(*&*(*()*((((((((((((((((((((((((((((((((((((((((((((((((((((((99");
-    return FutureBuilder(
-      future: searchResultsFuture,
+    print(
+        "I am being(*&*(*()*((((((((((((((((((((((((((((((((((((((((((((((((((((((99");
+    return StreamBuilder(
+      stream: followingRef
+          .document(currentUser.id)
+          .collection('userFollowing')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        List<Widget> searchResults = [Padding(padding: EdgeInsets.only(top: 12))];
-        snapshot.data.documents.forEach((doc) {
-          User user = User.fromDocument(doc);
-          UserResult searchResult = UserResult(user);
-          searchResults.add(searchResult);
-        });
-        return ListView(
-          children: searchResults,
-        );
+
+        deef() async {
+          List<Widget> searchResults = [
+
+            Padding(padding: EdgeInsets.only(top: 12)),
+          ];
+          await Future.forEach(snapshot.data.documents,  (doc) async {
+            print("this is that");
+            print(doc.documentID);
+            DocumentSnapshot doc2 =
+                await usersRef.document(doc.documentID).get();
+            print(doc2["username"] + "dsd");
+            User user = User.fromDocument(doc2);
+            print(user.username + "as");
+            UserResult searchResult = UserResult(user);
+
+            searchResults.add(searchResult);
+          });
+
+          return searchResults;
+        }
+
+        return FutureBuilder(
+            future: deef(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return circularProgress();
+              } else {
+                print("I want to know");
+                if(snapshot.data.length == 1){
+                  return buildNoContent();
+                }
+                return ListView(children:snapshot.data);
+              }
+            });
       },
     );
   }
+
   handleSearch() {
-    Future<QuerySnapshot> users = widget.usersRef
-        .where("username", isGreaterThanOrEqualTo: "a")
-        .getDocuments();
-
-    setState(() {
-        searchResultsFuture = users;
-    });
+    return
+//    widget.usersRef
+//        .where("username", isGreaterThanOrEqualTo: "a")
+//        .getDocuments();
+        followingRef
+            .document(currentUser.id)
+            .collection('userFollowing')
+            .snapshots();
   }
-
-
 
   clearSearch() {
     setState(() {
@@ -131,17 +169,20 @@ class UserResult extends StatelessWidget {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () => print('tapped'),
+            onTap: () => showProfile(context, profileId: user.id),
             child: ListTile(
               leading: Padding(
-                padding: const EdgeInsets.only(right:8.0),
+                padding: const EdgeInsets.only(right: 8.0),
                 child: CachedNetworkImage(
-                    imageUrl: user.photoUrl??"https://www.asjfkfhdgihdknjskdjfeid.com",
+                    imageUrl: user.photoUrl ??
+                        "https://www.asjfkfhdgihdknjskdjfeid.com",
                     imageBuilder: (context, imageProvider) => CircleAvatar(
                           backgroundColor: Colors.grey,
                           backgroundImage: imageProvider,
                         ),
-                    errorWidget: (context, url, error) => new Icon(CupertinoIcons.person_solid)),
+                    errorWidget: (context, url, error) => Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(CupertinoIcons.person_solid))),
               ),
               title: Text(
                 user.username,
@@ -150,12 +191,13 @@ class UserResult extends StatelessWidget {
               ),
               subtitle: Text(
                 user.displayName,
-                style: TextStyle(color: Colors.grey,fontWeight: FontWeight.w300),
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.w300),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right:75.0,left: 75),
+            padding: const EdgeInsets.only(right: 75.0, left: 75),
             child: Divider(
               height: 8.0,
               color: Color.fromRGBO(222, 253, 255, 1),
@@ -181,8 +223,8 @@ class DataSearch extends SearchDelegate<String> {
           color: Color.fromRGBO(24, 115, 172, 1),
           progress: transitionAnimation,
         ),
-        onPressed: (){
-         query="";
+        onPressed: () {
+          query = "";
         },
       ),
       IconButton(
@@ -203,7 +245,7 @@ class DataSearch extends SearchDelegate<String> {
         color: Color.fromRGBO(24, 115, 172, 1),
         progress: transitionAnimation,
       ),
-      onPressed: (){
+      onPressed: () {
         close(context, null);
       },
     );
@@ -211,23 +253,21 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    Future<QuerySnapshot> users = usersRef
-        .where("username", isGreaterThanOrEqualTo: "a")
-        .getDocuments();
+    Future<QuerySnapshot> users =
+        usersRef.where("username", isGreaterThanOrEqualTo: "a").getDocuments();
     print("me got that " + query);
-    return buildSearchResults(users,query);
+    return buildSearchResults(users, query);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    Future<QuerySnapshot> users = usersRef
-        .where("username", isGreaterThanOrEqualTo: "a")
-        .getDocuments();
+    Future<QuerySnapshot> users =
+        usersRef.where("username", isGreaterThanOrEqualTo: "a").getDocuments();
     print("me too got that " + query);
-    return buildSearchResults(users,query);
+    return buildSearchResults(users, query);
   }
 
-  buildSearchResults(Future<QuerySnapshot> searchResultsFuture,String query) {
+  buildSearchResults(Future<QuerySnapshot> searchResultsFuture, String query) {
     return FutureBuilder(
       future: searchResultsFuture,
       builder: (context, snapshot) {
@@ -238,17 +278,19 @@ class DataSearch extends SearchDelegate<String> {
         snapshot.data.documents.forEach((doc) {
           User user = User.fromDocument(doc);
 
-          String xmas =user.username.toLowerCase();
+          String xmas = user.username.toLowerCase();
           print("xxx");
           print(xmas);
           print(query == "");
           print(user.photoUrl);
           print(xmas.contains(query.toLowerCase()));
 
-          if ((query == "" && user.photoUrl !=null) || (query != "" && xmas.contains(query.toLowerCase())) ){
+          if ((query == "" && user.photoUrl != null) ||
+              (query != "" && xmas.contains(query.toLowerCase()))) {
             print(user.username);
-          UserResult searchResult = UserResult(user);
-          searchResults.add(searchResult);}
+            UserResult searchResult = UserResult(user);
+            searchResults.add(searchResult);
+          }
         });
         return ListView(
           children: searchResults,

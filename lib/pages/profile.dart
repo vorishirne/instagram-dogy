@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/pages/edit_profile.dart';
 import 'package:dodogy_challange/homyz.dart';
@@ -11,6 +10,7 @@ import 'package:dodogy_challange/widgets/post.dart';
 import 'package:dodogy_challange/widgets/post_tile.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'dart:math';
+
 class Profile extends StatefulWidget {
   final String profileId;
 
@@ -20,14 +20,16 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile>
+    with AutomaticKeepAliveClientMixin<Profile> {
   final String currentUserId = currentUser?.id;
   String postOrientation = "grid";
   bool isFollowing = false;
   bool isLoading = false;
-  int postCount = 0;
+  int postCount = -1;
   int followerCount = 0;
   int followingCount = 0;
+  int tempflrcount = 0;
   List<Post> posts = [];
 
   @override
@@ -82,7 +84,7 @@ class _ProfileState extends State<Profile> {
     setState(() {
       isLoading = false;
       postCount = snapshot.documents.length;
-      posts = snapshot.documents.map((doc) => Post.fromDocument(doc,addDivider: true)).toList();
+      tempflrcount = postCount;
     });
   }
 
@@ -92,7 +94,7 @@ class _ProfileState extends State<Profile> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Text(
-          count.toString(),
+          (count > 0 ? count : 0).toString(),
           style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
         ),
         Container(
@@ -240,8 +242,10 @@ class _ProfileState extends State<Profile> {
     return FutureBuilder(
         future: usersRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data == null ) {
-            return SizedBox(height: 200,);//cll
+          if (!snapshot.hasData || snapshot.data == null) {
+            return SizedBox(
+              height: 200,
+            ); //cll
           }
           User user = User.fromDocument(snapshot.data);
           return Padding(
@@ -251,17 +255,19 @@ class _ProfileState extends State<Profile> {
                 Row(
                   children: <Widget>[
                     CachedNetworkImage(
-                        imageUrl:
-                        user.photoUrl ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
+                        imageUrl: user.photoUrl ??
+                            "https://www.asjfkfhdgihdknjskdjfeid.com",
                         imageBuilder: (context, imageProvider) => CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          backgroundImage: imageProvider,
-                          radius: 40,
-                        ),
-                        errorWidget: (context, url, error) => new Icon(
-                          CupertinoIcons.person_solid,
-                          size: 20,
-                        )),
+                              backgroundColor: Colors.grey,
+                              backgroundImage: imageProvider,
+                              radius: 40,
+                            ),
+                        errorWidget: (context, url, error) => Container(
+                            color: Colors.white10,
+                            padding: EdgeInsets.all(25),
+                            child: Icon(
+                              CupertinoIcons.person_solid,
+                            ))),
                     Expanded(
                       flex: 1,
                       child: Column(
@@ -271,8 +277,8 @@ class _ProfileState extends State<Profile> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               buildCountColumn("posts", postCount),
-                              buildCountColumn("followers", followerCount),
-                              buildCountColumn("following", followingCount),
+                              buildCountColumn("followers", followerCount - 1),
+                              buildCountColumn("following", followingCount - 1),
                             ],
                           ),
                           Row(
@@ -315,7 +321,7 @@ class _ProfileState extends State<Profile> {
                     user.bio,
                     style: TextStyle(
                       fontWeight: FontWeight.w300,
-                      color:Colors.black38,
+                      color: Colors.black38,
                     ),
                   ),
                 ),
@@ -326,11 +332,12 @@ class _ProfileState extends State<Profile> {
   }
 
   buildProfilePosts() {
-    if (isLoading) {
+    if (postCount == -1) {
       return circularProgress();
-    } else if (posts.isEmpty) {
+    } else if (postCount == 0) {
       final Size size = MediaQuery.of(context).size;
-      return Container(
+      return Padding(
+        padding: EdgeInsets.only(top: 120),
         child: Center(
           child: ListView(
             shrinkWrap: true,
@@ -351,31 +358,49 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       );
-
-    } else if (postOrientation == "grid") {
-      List<GridTile> gridTiles = [];
-      posts.forEach((post) {
-        gridTiles.add(GridTile(child: PostTile(post)));
-      });
-      return GridView.count(
-        crossAxisCount: 3,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 1.5,
-        crossAxisSpacing: 1.5,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: gridTiles,
-      );
-    } else if (postOrientation == "list") {
-      return Column(
-        children: posts,
-      );
+    } else {
+      return StreamBuilder(
+          stream: postsRef
+              .document(widget.profileId)
+              .collection('userPosts')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return circularProgress();
+            } else {
+              tempflrcount = snapshot.data.documents.length;
+              if (postOrientation == "grid") {
+                List<GridTile> gridTiles = [];
+                snapshot.data.documents.forEach((post) {
+                  gridTiles
+                      .add(GridTile(child: PostTile(Post.fromDocument(post))));
+                });
+                return GridView.count(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.0,
+                  mainAxisSpacing: 1.5,
+                  crossAxisSpacing: 1.5,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: gridTiles,
+                );
+              } else if (postOrientation == "list") {
+                List<Post> postsa = [];
+                snapshot.data.documents.forEach((post) {
+                  postsa.add(Post.fromDocument(post, addDivider: true));
+                });
+                return Column(children: postsa);
+              }
+            }
+          });
     }
   }
 
   setPostOrientation(String postOrientation) {
     setState(() {
       this.postOrientation = postOrientation;
+      postCount = tempflrcount;
     });
   }
 
@@ -401,8 +426,11 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: header(context, titleText: "Profile"),
       body: ListView(
@@ -412,7 +440,6 @@ class _ProfileState extends State<Profile> {
           buildTogglePostOrientation(),
           Divider(
             height: 0.0,
-
           ),
           buildProfilePosts(),
         ],

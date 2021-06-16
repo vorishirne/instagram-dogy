@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/pages/post_screen.dart';
 import 'package:dodogy_challange/widgets/custom_image.dart';
 import 'package:dodogy_challange/widgets/post.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 
 class PostTile extends StatelessWidget {
   final Post post;
@@ -45,12 +45,12 @@ class VideoItem extends StatefulWidget{
 }
 
 class _VideoItemState extends State<VideoItem> {
-  VideoPlayerController _controller;
+  CachedVideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.url)
+    _controller = CachedVideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {});  //when your thumbnail will show.
       });
@@ -67,7 +67,7 @@ class _VideoItemState extends State<VideoItem> {
     return _controller.value.initialized
           ? Container(
 
-        child: VideoPlayer(_controller),
+        child: CachedVideoPlayer(_controller),
       )
           : CircularProgressIndicator();
 

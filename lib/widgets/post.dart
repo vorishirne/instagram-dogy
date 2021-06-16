@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/models/user.dart';
@@ -10,8 +10,6 @@ import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/comments.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/widgets/custom_image.dart';
-import 'package:dodogy_challange/widgets/progress.dart';
-import 'package:video_player/video_player.dart';
 
 class Post extends StatefulWidget {
   final String postId;
@@ -24,30 +22,29 @@ class Post extends StatefulWidget {
   final bool addDivider;
   final BuildContext masterContext;
 
-  Post({
-    this.postId,
-    this.ownerId,
-    this.username,
-    this.location,
-    this.description,
-    this.mediaUrl,
-    this.likes,
-    this.addDivider = false,
-    this.masterContext = null
-  });
+  Post(
+      {this.postId,
+      this.ownerId,
+      this.username,
+      this.location,
+      this.description,
+      this.mediaUrl,
+      this.likes,
+      this.addDivider = false,
+      this.masterContext});
 
-  factory Post.fromDocument(DocumentSnapshot doc,{bool addDivider = false, BuildContext masterContext = null}) {
+  factory Post.fromDocument(DocumentSnapshot doc,
+      {bool addDivider = false, BuildContext masterContext}) {
     return Post(
-      postId: doc['postId'],
-      ownerId: doc['ownerId'],
-      username: doc['username'],
-      location: doc['location'],
-      description: doc['description'],
-      mediaUrl: doc['mediaUrl'],
-      likes: doc['likes'],
-      addDivider: addDivider,
-      masterContext : masterContext
-    );
+        postId: doc['postId'],
+        ownerId: doc['ownerId'],
+        username: doc['username'],
+        location: doc['location'],
+        description: doc['description'],
+        mediaUrl: doc['mediaUrl'],
+        likes: doc['likes'],
+        addDivider: addDivider,
+        masterContext: masterContext);
   }
 
   int getLikeCount(likes) {
@@ -107,7 +104,9 @@ class _PostState extends State<Post> {
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return SizedBox(height: 30,);
+          return SizedBox(
+            height: 80,
+          );
         }
         User user = User.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == ownerId;
@@ -156,11 +155,9 @@ class _PostState extends State<Post> {
                   onPressed: () {
                     Navigator.pop(context);
                     deletePost();
-                    if (widget.masterContext != null){
+                    if (widget.masterContext != null) {
                       Navigator.pop(widget.masterContext);
                     }
-
-
                   },
                   child: Text(
                     'Delete',
@@ -194,10 +191,9 @@ class _PostState extends State<Post> {
       print("This was not a photo");
     }
 
-    try{
+    try {
       storageRef.child("post_$postId.mp4").delete();
-    }
-    catch(e){
+    } catch (e) {
       print("This was not a vid");
     }
 //
@@ -257,6 +253,7 @@ class _PostState extends State<Post> {
         likeCount += 1;
         isLiked = true;
         likes[currentUserId] = true;
+
         showHeart = true;
       });
       Timer(Duration(milliseconds: 500), () {
@@ -305,12 +302,15 @@ class _PostState extends State<Post> {
 
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
+    final VideoItem v = VideoItem(mediaUrl);
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          vid ? VideoItem(mediaUrl,GlobalKey<State<StatefulWidget>>()) : cachedNetworkImage(mediaUrl),
+          vid
+              ? v
+              : cachedNetworkImage(mediaUrl),
           showHeart
               ? Animator(
                   duration: Duration(milliseconds: 300),
@@ -407,13 +407,16 @@ class _PostState extends State<Post> {
         buildPostHeader(context),
         buildPostImage(),
         buildPostFooter(),
-        (widget.addDivider)? Padding(
-          padding: const EdgeInsets.only(right:75.0,left: 75,top:20,bottom: 20),
-          child: Divider(
-            height: 8.0,
-            color: Color.fromRGBO(222, 253, 255, 1),
-          ),
-        ):Text(""),
+        (widget.addDivider)
+            ? Padding(
+                padding: const EdgeInsets.only(
+                    right: 75.0, left: 75, top: 20, bottom: 20),
+                child: Divider(
+                  height: 8.0,
+                  color: Color.fromRGBO(222, 253, 255, 1),
+                ),
+              )
+            : Text(""),
       ],
     );
   }
@@ -430,26 +433,29 @@ showComments(BuildContext context,
   }));
 }
 
-
-class VideoItem extends StatefulWidget{
+class VideoItem extends StatefulWidget {
   final String url;
-  VideoItem(String this.url,GlobalKey key):super(key: key);
+
+  VideoItem(this.url);
+
   @override
   _VideoItemState createState() => _VideoItemState();
 }
 
 class _VideoItemState extends State<VideoItem> {
-  VideoPlayerController _controller;
+  CachedVideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
+
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.url)
+    _controller = CachedVideoPlayerController.network(widget.url)
       ..initialize().then((_) {
-        setState(() {});  //when your thumbnail will show.
+        setState(() {}); //when your thumbnail will show.
       });
     _initializeVideoPlayerFuture = _controller.initialize();
   }
+
   @override
   void dispose() {
     // Ensure disposing of the VideoPlayerController to free up resources.
@@ -457,8 +463,6 @@ class _VideoItemState extends State<VideoItem> {
 
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -469,29 +473,31 @@ class _VideoItemState extends State<VideoItem> {
           // If the VideoPlayerController has finished initialization, use
           // the data it provides to limit the aspect ratio of the VideoPlayer.
           _controller.setLooping(true);
-          return GestureDetector(child:AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            // Use the VideoPlayer widget to display the video.
-            child: VideoPlayer(_controller),
-          ),
-          onTap:
-              () {
-            // Wrap the play or pause in a call to `setState`. This ensures the
-            // correct icon is shown
-            setState(() {
-              // If the video is playing, pause it.
+          return GestureDetector(
+              child: AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                // Use the VideoPlayer widget to display the video.
+                child: CachedVideoPlayer(_controller),
+              )
+              ,
+              onTap: () {
+                // Wrap the play or pause in a call to `setState`. This ensures the
+                // correct icon is shown
+                setState(() {
+                  // If the video is playing, pause it.
 
-              if (_controller.value.isPlaying) {
+                  if (_controller.value.isPlaying) {
                     _controller.pause();
-              } else {
-                // If the video is paused, play it.
-                _controller.play();
-              }            });          }          );
+                  } else {
+                    // If the video is paused, play it.
+                    _controller.play();
+                  }
+                });
+              });
         } else {
           return Center(child: CircularProgressIndicator());
         }
       },
     );
-
   }
 }

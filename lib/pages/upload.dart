@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:dodogy_challange/models/user.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image/image.dart' as Im;
@@ -16,7 +17,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
 
 class Upload extends StatefulWidget {
-
   final CollectionReference usersRef;
   final CollectionReference postsRef;
   final FirebaseUser user;
@@ -53,14 +53,16 @@ class _UploadState extends State<Upload>
                     backgroundColor: Colors.grey,
                     backgroundImage: imageProvider,
                   ),
-              errorWidget: (context, url, error) =>
-                  new Icon(CupertinoIcons.person_solid,size: 20,)),
+              errorWidget: (context, url, error) => new Icon(
+                    CupertinoIcons.person_solid,
+                    size: 20,
+                  )),
           title: Container(
             width: 250.0,
             child: TextField(
               controller: captionController,
               decoration: InputDecoration(
-                hintText: "Write a caption...",
+                hintText: "Write a story...",
                 border: InputBorder.none,
               ),
             ),
@@ -78,7 +80,7 @@ class _UploadState extends State<Upload>
             child: TextField(
               controller: locationController,
               decoration: InputDecoration(
-                hintText: "Where was this photo taken?",
+                hintText: "Where was this media taken?",
                 border: InputBorder.none,
               ),
             ),
@@ -153,7 +155,7 @@ class _UploadState extends State<Upload>
         GestureDetector(
           onTap: getUserLocation,
           child: Padding(
-            padding: const EdgeInsets.only(left: 28.0,bottom: 28,top:8),
+            padding: const EdgeInsets.only(left: 28.0, bottom: 28, top: 8),
             child: Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -167,109 +169,136 @@ class _UploadState extends State<Upload>
   }
 
   Widget noImge() {
-    return
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Container(
+        height:  MediaQuery.of(context).orientation == Orientation.portrait ?
+          MediaQuery.of(context).size.height -
+              //kBottomNavigationBarHeight -
+              MediaQuery.of(context).padding.top -
+              MediaQuery.of(context).padding.bottom -
+              kToolbarHeight -
+              50 :
+
+            MediaQuery.of(context).size.height -
+                //kBottomNavigationBarHeight -
+                MediaQuery.of(context).padding.top -
+                MediaQuery.of(context).padding.bottom -
+                kToolbarHeight -
+                50  + MediaQuery.of(context).size.height * .27,
+//              CupertinoTabBar(
+//                items: [
+//                  BottomNavigationBarItem(
+//                      icon: Icon(CupertinoIcons.game_controller_solid)),
+//                  BottomNavigationBarItem(
+//                      icon: Icon(CupertinoIcons.game_controller_solid))
+//                ],
+//              ).preferredSize.height,
+
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             uploadItem(),
-            Padding(
-              padding: EdgeInsets.only(top: 10.0),
-            ),
+
             mainOptions(),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 file == null
                     ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 23.0),
-                      child: Image.asset(
-                        "assets/images/upload.png",
-                        height: MediaQuery.of(context).size.height * .27,
-                      ),
-                    ),
-                  ],
-                ): Container(width: 0.0, height: 0.0)
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(right: 23.0),
+                            child: Image.asset(
+                              "assets/images/upload.png",
+                              height: MediaQuery.of(context).size.height * .27,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container(width: 0.0, height: 0.0)
               ],
             )
           ],
-
-    );
+        ));
   }
-
-
 
   Widget withImage() {
     print("is pic");
     print(isPic);
-    return
-        Container(
-          decoration: BoxDecoration(
-              //AssetImage("assets/images/source.gif",)
-              image: DecorationImage(image: isPic ? FileImage(file) : Image.file(file2).image, fit: BoxFit.cover)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Column(
-                  children: <Widget>[
-                    bottomOptions(),
-                    isUploading ? linearProgress() : Container(width: 0.0, height: 0.0),
-
-                  ],
-                ),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+          //AssetImage("assets/images/source.gif",)
+          image: DecorationImage(
+              image: isPic ? FileImage(file) : Image.file(file2).image,
+              fit: BoxFit.cover)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Column(
+              children: <Widget>[
+                bottomOptions(),
+                isUploading
+                    ? linearProgress()
+                    : Container(width: 0.0, height: 0.0),
+              ],
+            ),
           ),
-        )
-      ;
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            title: Text(
-              "Caption Post",
-              style: TextStyle(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          "Caption Post",
+          style: TextStyle(
+              color: Color.fromRGBO(24, 115, 172, 1),
+              fontWeight: FontWeight.w300),
+        ),
+        leading: file == null
+            ? Text("")
+            : IconButton(
+                icon: Icon(
+                  CupertinoIcons.clear_thick,
                   color: Color.fromRGBO(24, 115, 172, 1),
-                  fontWeight: FontWeight.w300),
-            ),
-            leading: file == null
-                ? Text("")
-                : IconButton(
-                    icon: Icon(
-                      CupertinoIcons.clear_thick,
+                ),
+                onPressed: clearImage,
+              ),
+        actions: file == null
+            ? null
+            : [
+                FlatButton(
+                  onPressed: isUploading ? null : () => handleSubmit(),
+                  child: Text(
+                    "Post",
+                    style: TextStyle(
                       color: Color.fromRGBO(24, 115, 172, 1),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 20.0,
                     ),
-                    onPressed: clearImage,
                   ),
-            actions:file == null
-                ? null
-                :  [
-              FlatButton(
-                      onPressed: isUploading ? null : () => handleSubmit(),
-                      child: Text(
-                        "Post",
-                        style: TextStyle(
-                          color: Color.fromRGBO(24, 115, 172, 1),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 20.0,
-                        ),
-                      ),
-                    ),
-            ],
-          ),
-          body: file == null ? noImge() : withImage(),
-bottomNavigationBar: Container(width: 0,height: 0,),
-        );
-
+                ),
+              ],
+      ), //boldy
+      body: file == null ? LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        return ListView(
+            children: <Widget>[noImge() ]);
+      }) : withImage(),
+      bottomNavigationBar: Container(
+        width: 0,
+        height: 0,
+      ),
+    );
 
     ;
   }
@@ -279,30 +308,34 @@ bottomNavigationBar: Container(width: 0,height: 0,),
       file = null;
     });
   }
+
 //#
   compressImage(File filed) async {
-    final snackBar = SnackBar(content: Text('Yay! Your Video is right on the way there!'),duration: Duration(seconds: 1000),backgroundColor: Color.fromRGBO(24, 115, 172, 1),);
+    final snackBar = SnackBar(
+      content: Text('Yay! Your Video is right on the way there!'),
+      duration: Duration(seconds: 1000),
+      backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+    );
     Scaffold.of(context).showSnackBar(snackBar);
     print("####################################3");
     print(filed.path);
     print("%^&^%#@#%^*U&^%");
-    final File filex = await _flutterVideoCompress.convertVideoToGif(
-      filed.path,
-      startTime: 0, // default(0)
-      duration: 3, // default(-1)
-       endTime: -1 // default(-1)
-    );
+    final File filex = await _flutterVideoCompress.convertVideoToGif(filed.path,
+        startTime: 0, // default(0)
+        duration: 3, // default(-1)
+        endTime: -1 // default(-1)
+        );
     Scaffold.of(context).hideCurrentSnackBar();
     setState(() {
       file = filed;
       file2 = filex;
     });
   }
+
 //windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
   Future<String> uploadImage(imageFile) async {
     String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4";
-    if (!isPic){
-
+    if (!isPic) {
       final MediaInfo info = await _flutterVideoCompress.compressVideo(
         imageFile.path,
         deleteOrigin: false,
@@ -310,11 +343,16 @@ bottomNavigationBar: Container(width: 0,height: 0,),
       );
       imageFile = info.file;
     }
-    StorageUploadTask uploadTask =
-        storageRef.child(name).putFile(imageFile);
+    StorageUploadTask uploadTask = storageRef.child(name).putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     print(downloadUrl);
+    final snackBar = SnackBar(
+      content: Text('Media Shared!'),
+      duration: Duration(seconds: 2),
+      backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+    );
+    Scaffold.of(context).showSnackBar(snackBar);
     return downloadUrl;
   }
 
@@ -335,6 +373,7 @@ bottomNavigationBar: Container(width: 0,height: 0,),
       "likes": {},
     });
   }
+
 //$
   handleSubmit() async {
     setState(() {
@@ -367,7 +406,7 @@ bottomNavigationBar: Container(width: 0,height: 0,),
 
   handleTakePhoto() async {
     isPic = true;
-        File file = await ImagePicker.pickImage(
+    File file = await ImagePicker.pickImage(
       source: ImageSource.camera,
       maxHeight: 675,
       maxWidth: 960,
@@ -387,7 +426,6 @@ bottomNavigationBar: Container(width: 0,height: 0,),
 //    setState(() {
 //      this.file = file2;
 //    });
-
   }
 
   handleTakeVideoFromLibrary() async {
@@ -405,8 +443,6 @@ bottomNavigationBar: Container(width: 0,height: 0,),
 //    setState(() {
 //      this.file = newImage;
 //    });
-
-
   }
 
   handleChooseFromGallery() async {
@@ -439,7 +475,6 @@ bottomNavigationBar: Container(width: 0,height: 0,),
                   Navigator.pop(context);
                   handleTakeVideo();
                 }),
-
             FlatButton(
                 child: Text("Pick from Gallery"),
                 onPressed: () {
@@ -466,14 +501,14 @@ bottomNavigationBar: Container(width: 0,height: 0,),
   }
 
   Padding uploadItem() => Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(0.0),
         child: Container(
           width: 200.0,
           height: 100.0,
           alignment: Alignment.center,
           child: RaisedButton.icon(
             label: Text(
-              "Pick a pic!",
+              "Pick a story!",
               style: TextStyle(color: Colors.white),
             ),
             shape: RoundedRectangleBorder(
@@ -523,7 +558,7 @@ bottomNavigationBar: Container(width: 0,height: 0,),
     String completeAddress =
         '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
     print(completeAddress);
-    String formattedAddress = "${placemark.locality}, ${placemark.country}";
+    String formattedAddress = "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality},${placemark.locality}";
     locationController.text = formattedAddress;
   }
 
@@ -534,43 +569,40 @@ bottomNavigationBar: Container(width: 0,height: 0,),
 
   Future<Null> cropImage() async {
     File croppedFile = await ImageCropper.cropImage(
-      compressQuality: 65,
+        compressQuality: 65,
         sourcePath: file.path,
         aspectRatioPresets: Platform.isAndroid
             ? [
-          CropAspectRatioPreset.square,
-          CropAspectRatioPreset.ratio3x2,
-          CropAspectRatioPreset.original,
-          CropAspectRatioPreset.ratio4x3,
-          CropAspectRatioPreset.ratio16x9
-        ]
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ]
             : [
-          CropAspectRatioPreset.original,
-          CropAspectRatioPreset.square,
-          CropAspectRatioPreset.ratio3x2,
-          CropAspectRatioPreset.ratio4x3,
-          CropAspectRatioPreset.ratio5x3,
-          CropAspectRatioPreset.ratio5x4,
-          CropAspectRatioPreset.ratio7x5,
-          CropAspectRatioPreset.ratio16x9
-        ],
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio5x3,
+                CropAspectRatioPreset.ratio5x4,
+                CropAspectRatioPreset.ratio7x5,
+                CropAspectRatioPreset.ratio16x9
+              ],
         androidUiSettings: AndroidUiSettings(
             toolbarTitle: 'Edit',
             toolbarColor: Color.fromRGBO(24, 115, 172, 1),
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             activeControlsWidgetColor: Color.fromRGBO(24, 115, 172, 1),
-
             lockAspectRatio: false),
         iosUiSettings: IOSUiSettings(
           title: 'Edit',
         ));
     if (croppedFile != null) {
-
       setState(() {
-        file= croppedFile;
+        file = croppedFile;
       });
     }
   }
-
 }

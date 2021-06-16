@@ -6,6 +6,7 @@ import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/widgets/header.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:dodogy_challange/pages/activity_feed.dart';
 
 class Comments extends StatefulWidget {
   final String postId;
@@ -20,10 +21,10 @@ class Comments extends StatefulWidget {
 
   @override
   CommentsState createState() => CommentsState(
-    postId: this.postId,
-    postOwnerId: this.postOwnerId,
-    postMediaUrl: this.postMediaUrl,
-  );
+        postId: this.postId,
+        postOwnerId: this.postOwnerId,
+        postMediaUrl: this.postMediaUrl,
+      );
 }
 
 class CommentsState extends State<Comments> {
@@ -137,23 +138,25 @@ class Comment extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        ListTile(
-          title: Text(comment),
-          leading: CachedNetworkImage(
-              imageUrl: avatarUrl ??
-                  "https://www.asjfkfhdgihdknjskdjfeid.com",
-              imageBuilder: (context, imageProvider) => CircleAvatar(
-                backgroundColor: Colors.grey,
-                backgroundImage: imageProvider,
-              ),
-              errorWidget: (context, url, error) => new Icon(
-                CupertinoIcons.person_solid,
-                color: Color.fromRGBO(24, 115, 172, 1),
-              )),
-          subtitle: Text(timeago.format(timestamp.toDate())),
-        ),
+        GestureDetector(
+            onTap: () => showProfile(context, profileId: userId),
+            child: ListTile(
+              title: Text(comment),
+              leading: CachedNetworkImage(
+                  imageUrl:
+                      avatarUrl ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: imageProvider,
+                      ),
+                  errorWidget: (context, url, error) => new Icon(
+                        CupertinoIcons.person_solid,
+                        color: Color.fromRGBO(24, 115, 172, 1),
+                      )),
+              subtitle: Text(timeago.format(timestamp.toDate())),
+            )),
         Padding(
-          padding: const EdgeInsets.only(right:75.0,left: 75),
+          padding: const EdgeInsets.only(right: 75.0, left: 75),
           child: Divider(
             height: 8.0,
             color: Color.fromRGBO(222, 253, 255, 1),

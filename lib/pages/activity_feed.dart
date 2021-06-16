@@ -23,9 +23,16 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .orderBy('timestamp', descending: true)
         .limit(50)
         .getDocuments();
-    List<ActivityFeedItem> feedItems = [];
+    List<Widget> feedItems = [];
     snapshot.documents.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
+      feedItems.add(Padding(
+        padding: const EdgeInsets.only(right: 75.0, left: 75),
+        child: Divider(
+          height: 8.0,
+          color: Color.fromRGBO(222, 253, 255, 1),
+        ),
+      ));
       // print('Activity Feed Item: ${doc.data}');
     });
     return feedItems;
@@ -34,20 +41,20 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange,
+      backgroundColor: Colors.white10,
       appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
-            future: getActivityFeed(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return circularProgress();
-              }
-              return ListView(
-                children: snapshot.data,
-              );
-            },
-          )),
+        future: getActivityFeed(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          return ListView(
+            children: snapshot.data,
+          );
+        },
+      )),
     );
   }
 }
@@ -95,7 +102,7 @@ class ActivityFeedItem extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => PostScreen(
           postId: postId,
-          userId: userId,
+          userId: currentUser.id, //userId,
         ),
       ),
     );
@@ -109,8 +116,7 @@ class ActivityFeedItem extends StatelessWidget {
           height: 50.0,
           width: 50.0,
           child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: cachedNetworkImageLead(mediaUrl)),
+              aspectRatio: 16 / 9, child: cachedNetworkImageLead(mediaUrl)),
         ),
       );
     } else {
@@ -133,49 +139,48 @@ class ActivityFeedItem extends StatelessWidget {
     configureMediaPreview(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 2.0),
-      child: Container(
-        color: Colors.white54,
-        child: ListTile(
-          title: GestureDetector(
+        padding: EdgeInsets.only(bottom: 2.0),
+        child: Container(
+          color: Colors.white10,
+          child: GestureDetector(
             onTap: () => showProfile(context, profileId: userId),
-            child: RichText(
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: username,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            child: ListTile(
+              title: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black,
                     ),
-                    TextSpan(
-                      text: ' $activityItemText',
-                    ),
-                  ]),
+                    children: [
+                      TextSpan(
+                        text: username,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: ' $activityItemText',
+                      ),
+                    ]),
+              ),
+              leading: CachedNetworkImage(
+                  imageUrl: userProfileImg ??
+                      "https://www.asjfkfhdgihdknjskdjfeid.com",
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: imageProvider,
+                      ),
+                  errorWidget: (context, url, error) => new Icon(
+                        CupertinoIcons.person_solid,
+                        color: Color.fromRGBO(24, 115, 172, 1),
+                      )),
+              subtitle: Text(
+                timeago.format(timestamp.toDate()),
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: mediaPreview,
             ),
           ),
-          leading: CachedNetworkImage(
-              imageUrl: userProfileImg ??
-                  "https://www.asjfkfhdgihdknjskdjfeid.com",
-              imageBuilder: (context, imageProvider) => CircleAvatar(
-                backgroundColor: Colors.grey,
-                backgroundImage: imageProvider,
-              ),
-              errorWidget: (context, url, error) => new Icon(
-                CupertinoIcons.person_solid,
-                color: Color.fromRGBO(24, 115, 172, 1),
-              )),
-          subtitle: Text(
-            timeago.format(timestamp.toDate()),
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: mediaPreview,
-        ),
-      ),
-    );
+        ));
   }
 }
 
