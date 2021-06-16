@@ -31,7 +31,7 @@ class Post extends StatefulWidget {
       this.mediaUrl,
       this.likes,
       this.addDivider = false,
-      this.masterContext}):super(key: UniqueKey())
+      this.masterContext}):super(key: ValueKey(postId))
       ;
 
   factory Post.fromDocument(DocumentSnapshot doc,
@@ -106,7 +106,7 @@ class _PostState extends State<Post> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox(
-            height: 80,
+            height: 72,
           );
         }
         User user = User.fromDocument(snapshot.data);

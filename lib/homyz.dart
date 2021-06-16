@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/profile.dart';
 import 'package:dodogy_challange/pages/search.dart';
+import 'package:dodogy_challange/pages/timeline.dart';
 import 'package:dodogy_challange/pages/upload.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -100,13 +101,13 @@ class homystate extends State<homy> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          // Timeline(),
-          RaisedButton(
-            child: Text('Logout'),
-            onPressed: () async {
-            await  _goToLogin(context);
-            },
-          ),
+           Timeline(currentUser: curruser,),
+//          RaisedButton(
+//            child: Text('Logout'),
+//            onPressed: () async {
+//            await  _goToLogin(context);
+//            },
+//          ),
           ActivityFeed(),
           Upload(user,curruser,usersRef,postsRef),
           Search(usersRef),

@@ -116,11 +116,11 @@ class _ProfileState extends State<Profile>
     );
   }
 
-  editProfile() {
+  editProfile(contextx) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => EditProfile(currentUserId: currentUserId)));
+            builder: (contex) => EditProfile(currentUserId: currentUserId,mastercontext: contextx,)));
   }
 
   Container buildButton({String text, Function function}) {
@@ -157,7 +157,7 @@ class _ProfileState extends State<Profile>
     if (isProfileOwner) {
       return buildButton(
         text: "Edit Profile",
-        function: editProfile,
+        function: (){editProfile(context);},
       );
     } else if (isFollowing) {
       return buildButton(

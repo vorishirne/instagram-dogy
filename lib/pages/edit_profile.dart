@@ -5,13 +5,14 @@ import "package:flutter/material.dart";
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
+import 'package:dodogy_challange/widgets/header.dart';
 
 
 
 class EditProfile extends StatefulWidget {
   final String currentUserId;
-
-  EditProfile({this.currentUserId});
+  final BuildContext mastercontext;
+  EditProfile({this.currentUserId,this.mastercontext});
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -88,7 +89,7 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  updateProfileData() {
+  updateProfileData(BuildContext contextx) {
     setState(() {
       displayNameController.text.trim().length < 3 ||
           displayNameController.text.isEmpty
@@ -104,8 +105,13 @@ class _EditProfileState extends State<EditProfile> {
         "displayName": displayNameController.text,
         "bio": bioController.text,
       });
-      SnackBar snackbar = SnackBar(content: Text("Profile updated!"));
-      _scaffoldKey.currentState.showSnackBar(snackbar);
+      final snackBar = SnackBar(
+        content: Text('Profile Updated!'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+      );
+      Scaffold.of(widget.mastercontext).showSnackBar(snackBar);
+      Navigator.of(widget.mastercontext).pop();
     }
   }
 
@@ -122,25 +128,7 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          "Edit Profile",
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.done,
-              size: 30.0,
-              color: Colors.green,
-            ),
-          ),
-        ],
-      ),
+      appBar: header(context,titleText: "Edit your profile!"),
       body: isLoading
           ? circularProgress()
           : ListView(
@@ -175,17 +163,17 @@ class _EditProfileState extends State<EditProfile> {
                     ],
                   ),
                 ),
-                RaisedButton(
-                  onPressed: updateProfileData,
+                RaisedButton(color: Color.fromRGBO(24, 115, 172, 1),
+                  onPressed: (){updateProfileData(context);},
                   child: Text(
-                    "Update Profile",
+                    "  Update  ",
                     style: TextStyle(
-                      color: Theme.of(context).primaryColor,
+                      color: Colors.black87,
                       fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
+                elevation: 12,),
                 Padding(
                   padding: EdgeInsets.all(16.0),
                   child: FlatButton.icon(
