@@ -185,6 +185,7 @@ class ActivityFeedItem extends StatelessWidget {
 }
 
 showProfile(BuildContext context, {String profileId}) {
+  Navigator.of(context).popUntil((route) => route.isFirst);
   Navigator.push(
     context,
     MaterialPageRoute(

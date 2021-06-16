@@ -31,7 +31,8 @@ class Post extends StatefulWidget {
       this.mediaUrl,
       this.likes,
       this.addDivider = false,
-      this.masterContext});
+      this.masterContext}):super(key: UniqueKey())
+      ;
 
   factory Post.fromDocument(DocumentSnapshot doc,
       {bool addDivider = false, BuildContext masterContext}) {
@@ -110,7 +111,9 @@ class _PostState extends State<Post> {
         }
         User user = User.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == ownerId;
-        return ListTile(
+        return GestureDetector(
+            onTap: () => showProfile(context, profileId: user.id),
+        child: ListTile(
           leading: CachedNetworkImage(
               imageUrl:
                   user.photoUrl ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
@@ -118,20 +121,20 @@ class _PostState extends State<Post> {
                     backgroundColor: Colors.grey,
                     backgroundImage: imageProvider,
                   ),
-              errorWidget: (context, url, error) => new Icon(
+              errorWidget: (context, url, error) => Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Icon(
                     CupertinoIcons.person_solid,
-                    size: 20,
-                  )),
-          title: GestureDetector(
-            onTap: () => showProfile(context, profileId: user.id),
-            child: Text(
+                    color: Colors.black,
+                  ))),
+          title: Text(
               user.username,
               style: TextStyle(
                 color: Color.fromRGBO(24, 115, 172, 1),
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+
           subtitle: Text(location),
           trailing: isPostOwner
               ? IconButton(
@@ -139,7 +142,7 @@ class _PostState extends State<Post> {
                   icon: Icon(Icons.more_vert),
                 )
               : Text(''),
-        );
+        ));
       },
     );
   }
@@ -308,9 +311,7 @@ class _PostState extends State<Post> {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          vid
-              ? v
-              : cachedNetworkImage(mediaUrl),
+          vid ? v : cachedNetworkImage(mediaUrl),
           showHeart
               ? Animator(
                   duration: Duration(milliseconds: 300),
@@ -478,8 +479,7 @@ class _VideoItemState extends State<VideoItem> {
                 aspectRatio: _controller.value.aspectRatio,
                 // Use the VideoPlayer widget to display the video.
                 child: CachedVideoPlayer(_controller),
-              )
-              ,
+              ),
               onTap: () {
                 // Wrap the play or pause in a call to `setState`. This ensures the
                 // correct icon is shown

@@ -23,6 +23,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile>
     with AutomaticKeepAliveClientMixin<Profile> {
   final String currentUserId = currentUser?.id;
+
   String postOrientation = "grid";
   bool isFollowing = false;
   bool isLoading = false;
@@ -53,38 +54,41 @@ class _ProfileState extends State<Profile>
   }
 
   getFollowers() async {
-    QuerySnapshot snapshot = await followersRef
+    followersRef
         .document(widget.profileId)
         .collection('userFollowers')
-        .getDocuments();
-    setState(() {
-      followerCount = snapshot.documents.length;
+        .snapshots()
+        .listen((event) {
+      setState(() {
+        followerCount = event.documents.length;
+      });
     });
   }
 
   getFollowing() async {
-    QuerySnapshot snapshot = await followingRef
+    followingRef
         .document(widget.profileId)
         .collection('userFollowing')
-        .getDocuments();
-    setState(() {
-      followingCount = snapshot.documents.length;
+        .snapshots()
+        .listen((event) {
+      setState(() {
+        print("olka");
+        followingCount = event.documents.length;
+      });
     });
   }
 
   getProfilePosts() async {
-    setState(() {
-      isLoading = true;
-    });
-    QuerySnapshot snapshot = await postsRef
+    postsRef
         .document(widget.profileId)
         .collection('userPosts')
-        .orderBy('timestamp', descending: true)
-        .getDocuments();
-    setState(() {
-      isLoading = false;
-      postCount = snapshot.documents.length;
-      tempflrcount = postCount;
+
+        .snapshots()
+        .listen((event) {
+      setState(() {
+        print("i made a mistake");
+        postCount = event.documents.length;
+      });
     });
   }
 
@@ -248,6 +252,7 @@ class _ProfileState extends State<Profile>
             ); //cll
           }
           User user = User.fromDocument(snapshot.data);
+          print("ole ole ole");
           return Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -332,75 +337,79 @@ class _ProfileState extends State<Profile>
   }
 
   buildProfilePosts() {
-    if (postCount == -1) {
-      return circularProgress();
-    } else if (postCount == 0) {
-      final Size size = MediaQuery.of(context).size;
-      return Padding(
-        padding: EdgeInsets.only(top: 120),
-        child: Center(
-          child: ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              Image.asset('assets/images/search.png',
-                  height: max(size.height / 7, size.width / 5)),
-              Text(
-                "No meme for me.. . .",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color.fromRGBO(127, 127, 127, 1),
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.w200,
-                  fontSize: 20.0,
+    //return Text("");
+    return StreamBuilder(
+        stream: postsRef
+            .document(widget.profileId)
+            .collection('userPosts')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          } else {
+            tempflrcount = snapshot.data.documents.length;
+            print("okhla");
+//            WidgetsBinding.instance.addPostFrameCallback((_) {
+//              setState(() {
+//                postCount = tempflrcount;
+//              });
+//            });
+            if (tempflrcount == 0) {
+              final Size size = MediaQuery.of(context).size;
+              return Padding(
+                padding: EdgeInsets.only(top: 120),
+                child: Center(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: <Widget>[
+                      Image.asset('assets/images/search.png',
+                          height: max(size.height / 7, size.width / 5)),
+                      Text(
+                        "No meme for me.. . .",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color.fromRGBO(127, 127, 127, 1),
+                          fontStyle: FontStyle.normal,
+                          fontWeight: FontWeight.w200,
+                          fontSize: 20.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return StreamBuilder(
-          stream: postsRef
-              .document(widget.profileId)
-              .collection('userPosts')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return circularProgress();
-            } else {
-              tempflrcount = snapshot.data.documents.length;
-              if (postOrientation == "grid") {
-                List<GridTile> gridTiles = [];
-                snapshot.data.documents.forEach((post) {
-                  gridTiles
-                      .add(GridTile(child: PostTile(Post.fromDocument(post))));
-                });
-                return GridView.count(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.0,
-                  mainAxisSpacing: 1.5,
-                  crossAxisSpacing: 1.5,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: gridTiles,
-                );
-              } else if (postOrientation == "list") {
-                List<Post> postsa = [];
-                snapshot.data.documents.forEach((post) {
-                  postsa.add(Post.fromDocument(post, addDivider: true));
-                });
-                return Column(children: postsa);
-              }
+              );
             }
-          });
-    }
+            if (postOrientation == "grid") {
+              List<GridTile> gridTiles = [];
+              snapshot.data.documents.forEach((post) {
+                gridTiles
+                    .add(GridTile(child: PostTile(Post.fromDocument(post))));
+              });
+              return GridView.count(
+                crossAxisCount: 3,
+                childAspectRatio: 1.0,
+                mainAxisSpacing: 1.5,
+                crossAxisSpacing: 1.5,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: gridTiles,
+              );
+            } else if (postOrientation == "list") {
+              List<Post> postsa = [];
+              snapshot.data.documents.forEach((post) {
+                postsa.add(Post.fromDocument(post, addDivider: true));
+              });
+              return Column(children: postsa);
+            }
+          }
+        });
   }
 
   setPostOrientation(String postOrientation) {
     setState(() {
       this.postOrientation = postOrientation;
-      postCount = tempflrcount;
+      //postCount = tempflrcount;
     });
   }
 
@@ -408,20 +417,24 @@ class _ProfileState extends State<Profile>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        IconButton(
-          onPressed: () => setPostOrientation("grid"),
-          icon: Icon(CupertinoIcons.fullscreen_exit),
-          color: postOrientation == 'grid'
-              ? Color.fromRGBO(24, 115, 172, 1)
-              : Colors.grey,
-        ),
-        IconButton(
-          onPressed: () => setPostOrientation("list"),
-          icon: Icon(CupertinoIcons.fullscreen),
-          color: postOrientation == 'list'
-              ? Color.fromRGBO(24, 115, 172, 1)
-              : Colors.grey,
-        ),
+        Padding(
+            padding: EdgeInsets.only(left: 30, right: 30, bottom: 8),
+            child: IconButton(
+              onPressed: () => setPostOrientation("grid"),
+              icon: Icon(CupertinoIcons.fullscreen_exit),
+              color: postOrientation == 'grid'
+                  ? Color.fromRGBO(24, 115, 172, 1)
+                  : Colors.grey,
+            )),
+        Padding(
+            padding: EdgeInsets.only(left: 30, right: 30, bottom: 8),
+            child: IconButton(
+              onPressed: () => setPostOrientation("list"),
+              icon: Icon(CupertinoIcons.fullscreen),
+              color: postOrientation == 'list'
+                  ? Color.fromRGBO(24, 115, 172, 1)
+                  : Colors.grey,
+            )),
       ],
     );
   }
