@@ -311,6 +311,7 @@ class _UploadState extends State<Upload>
 
 //#
   compressImage(File filed) async {
+
     final snackBar = SnackBar(
       content: Text('Yay! Your Video is right on the way there!'),
       duration: Duration(seconds: 1000),
@@ -411,6 +412,8 @@ class _UploadState extends State<Upload>
       maxHeight: 675,
       maxWidth: 960,
     );
+
+    if (file== null){return;}
     setState(() {
       this.file = file;
     });
@@ -422,6 +425,7 @@ class _UploadState extends State<Upload>
     File filed = await ImagePicker.pickVideo(
       source: ImageSource.camera,
     );
+    if (filed == null){return;}
     await compressImage(filed);
 //    setState(() {
 //      this.file = file2;
@@ -434,6 +438,9 @@ class _UploadState extends State<Upload>
     File filed = await ImagePicker.pickVideo(
       source: ImageSource.gallery,
     );
+    if (filed == null){
+      return;
+    }
     print("^^^^^^^^^^^^^^^^^^^^^^^^");
     print(filed.absolute);
 
@@ -448,7 +455,7 @@ class _UploadState extends State<Upload>
   handleChooseFromGallery() async {
     isPic = true;
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
-
+    if (file == null){return;}
     setState(() {
       this.file = file;
     });
@@ -558,7 +565,7 @@ class _UploadState extends State<Upload>
     String completeAddress =
         '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
     print(completeAddress);
-    String formattedAddress = "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality},${placemark.locality}";
+    String formattedAddress = "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality}, ${placemark.locality}";
     locationController.text = formattedAddress;
   }
 

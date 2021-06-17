@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'models/user.dart';
-
+const String company = "2kJgasDVBkVJZkzmruIW9UfQRUw1";
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final FirebaseAuth vauth = _auth;
 //FirebaseUser curUser;

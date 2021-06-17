@@ -114,6 +114,7 @@ class MyApp extends State<StatefulApp> {
       // 3) get username from create account, use it to make new user document in users collection
       final DateTime timestamp = DateTime.now();
       final followersRef = Firestore.instance.collection('followers');
+      final followingRef = Firestore.instance.collection('following');
       usersRef.document(user.uid).setData({
         "id": user.uid,
         "username": username,
@@ -127,6 +128,11 @@ class MyApp extends State<StatefulApp> {
           .document(user.uid)
           .collection('userFollowers')
           .document(user.uid)
+          .setData({});
+      followingRef
+          .document(user.uid)
+          .collection('userFollowing')
+          .document(company)
           .setData({});
     }
   }
