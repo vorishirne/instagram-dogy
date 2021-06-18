@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/widgets/custom_image.dart';
@@ -16,6 +18,32 @@ class ActivityFeed extends StatefulWidget {
 }
 
 class _ActivityFeedState extends State<ActivityFeed> {
+  Container buildNoContent(String strongtext) {
+    final Size size = MediaQuery.of(context).size;
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            Image.asset('assets/images/search.png',
+                height: max(size.height / 7, size.width / 5)),
+            Text(
+              strongtext,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color.fromRGBO(127, 127, 127, 1),
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.w200,
+                fontSize: 20.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   getActivityFeed() async {
     QuerySnapshot snapshot = await activityFeedRef
         .document(currentUser.id)
@@ -24,6 +52,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .limit(50)
         .getDocuments();
     List<Widget> feedItems = [];
+    if (snapshot.documents.length <= 0) {
+      return buildNoContent("Waiting for some activity to happen!");
+    }
     snapshot.documents.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
       feedItems.add(Padding(
@@ -35,7 +66,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
       ));
       // print('Activity Feed Item: ${doc.data}');
     });
-    return feedItems;
+    return ListView(
+      children: feedItems,
+    );
   }
 
   @override
@@ -50,9 +83,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
           if (!snapshot.hasData) {
             return circularProgress();
           }
-          return ListView(
-            children: snapshot.data,
-          );
+          return snapshot.data;
         },
       )),
     );

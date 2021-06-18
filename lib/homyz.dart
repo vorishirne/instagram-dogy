@@ -25,6 +25,8 @@ StorageReference storageRef ;
 FirebaseUser user;
 User curruser;
 User currentUser;
+int pageIndex = 0;
+PageController pageController;
 
 class homy extends StatefulWidget{
   final FirebaseUser userx;
@@ -38,8 +40,8 @@ class homy extends StatefulWidget{
 
 class homystate extends State<homy> {
 
-  PageController pageController;
-  int pageIndex = 0;
+
+
 
   @override
   void initState() {
@@ -80,9 +82,9 @@ class homystate extends State<homy> {
 
 
 
-  onPageChanged(int pageIndex) {
+  onPageChanged(int pageIndex_) {
     setState(() {
-      this.pageIndex = pageIndex;
+      pageIndex = pageIndex_;
     });
   }
 
@@ -108,9 +110,9 @@ class homystate extends State<homy> {
 //            await  _goToLogin(context);
 //            },
 //          ),
-          ActivityFeed(),
-          Upload(user,curruser,usersRef,postsRef),
           Search(usersRef),
+          Upload(user,curruser,usersRef,postsRef),
+          ActivityFeed(),
           Profile(profileId: curruser.id,),
         ],
         controller: pageController, 
@@ -127,15 +129,15 @@ class homystate extends State<homy> {
           inactiveColor: Color.fromRGBO(34, 135, 190, .2),
           items: [
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.game_controller_solid)),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.heart_solid)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.group_solid)),
             BottomNavigationBarItem(
               icon: Icon(
-                Icons.photo_camera,
+                CupertinoIcons.video_camera_solid,
                 size: 35.0,
               ),
             ),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.group_solid)),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.book_solid)),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.profile_circled)),
           ]),
     );
   }

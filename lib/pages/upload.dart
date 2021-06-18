@@ -566,7 +566,7 @@ class _UploadState extends State<Upload>
         '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
     print(completeAddress);
     String formattedAddress = "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality}, ${placemark.locality}";
-    locationController.text = formattedAddress;
+    locationController.text = formattedAddress.trim();
   }
 
   @override

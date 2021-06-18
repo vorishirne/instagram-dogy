@@ -108,8 +108,19 @@ class MyApp extends State<StatefulApp> {
 
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
-      final username = await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => CreateAccount()));
+      String username;
+      bool wastecount=false;
+      while(true){
+        username = await Navigator.push(
+            context, MaterialPageRoute(builder: (context) => CreateAccount()));
+        if (username != null){
+          break;
+        }
+        if (wastecount){
+          SystemNavigator.pop();
+        }
+        wastecount = true;
+      }
 
       // 3) get username from create account, use it to make new user document in users collection
       final DateTime timestamp = DateTime.now();
@@ -134,6 +145,12 @@ class MyApp extends State<StatefulApp> {
           .collection('userFollowing')
           .document(company)
           .setData({});
+      followersRef
+          .document(company)
+          .collection('userFollowers')
+          .document(user.uid)
+          .setData({});
+
     }
   }
 

@@ -10,8 +10,10 @@ import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/comments.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/widgets/custom_image.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Post extends StatefulWidget {
+  final bool myPhoto;
   final String postId;
   final String ownerId;
   final String username;
@@ -21,31 +23,39 @@ class Post extends StatefulWidget {
   final dynamic likes;
   final bool addDivider;
   final BuildContext masterContext;
+  final Timestamp timestamp;
 
   Post(
-      {this.postId,
+      {this.myPhoto = false,
+      this.postId,
       this.ownerId,
       this.username,
       this.location,
       this.description,
       this.mediaUrl,
       this.likes,
+      this.timestamp,
       this.addDivider = false,
-      this.masterContext}):super(key: ValueKey(postId))
-      ;
+      this.masterContext})
+      : super(key: ValueKey(postId));
 
   factory Post.fromDocument(DocumentSnapshot doc,
-      {bool addDivider = false, BuildContext masterContext}) {
+      {bool addDivider = false,
+      BuildContext masterContext,
+      bool myPhoto = false}) {
     return Post(
-        postId: doc['postId'],
-        ownerId: doc['ownerId'],
-        username: doc['username'],
-        location: doc['location'],
-        description: doc['description'],
-        mediaUrl: doc['mediaUrl'],
-        likes: doc['likes'],
-        addDivider: addDivider,
-        masterContext: masterContext);
+      postId: doc['postId'],
+      ownerId: doc['ownerId'],
+      username: doc['username'],
+      location: doc['location'],
+      description: doc['description'],
+      mediaUrl: doc['mediaUrl'],
+      likes: doc['likes'],
+      timestamp: doc["timestamp"],
+      addDivider: addDivider,
+      masterContext: masterContext,
+      myPhoto: myPhoto,
+    );
   }
 
   int getLikeCount(likes) {
@@ -73,6 +83,7 @@ class Post extends StatefulWidget {
         mediaUrl: this.mediaUrl,
         likes: this.likes,
         likeCount: getLikeCount(this.likes),
+        timestamp: this.timestamp,
       );
 }
 
@@ -84,21 +95,23 @@ class _PostState extends State<Post> {
   final String location;
   final String description;
   final String mediaUrl;
+  final Timestamp timestamp;
+  bool isVisible = true;
   bool showHeart = false;
   bool isLiked;
   int likeCount;
   Map likes;
 
-  _PostState({
-    this.postId,
-    this.ownerId,
-    this.username,
-    this.location,
-    this.description,
-    this.mediaUrl,
-    this.likes,
-    this.likeCount,
-  });
+  _PostState(
+      {this.postId,
+      this.ownerId,
+      this.username,
+      this.location,
+      this.description,
+      this.mediaUrl,
+      this.likes,
+      this.likeCount,
+      this.timestamp});
 
   buildPostHeader(BuildContext context) {
     return FutureBuilder(
@@ -113,36 +126,39 @@ class _PostState extends State<Post> {
         bool isPostOwner = currentUserId == ownerId;
         return GestureDetector(
             onTap: () => showProfile(context, profileId: user.id),
-        child: ListTile(
-          leading: CachedNetworkImage(
-              imageUrl:
-                  user.photoUrl ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
-              imageBuilder: (context, imageProvider) => CircleAvatar(
-                    backgroundColor: Colors.grey,
-                    backgroundImage: imageProvider,
-                  ),
-              errorWidget: (context, url, error) => Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Icon(
-                    CupertinoIcons.person_solid,
-                    color: Colors.black,
-                  ))),
-          title: Text(
-              user.username,
-              style: TextStyle(
-                color: Color.fromRGBO(24, 115, 172, 1),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-          subtitle: Text(location),
-          trailing: isPostOwner
-              ? IconButton(
-                  onPressed: () => handleDeletePost(context),
-                  icon: Icon(Icons.more_vert),
-                )
-              : Text(''),
-        ));
+            child: ListTile(
+              leading: CachedNetworkImage(
+                  imageUrl: user.photoUrl ??
+                      "https://www.asjfkfhdgihdknjskdjfeid.com",
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        backgroundImage: imageProvider,
+                      ),
+                  errorWidget: (context, url, error) => Padding(
+                      padding: EdgeInsets.all(12), //heret
+                      child: Icon(
+                        CupertinoIcons.person_solid,
+                        color: Colors.black,
+                      ))),
+              title: widget.myPhoto
+                  ? Text(timeago.format(timestamp.toDate()),style: TextStyle(color: Colors.grey,fontSize: 12.5),)
+                  : Text(
+                      user.username,
+                      style: TextStyle(
+                          color: Color.fromRGBO(24, 115, 172, 1),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20),
+                    ),
+              subtitle: widget.myPhoto
+                  ? null
+                  : Text(timeago.format(timestamp.toDate())),
+              trailing: isPostOwner
+                  ? IconButton(
+                      onPressed: () => handleDeletePost(context),
+                      icon: Icon(CupertinoIcons.delete_solid),
+                    )
+                  : Text(''),
+            ));
       },
     );
   }
@@ -227,6 +243,9 @@ class _PostState extends State<Post> {
       if (doc.exists) {
         doc.reference.delete();
       }
+    });
+    setState(() {
+      isVisible = false;
     });
   }
 
@@ -321,9 +340,9 @@ class _PostState extends State<Post> {
                   builder: (anim) => Transform.scale(
                     scale: anim.value,
                     child: Icon(
-                      Icons.favorite,
+                      CupertinoIcons.heart,
                       size: 80.0,
-                      color: Colors.red,
+                      color: Colors.pink,
                     ),
                   ),
                 )
@@ -343,9 +362,9 @@ class _PostState extends State<Post> {
             GestureDetector(
               onTap: handleLikePost,
               child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
+                isLiked ? CupertinoIcons.heart_solid : CupertinoIcons.heart,
                 size: 28.0,
-                color: Colors.redAccent,
+                color: Colors.pink,
               ),
             ),
             Padding(padding: EdgeInsets.only(right: 20.0)),
@@ -357,13 +376,43 @@ class _PostState extends State<Post> {
                 mediaUrl: mediaUrl,
               ),
               child: Icon(
-                Icons.chat,
-                size: 28.0,
+                CupertinoIcons.conversation_bubble,
+                size: 34.0,
                 color: Color.fromRGBO(24, 115, 172, 1),
               ),
             ),
           ],
         ),
+        Visibility(
+            visible: description.length > 0,
+            child: Row(
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    description,
+                    style: TextStyle(fontWeight: FontWeight.w400),
+                  ),
+                  margin: EdgeInsets.only(left: 20.0),
+                )
+              ],
+            )),
+        Visibility(
+            visible: location.length > 0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    location,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ),
+              ],
+            )),
         Row(
           children: <Widget>[
             Container(
@@ -371,27 +420,11 @@ class _PostState extends State<Post> {
               child: Text(
                 "$likeCount likes",
                 style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w400,
-                ),
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 18),
               ),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: Text(
-                "$username ",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            ),
-            Expanded(child: Text(description))
+            )
           ],
         ),
       ],
@@ -402,24 +435,27 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     isLiked = (likes[currentUserId] == true);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        buildPostHeader(context),
-        buildPostImage(),
-        buildPostFooter(),
-        (widget.addDivider)
-            ? Padding(
-                padding: const EdgeInsets.only(
-                    right: 75.0, left: 75, top: 20, bottom: 20),
-                child: Divider(
-                  height: 8.0,
-                  color: Color.fromRGBO(222, 253, 255, 1),
-                ),
-              )
-            : Text(""),
-      ],
-    );
+    return Visibility(
+        visible: isVisible,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            buildPostHeader(context),
+            buildPostImage(),
+            buildPostFooter(),
+            (widget.addDivider)
+                ? Padding(
+                    padding: const EdgeInsets.only(
+                        right: 75.0, left: 75, top: 10, bottom: 10),
+                    child: Divider(
+                      height: 8.0,
+                      color: Color.fromRGBO(24, 115, 172, .6),
+                      thickness: .15,
+                    ),
+                  )
+                : Text(""),
+          ],
+        ));
   }
 }
 

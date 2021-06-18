@@ -8,6 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/homyz.dart';
 
+TabController miniPageController;
+int miniPageIndex = 0;
+
 class Search extends StatefulWidget {
   final CollectionReference usersRef;
 
@@ -17,52 +20,95 @@ class Search extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
-class _SearchState extends State<Search>
-    with AutomaticKeepAliveClientMixin<Search> {
+class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
 
   @override
   void initState() {
+
     // TODO: implement initState
     super.initState();
+    miniPageController = TabController(initialIndex: miniPageIndex,length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    miniPageController.dispose();
+    super.dispose();
   }
 
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //buildSearchResults(),
+    //super.build(context);
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-          centerTitle: true,
-          elevation: 7,
-          title: Text(
-            "Mah guys!",
-            style: TextStyle(
-                color: Color.fromRGBO(24, 115, 172, 1),
-                fontWeight: FontWeight.w300),
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            centerTitle: true,
+            elevation: 7,
+            title: Text(
+              "Mah guys!",
+              style: TextStyle(
+                  color: Color.fromRGBO(24, 115, 172, 1),
+                  fontWeight: FontWeight.w300),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  CupertinoIcons.search,
+                  color: Color.fromRGBO(24, 115, 172, 1),
+                  size: 40,
+                ),
+                onPressed: () {
+                  showSearch(
+                      context: context, delegate: DataSearch(widget.usersRef));
+                },
+              )
+            ]),
+        body: Scaffold(
+          appBar: AppBar(
+            title: TabBar(indicatorColor: Color.fromRGBO(24, 115, 172, 1) ,labelColor:Colors.black87,
+                //Color.fromRGBO(222, 253, 255, 1),
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.w300
+                ),
+                indicatorPadding: EdgeInsets.all(0),
+                indicatorWeight: .7,
+
+                controller: miniPageController, tabs: [
+              Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Tab(
+                    icon: Icon(CupertinoIcons.paw_solid,
+                      color: Color.fromRGBO(24, 115, 172, 1) ,
+                      size: 22,
+                    ),
+                    //text: "Following",
+
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Tab(
+                    icon: Icon(CupertinoIcons.eye_solid,color: Color.fromRGBO(24, 115, 172, 1) ,size: 32,),
+                    //text: "Followers",
+                  ))
+            ]),
           ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                CupertinoIcons.search,
-                color: Color.fromRGBO(24, 115, 172, 1),
-                size: 40,
-              ),
-              onPressed: () {
-                showSearch(
-                    context: context, delegate: DataSearch(widget.usersRef));
-              },
-            )
-          ]),
-      body: buildSearchResults(),
-    );
+          body: TabBarView(
+            controller: miniPageController,
+            children: <Widget>[
+              buildSearchResults(followingRef,'userFollowing',"You following No one"),
+              buildSearchResults(followersRef,'userFollowers',"No one following you")
+            ],
+          ),
+        ));
   }
 
 //=========================================================================================================================================
-  Container buildNoContent() {
+  Container buildNoContent(String strongtext) {
     final Size size = MediaQuery.of(context).size;
     return Container(
       child: Center(
@@ -72,7 +118,7 @@ class _SearchState extends State<Search>
             Image.asset('assets/images/search.png',
                 height: max(size.height / 7, size.width / 5)),
             Text(
-              "ComeOn! Get me some company.. . .",
+              strongtext,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color.fromRGBO(127, 127, 127, 1),
@@ -87,13 +133,13 @@ class _SearchState extends State<Search>
     );
   }
 
-  buildSearchResults() {
+  buildSearchResults(CollectionReference ref,String collection,String strongtext) {
     print(
         "I am being(*&*(*()*((((((((((((((((((((((((((((((((((((((((((((((((((((((99");
     return StreamBuilder(
-      stream: followingRef
+      stream: ref
           .document(currentUser.id)
-          .collection('userFollowing')
+          .collection(collection)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -102,20 +148,25 @@ class _SearchState extends State<Search>
 
         deef() async {
           List<Widget> searchResults = [
-
             Padding(padding: EdgeInsets.only(top: 12)),
           ];
-          await Future.forEach(snapshot.data.documents,  (doc) async {
+          await Future.forEach(snapshot.data.documents, (doc) async {
             print("this is that");
             print(doc.documentID);
+            //print((await usersRef.document(doc.documentID).get()).exists);
             DocumentSnapshot doc2 =
                 await usersRef.document(doc.documentID).get();
-            print(doc2["username"] + "dsd");
-            User user = User.fromDocument(doc2);
-            print(user.username + "as");
-            UserResult searchResult = UserResult(user);
+            if (doc2.exists &&
+                (doc2["username"] != null &&
+                    doc2["username"] != "" &&
+                    doc2["username"] != curruser.username && doc2.documentID != company)) {
+              print(doc2["username"] + "dsd");
+              User user = User.fromDocument(doc2);
+              print(user.username + "as");
+              UserResult searchResult = UserResult(user);
 
-            searchResults.add(searchResult);
+              searchResults.add(searchResult);
+            }
           });
 
           return searchResults;
@@ -128,10 +179,10 @@ class _SearchState extends State<Search>
                 return circularProgress();
               } else {
                 print("I want to know");
-                if(snapshot.data.length == 1){
-                  return buildNoContent();
+                if (snapshot.data.length == 1) {
+                  return buildNoContent(strongtext);
                 }
-                return ListView(children:snapshot.data);
+                return ListView(children: snapshot.data);
               }
             });
       },
@@ -261,8 +312,7 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    Future<QuerySnapshot> users =
-        usersRef.where("username", isGreaterThanOrEqualTo: "a").getDocuments();
+    Future<QuerySnapshot> users = usersRef.getDocuments();
     print("me too got that " + query);
     return buildSearchResults(users, query);
   }
@@ -275,21 +325,22 @@ class DataSearch extends SearchDelegate<String> {
           return circularProgress();
         }
         List<UserResult> searchResults = [];
+        print("yes yes");
         snapshot.data.documents.forEach((doc) {
-          User user = User.fromDocument(doc);
+          if ((doc["username"] != null &&
+              doc["username"] != "" &&
+              doc["username"] != curruser.username)) {
+            User user = User.fromDocument(doc);
 
-          String xmas = user.username.toLowerCase();
-          print("xxx");
-          print(xmas);
-          print(query == "");
-          print(user.photoUrl);
-          print(xmas.contains(query.toLowerCase()));
+            String xmas = user.username.toLowerCase();
 
-          if ((query == "" && user.photoUrl != null) ||
-              (query != "" && xmas.contains(query.toLowerCase()))) {
-            print(user.username);
-            UserResult searchResult = UserResult(user);
-            searchResults.add(searchResult);
+            print(xmas);
+            if (((query == "" && user.photoUrl != null) ||
+                (query != "" && xmas.contains(query.toLowerCase())))) {
+              print(user.username);
+              UserResult searchResult = UserResult(user);
+              searchResults.add(searchResult);
+            }
           }
         });
         return ListView(

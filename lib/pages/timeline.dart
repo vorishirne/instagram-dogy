@@ -21,7 +21,7 @@ class Timeline extends StatefulWidget {
 
 class _TimelineState extends State<Timeline> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Post> posts;
+  List posts;
 
   @override
   void initState() {
@@ -35,8 +35,17 @@ class _TimelineState extends State<Timeline> {
         .collection('timelinePosts')
         .orderBy('timestamp', descending: true)
         .getDocuments();
-    List<Post> posts =
-        snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+    List posts = List<Widget>.from(snapshot.documents
+        .map((doc) => Post.fromDocument(
+              doc,
+              addDivider: true,
+            ))
+        .toList());
+    posts.insert(
+        0,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+        ));
     setState(() {
       this.posts = posts;
     });
@@ -83,6 +92,9 @@ class _TimelineState extends State<Timeline> {
         key: _scaffoldKey,
         appBar: header(context, isAppTitle: true),
         body: RefreshIndicator(
-            onRefresh: () => getTimeline(), child: buildTimeline()));
+            backgroundColor: Color.fromRGBO(222, 253, 255, 1),
+            color: Color.fromRGBO(24, 115, 172, 1),
+            onRefresh: () => getTimeline(),
+            child: buildTimeline()));
   }
 }

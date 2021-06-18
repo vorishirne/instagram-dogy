@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/pages/edit_profile.dart';
+import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/widgets/header.dart';
 import 'package:dodogy_challange/widgets/post.dart';
@@ -31,15 +32,16 @@ class _ProfileState extends State<Profile>
   int followerCount = 0;
   int followingCount = 0;
   int tempflrcount = 0;
-  List<Post> posts = [];
+  List posts = [];
 
   @override
   void initState() {
     super.initState();
-    getProfilePosts();
+
     getFollowers();
     getFollowing();
     checkIfFollowing();
+    getProfilePosts();
   }
 
   checkIfFollowing() async {
@@ -49,7 +51,7 @@ class _ProfileState extends State<Profile>
         .document(currentUserId)
         .get();
     setState(() {
-      isFollowing = doc.exists;
+      isFollowing = doc.exists && widget.profileId != currentUserId;
     });
   }
 
@@ -82,7 +84,6 @@ class _ProfileState extends State<Profile>
     postsRef
         .document(widget.profileId)
         .collection('userPosts')
-
         .snapshots()
         .listen((event) {
       setState(() {
@@ -92,35 +93,42 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  Column buildCountColumn(String label, int count) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(
-          (count > 0 ? count : 0).toString(),
-          style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 4.0),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.black45,
-              fontSize: 15.0,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-        ),
-      ],
-    );
+  Widget buildCountColumn(String label, int count, Function f) {
+    return GestureDetector(
+        onTap: f,
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: Text((count > 0 ? count : 0).toString(),
+                  style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400)),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 0.0),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.black45,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ),
+              ],
+            )));
   }
 
   editProfile(contextx) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (contex) => EditProfile(currentUserId: currentUserId,mastercontext: contextx,)));
+            builder: (contex) => EditProfile(
+                  currentUserId: currentUserId,
+                  mastercontext: contextx,
+                )));
   }
 
   Container buildButton({String text, Function function}) {
@@ -157,7 +165,9 @@ class _ProfileState extends State<Profile>
     if (isProfileOwner) {
       return buildButton(
         text: "Edit Profile",
-        function: (){editProfile(context);},
+        function: () {
+          editProfile(context);
+        },
       );
     } else if (isFollowing) {
       return buildButton(
@@ -242,7 +252,7 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  buildProfileHeader() {
+  buildProfileHeader(BuildContext childContext) {
     return FutureBuilder(
         future: usersRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
@@ -250,6 +260,11 @@ class _ProfileState extends State<Profile>
             return SizedBox(
               height: 200,
             ); //cll
+          }
+          if (!snapshot.data.exists) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              Navigator.of(childContext).popUntil((route) => route.isFirst);
+            });
           }
           User user = User.fromDocument(snapshot.data);
           print("ole ole ole");
@@ -281,9 +296,30 @@ class _ProfileState extends State<Profile>
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn("posts", postCount),
-                              buildCountColumn("followers", followerCount - 1),
-                              buildCountColumn("following", followingCount - 1),
+                              buildCountColumn("posts", postCount, null),
+                              buildCountColumn("followers", followerCount - 1,
+                                  () {
+                                setState(() {
+                                  //miniPageController.jumpToPage(1);
+                                  miniPageIndex = 1;
+                                  pageController.jumpToPage(1);
+                                  pageIndex = 1;
+                                  print("applied page index");
+                                  miniPageController.animateTo(1);
+                                });
+                              }),
+                              buildCountColumn("following", followingCount - 1,
+                                  () {
+                                setState(() {
+
+                                  miniPageIndex = 0;
+                                  pageController.jumpToPage(1);
+                                  pageIndex = 1;
+                                  print("applied page index");
+                                  //miniPageIndex = 0;
+                                  miniPageController.animateTo(0);
+                                });
+                              }),
                             ],
                           ),
                           Row(
@@ -398,7 +434,8 @@ class _ProfileState extends State<Profile>
             } else if (postOrientation == "list") {
               List<Post> postsa = [];
               snapshot.data.documents.forEach((post) {
-                postsa.add(Post.fromDocument(post, addDivider: true));
+                postsa.add(
+                    Post.fromDocument(post, addDivider: true, myPhoto: true));
               });
               return Column(children: postsa);
             }
@@ -448,7 +485,7 @@ class _ProfileState extends State<Profile>
       appBar: header(context, titleText: "Profile"),
       body: ListView(
         children: <Widget>[
-          buildProfileHeader(),
+          buildProfileHeader(context),
           Divider(),
           buildTogglePostOrientation(),
           Divider(

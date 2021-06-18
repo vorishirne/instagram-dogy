@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cached_video_player/cached_video_player.dart';
+import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +10,8 @@ Widget cachedNetworkImage(String mediaUrl) {
         "https://www.asjfkfhdgihdknjskdjfeid.com",
     fit: BoxFit.cover,
     placeholder: (context, url) => Padding(
-      child: CircularProgressIndicator(),
-      padding: EdgeInsets.all(20.0),
+      child: circularProgress(),//Container(height: 200, color: Colors.black12,child: SizedBox(height: 200,),),
+      padding: EdgeInsets.symmetric(vertical:200.0),
     ),
     errorWidget: (context, url, error) => Icon(Icons.error),
   );
