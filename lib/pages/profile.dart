@@ -22,7 +22,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile>
-    with AutomaticKeepAliveClientMixin<Profile> {
+     {
   final String currentUserId = currentUser?.id;
 
   String postOrientation = "grid";
@@ -480,7 +480,7 @@ class _ProfileState extends State<Profile>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+
     return Scaffold(
       appBar: header(context, titleText: "Profile"),
       body: ListView(

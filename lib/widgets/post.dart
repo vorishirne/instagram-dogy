@@ -1,3 +1,7 @@
+import 'package:chewie/chewie.dart';
+import 'package:chewie/src/chewie_player.dart';
+import 'package:dodogy_challange/widgets/progress.dart';
+import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'package:cached_video_player/cached_video_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -141,7 +145,10 @@ class _PostState extends State<Post> {
                         color: Colors.black,
                       ))),
               title: widget.myPhoto
-                  ? Text(timeago.format(timestamp.toDate()),style: TextStyle(color: Colors.grey,fontSize: 12.5),)
+                  ? Text(
+                      timeago.format(timestamp.toDate()),
+                      style: TextStyle(color: Colors.grey, fontSize: 12.5),
+                    )
                   : Text(
                       user.username,
                       style: TextStyle(
@@ -324,7 +331,11 @@ class _PostState extends State<Post> {
 
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
-    final VideoItem v = VideoItem(mediaUrl);
+    final v = Theme(
+      data: ThemeData.light().copyWith(
+        platform: TargetPlatform.iOS,
+      ),
+      child:VideoItem(mediaUrl));
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Stack(
@@ -480,22 +491,44 @@ class VideoItem extends StatefulWidget {
 }
 
 class _VideoItemState extends State<VideoItem> {
+  ChewieController _chewieController;
   CachedVideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
     super.initState();
+
     _controller = CachedVideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {}); //when your thumbnail will show.
       });
     _initializeVideoPlayerFuture = _controller.initialize();
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      aspectRatio: 3 / 2,
+      autoPlay: true,
+      looping: true,
+      cupertinoProgressColors: ChewieProgressColors(
+        playedColor: Colors.red,
+        handleColor: Colors.blue,
+        backgroundColor: Colors.grey,
+        bufferedColor: Colors.lightGreen,
+      ),
+      placeholder: Container(
+        color: Colors.grey,
+      ),
+
+      showControlsOnInitialize: true
+    );
   }
 
   @override
   void dispose() {
     // Ensure disposing of the VideoPlayerController to free up resources.
+    _chewieController.dispose();
+    _controller.pause();
+    _controller.seekTo(Duration(seconds: 0));
     _controller.dispose();
 
     super.dispose();
@@ -511,27 +544,22 @@ class _VideoItemState extends State<VideoItem> {
           // the data it provides to limit the aspect ratio of the VideoPlayer.
           _controller.setLooping(true);
           return GestureDetector(
-              child: AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                // Use the VideoPlayer widget to display the video.
-                child: CachedVideoPlayer(_controller),
+              child: Chewie(
+                controller: _chewieController,
               ),
-              onTap: () {
-                // Wrap the play or pause in a call to `setState`. This ensures the
-                // correct icon is shown
-                setState(() {
-                  // If the video is playing, pause it.
 
-                  if (_controller.value.isPlaying) {
-                    _controller.pause();
-                  } else {
-                    // If the video is paused, play it.
-                    _controller.play();
-                  }
-                });
+
+              onTap: () {
+                if (_controller.value.isPlaying){
+                  _chewieController.pause();
+                }
+                else{
+                  _chewieController.play();
+                }
+
               });
         } else {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: circularProgress());
         }
       },
     );

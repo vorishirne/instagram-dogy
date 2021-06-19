@@ -32,6 +32,7 @@ dependencies:
   firebase_messaging: ^4.0.0+1
   timeago: 2.0.17
   cached_video_player: ^1.0.3
+  chewie: ^0.9.10
   cached_network_image:
   flutter_svg:
   progress_dialog: ^1.2.2
