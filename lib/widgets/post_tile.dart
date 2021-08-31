@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cached_video_player/cached_video_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/material.dart';
@@ -48,14 +48,14 @@ class VideoItem extends StatefulWidget {
 
 class _VideoItemState extends State<VideoItem> {
   ChewieController _chewieController;
-  CachedVideoPlayerController _controller;
+  VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = CachedVideoPlayerController.network(widget.url)
+    _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {}); //when your thumbnail will show.
       });

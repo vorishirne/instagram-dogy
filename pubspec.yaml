@@ -31,7 +31,7 @@ dependencies:
   path_provider: ^1.6.1
   firebase_messaging: ^4.0.0+1
   timeago: 2.0.17
-  cached_video_player: ^1.0.3
+  video_player:
   chewie: ^0.9.10
   cached_network_image:
   flutter_svg:

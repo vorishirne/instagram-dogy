@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cached_video_player/cached_video_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,12 +54,12 @@ class VideoItem extends StatefulWidget{
 }
 
 class _VideoItemState extends State<VideoItem> {
-  CachedVideoPlayerController _controller;
+  VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = CachedVideoPlayerController.network(widget.url)
+    _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {});  //when your thumbnail will show.
       });
@@ -76,7 +76,7 @@ class _VideoItemState extends State<VideoItem> {
     return _controller.value.initialized
         ? Container(
 
-      child: CachedVideoPlayer(_controller),
+      child: VideoPlayer(_controller),
     )
         : CircularProgressIndicator();
 
