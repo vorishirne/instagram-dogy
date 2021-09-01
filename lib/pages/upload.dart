@@ -124,7 +124,7 @@ class _UploadState extends State<Upload>
               controller: captionController,
               decoration: InputDecoration(
                   hintText: "Write a caption...",
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.grey),
                   border: InputBorder.none,
                   fillColor: Colors.white),
             ),
@@ -143,7 +143,7 @@ class _UploadState extends State<Upload>
               style: TextStyle(color: Colors.white),
               controller: locationController,
               decoration: InputDecoration(
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.grey),
                   hintText: "Attach a location?",
                   border: InputBorder.none,
                   fillColor: Colors.white,
@@ -170,20 +170,20 @@ class _UploadState extends State<Upload>
 
   Widget noImge() {
     return Container(
-        height:  MediaQuery.of(context).orientation == Orientation.portrait ?
-          MediaQuery.of(context).size.height -
-              //kBottomNavigationBarHeight -
-              MediaQuery.of(context).padding.top -
-              MediaQuery.of(context).padding.bottom -
-              kToolbarHeight -
-              50 :
-
-            MediaQuery.of(context).size.height -
+        height: MediaQuery.of(context).orientation == Orientation.portrait
+            ? MediaQuery.of(context).size.height -
                 //kBottomNavigationBarHeight -
                 MediaQuery.of(context).padding.top -
                 MediaQuery.of(context).padding.bottom -
                 kToolbarHeight -
-                50  + MediaQuery.of(context).size.height * .27,
+                50
+            : MediaQuery.of(context).size.height -
+                //kBottomNavigationBarHeight -
+                MediaQuery.of(context).padding.top -
+                MediaQuery.of(context).padding.bottom -
+                kToolbarHeight -
+                50 +
+                MediaQuery.of(context).size.height * .27,
 //              CupertinoTabBar(
 //                items: [
 //                  BottomNavigationBarItem(
@@ -193,12 +193,10 @@ class _UploadState extends State<Upload>
 //                ],
 //              ).preferredSize.height,
 
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             uploadItem(),
-
             mainOptions(),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -231,7 +229,7 @@ class _UploadState extends State<Upload>
           //AssetImage("assets/images/source.gif",)
           image: DecorationImage(
               image: isPic ? FileImage(file) : Image.file(file2).image,
-              fit: BoxFit.cover)),
+              fit: BoxFit.contain)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
@@ -289,11 +287,12 @@ class _UploadState extends State<Upload>
                 ),
               ],
       ), //boldy
-      body: file == null ? LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        return ListView(
-            children: <Widget>[noImge() ]);
-      }) : withImage(),
+      body: file == null
+          ? LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+              return ListView(children: <Widget>[noImge()]);
+            })
+          : withImage(),
       bottomNavigationBar: Container(
         width: 0,
         height: 0,
@@ -306,14 +305,14 @@ class _UploadState extends State<Upload>
   clearImage() {
     setState(() {
       file = null;
+      postId = Uuid().v4();
     });
   }
 
 //#
   compressImage(File filed) async {
-
     final snackBar = SnackBar(
-      content: Text('Yay! Your Video is right on the way there!'),
+      content: Text('Our Video is right on the way there!'),
       duration: Duration(seconds: 1000),
       backgroundColor: Color.fromRGBO(24, 115, 172, 1),
     );
@@ -334,15 +333,34 @@ class _UploadState extends State<Upload>
   }
 
 //windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
-  Future<String> uploadImage(imageFile) async {
+  Future<List<String>> uploadImage(imageFile) async {
+    print("Came here to print");
     String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4";
+    String thumbnail = "";
+    File thumbFile;
+    String thumbName = "";
     if (!isPic) {
+      final File thumb =
+      await _flutterVideoCompress.getThumbnailWithFile(imageFile.path,
+          quality: 75, // default(100)
+          position: -1 // default(-1)
+      );
       final MediaInfo info = await _flutterVideoCompress.compressVideo(
         imageFile.path,
-        deleteOrigin: false,
+        deleteOrigin: true,
         quality: VideoQuality.HighestQuality,
       );
+      thumbFile = thumb;
       imageFile = info.file;
+      thumbName = "post_$postId.jpg";
+    }
+    if (thumbName != "") {
+      StorageUploadTask uploadTask =
+          storageRef.child(thumbName).putFile(thumbFile);
+      StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
+      thumbnail = await storageSnap.ref.getDownloadURL();
+      print("New url");
+      print(thumbnail);
     }
     StorageUploadTask uploadTask = storageRef.child(name).putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
@@ -354,17 +372,20 @@ class _UploadState extends State<Upload>
       backgroundColor: Color.fromRGBO(24, 115, 172, 1),
     );
     Scaffold.of(context).showSnackBar(snackBar);
-    return downloadUrl;
+
+    return [downloadUrl, thumbnail];
   }
 
   createPostInFirestore(
-      {String mediaUrl, String location, String description}) {
+      {String mediaUrl, String thumb, String location, String description}) {
+    print("hua bhi ya nhi");
     widget.postsRef
         .document(widget.user.uid)
         .collection("userPosts")
         .document(postId)
         .setData({
       "postId": postId,
+      "thumb": thumb,
       "ownerId": widget.user.uid,
       "username": widget.curruser.username,
       "mediaUrl": mediaUrl,
@@ -373,6 +394,7 @@ class _UploadState extends State<Upload>
       "timestamp": DateTime.now(),
       "likes": {},
     });
+    print("hogya");
   }
 
 //$
@@ -390,12 +412,15 @@ class _UploadState extends State<Upload>
     //yh hoga fir
     //yh hoga fir
 
-    String mediaUrl = await uploadImage(file);
+    List<String> mediaUrl = await uploadImage(file);
+    print(mediaUrl);
     createPostInFirestore(
-      mediaUrl: mediaUrl,
+      mediaUrl: mediaUrl[0],
+      thumb: mediaUrl[1],
       location: locationController.text,
       description: captionController.text,
     );
+    print("post is created");
     captionController.clear();
     locationController.clear();
     setState(() {
@@ -413,7 +438,9 @@ class _UploadState extends State<Upload>
       maxWidth: 960,
     );
 
-    if (file== null){return;}
+    if (file == null) {
+      return;
+    }
     setState(() {
       this.file = file;
     });
@@ -425,7 +452,9 @@ class _UploadState extends State<Upload>
     File filed = await ImagePicker.pickVideo(
       source: ImageSource.camera,
     );
-    if (filed == null){return;}
+    if (filed == null) {
+      return;
+    }
     await compressImage(filed);
 //    setState(() {
 //      this.file = file2;
@@ -438,7 +467,7 @@ class _UploadState extends State<Upload>
     File filed = await ImagePicker.pickVideo(
       source: ImageSource.gallery,
     );
-    if (filed == null){
+    if (filed == null) {
       return;
     }
     print("^^^^^^^^^^^^^^^^^^^^^^^^");
@@ -455,7 +484,9 @@ class _UploadState extends State<Upload>
   handleChooseFromGallery() async {
     isPic = true;
     File file = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (file == null){return;}
+    if (file == null) {
+      return;
+    }
     setState(() {
       this.file = file;
     });
@@ -565,7 +596,8 @@ class _UploadState extends State<Upload>
     String completeAddress =
         '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
     print(completeAddress);
-    String formattedAddress = "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality}, ${placemark.locality}";
+    String formattedAddress =
+        "${placemark.subThoroughfare} ${placemark.thoroughfare} ${placemark.subLocality}, ${placemark.locality}";
     locationController.text = formattedAddress.trim();
   }
 
@@ -576,7 +608,7 @@ class _UploadState extends State<Upload>
 
   Future<Null> cropImage() async {
     File croppedFile = await ImageCropper.cropImage(
-        compressQuality: 65,
+        compressQuality: 75,
         sourcePath: file.path,
         aspectRatioPresets: Platform.isAndroid
             ? [
