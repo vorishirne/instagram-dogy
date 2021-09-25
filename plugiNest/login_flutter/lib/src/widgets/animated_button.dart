@@ -236,7 +236,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
             ),
           ),
         ),
-        if (_isLoading)
+        (_isLoading)?
           SizedBox(
             width: _height - _loadingCircleThickness,
             height: _height - _loadingCircleThickness,
@@ -245,7 +245,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
               // backgroundColor: Colors.red,
               strokeWidth: _loadingCircleThickness,
             ),
-          ),
+          ):Text(""),
         _buildButton(theme),
       ],
     );

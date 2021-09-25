@@ -153,22 +153,22 @@ class _AnimatedTextState extends State<AnimatedText>
       builder: (context, child) => Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          if (_animation.value <= MathHelper.toRadian(85))
+          (_animation.value <= MathHelper.toRadian(85))?
             Transform(
               alignment: Alignment.center,
               transform: rollUp
                   ? _getFrontSideUp(_animation.value)
                   : _getFrontSideDown(_animation.value),
               child: oldText,
-            ),
-          if (_animation.value >= MathHelper.toRadian(5))
+            ):Text(""),
+          (_animation.value >= MathHelper.toRadian(5))?
             Transform(
               alignment: Alignment.center,
               transform: rollUp
                   ? _getBackSideUp(_animation.value)
                   : _getBackSideDown(_animation.value),
               child: newText,
-            ),
+            ):Text(""),
         ],
       ),
     );

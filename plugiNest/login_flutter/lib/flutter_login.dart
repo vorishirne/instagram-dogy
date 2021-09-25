@@ -186,7 +186,7 @@ class __HeaderState extends State<_Header> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          if (displayLogo)
+           (displayLogo)?
             Padding(
               padding: EdgeInsets.only(top: 0.0, bottom: 30),
               child: FadeIn(
@@ -195,7 +195,7 @@ class __HeaderState extends State<_Header> {
                 fadeDirection: FadeDirection.topToBottom,
                 child: logo,
               ),
-            ),
+            ):Text(""),
 //          Padding(
 //              padding: EdgeInsets.all(0),
 //              child: FadeIn(
@@ -683,8 +683,8 @@ class _FlutterLoginState extends State<FlutterLogin>
                 ),
               ),
             ),
-            if (!kReleaseMode && widget.showDebugButtons)
-              _buildDebugAnimationButtons(),
+            (!kReleaseMode && widget.showDebugButtons)?
+              _buildDebugAnimationButtons():Text(""),
           ],
         ),
       ),

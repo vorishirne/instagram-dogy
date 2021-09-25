@@ -32,7 +32,7 @@ class ShadowButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: borderRadius,
         color: Colors.transparent,
-        boxShadow: [if (boxShadow != null) boxShadow],
+        boxShadow: [(boxShadow != null)? boxShadow:Text("")],
       ),
       child: Material(
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
