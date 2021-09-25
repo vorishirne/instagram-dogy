@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:chewie/src/chewie_player.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -490,77 +491,80 @@ class VideoItem extends StatefulWidget {
 }
 
 class _VideoItemState extends State<VideoItem> {
-  ChewieController _chewieController;
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
-
+  // ChewieController _chewieController;
+  // VideoPlayerController _controller;
+  // Future<void> _initializeVideoPlayerFuture;
+  VideoPlayerController _videoController;
+  Completer videoPlayerInitialized = Completer();
+  UniqueKey stickyKey = UniqueKey();
+  bool readycontroller=false;
   @override
-  void initState() {
-    super.initState();
-
-    _controller = VideoPlayerController.network(widget.url)
-      ..initialize().then((_) {
-        setState(() {}); //when your thumbnail will show.
-      });
-    _initializeVideoPlayerFuture = _controller.initialize();
-    _chewieController = ChewieController(
-      videoPlayerController: _controller,
-      aspectRatio: 3 / 2,
-      autoPlay: true,
-      looping: true,
-      cupertinoProgressColors: ChewieProgressColors(
-        playedColor: Colors.red,
-        handleColor: Colors.blue,
-        backgroundColor: Colors.grey,
-        bufferedColor: Colors.lightGreen,
-      ),
-      placeholder: Container(
-        color: Colors.grey,
-      ),
-
-      showControlsOnInitialize: true
-    );
-  }
-
-  @override
-  void dispose() {
+  void dispose() async{
     // Ensure disposing of the VideoPlayerController to free up resources.
-    _chewieController.dispose();
-    _controller.pause();
-    _controller.seekTo(Duration(seconds: 0));
-    _controller.dispose();
-
+    // _chewieController.dispose();
+    // _controller.pause();
+    // _controller.seekTo(Duration(seconds: 0));
+    // await _controller.dispose();
+    // setState(() {
+    //   _controller = null;
+    // });
+    await _videoController?.dispose()?.then((_) {
+      setState(() {
+        _videoController = null;
+        videoPlayerInitialized = Completer(); // resets the Completer
+      });});
     super.dispose();
   }
-
+Widget googly(){
+    if (readycontroller){return VideoPlayer(_videoController);
+    }
+    else{
+      return CircularProgressIndicator();
+    }
+}
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initializeVideoPlayerFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          // If the VideoPlayerController has finished initialization, use
-          // the data it provides to limit the aspect ratio of the VideoPlayer.
-          _controller.setLooping(true);
-          return GestureDetector(
-              child: Chewie(
-                controller: _chewieController,
-              ),
 
 
-              onTap: () {
-                if (_controller.value.isPlaying){
-                  _chewieController.pause();
-                }
-                else{
-                  _chewieController.play();
-                }
-
-              });
+    return SizedBox(width: 200,height:200,child:VisibilityDetector(
+      key: stickyKey,
+      onVisibilityChanged: (VisibilityInfo info) {
+        print("meri jung one man army");
+        print(info.visibleFraction);
+        if (info.visibleFraction > 0.5) {
+          if (_videoController == null) {
+            _videoController = VideoPlayerController.network(widget.url);
+            _videoController.initialize().then((_) {
+              videoPlayerInitialized.complete(true);
+              setState(() {readycontroller=true;});
+              _videoController.play();
+            });
+          }
         } else {
-          return Center(child: circularProgress());
+          setState(() {readycontroller=false;});
+          _videoController?.pause();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _videoController?.dispose()?.then((_) {
+              setState(() {
+                _videoController = null;
+                videoPlayerInitialized = Completer(); // resets the Completer
+              });
+            });
+          });
         }
       },
-    );
+      child: FutureBuilder(
+        future: videoPlayerInitialized.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              _videoController != null && readycontroller) {
+            // should also check that the video has not been disposed
+            return VideoPlayer(_videoController); // display the video
+          }
+
+          return CircularProgressIndicator();
+        },
+      ),
+    ));
   }
 }

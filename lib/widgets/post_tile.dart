@@ -31,7 +31,7 @@ class PostTile extends StatelessWidget {
     bool vid = post.mediaUrl.toLowerCase().contains(".mp4");
     return GestureDetector(
       onTap: () => showPost(context),
-      child: vid ? VideoItem(post.mediaUrl):cachedNetworkImage(post.mediaUrl),
+      child: vid ? VideoItem(post.mediaUrl,UniqueKey()):cachedNetworkImage(post.mediaUrl),
     );
   }
 }
@@ -40,7 +40,8 @@ class PostTile extends StatelessWidget {
 class VideoItem extends StatefulWidget {
   final String url;
 
-  VideoItem(this.url);
+  final UniqueKey newKey;
+  VideoItem(this.url, this.newKey): super(key: newKey);
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -79,12 +80,15 @@ class _VideoItemState extends State<VideoItem> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     // Ensure disposing of the VideoPlayerController to free up resources.
     _chewieController.dispose();
-    _controller.pause();
-    _controller.seekTo(Duration(seconds: 0));
-    _controller.dispose();
+    // _controller.pause();
+    // _controller.seekTo(Duration(seconds: 0));
+    await _controller.dispose();
+    setState(() {
+      _controller = null;
+    });
 
     super.dispose();
   }

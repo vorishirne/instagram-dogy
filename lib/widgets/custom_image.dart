@@ -32,7 +32,7 @@ Widget cachedPostNetworkImage(String mediaUrl) {
 
 Widget cachedNetworkImageLead(String mediaUrl) {
   bool vid = mediaUrl.toLowerCase().contains(".mp4");
-  return vid? VideoItem(mediaUrl) : CachedNetworkImage(
+  return vid? VideoItem(mediaUrl,UniqueKey()) : CachedNetworkImage(
     imageUrl: mediaUrl ??
         "https://www.asjfkfhdgihdknjskdjfeid.com",
     fit: BoxFit.cover,
@@ -48,7 +48,8 @@ Widget cachedNetworkImageLead(String mediaUrl) {
 
 class VideoItem extends StatefulWidget{
   final String url;
-  VideoItem(String this.url);
+  final UniqueKey newKey;
+  VideoItem(this.url, this.newKey): super(key: newKey);
   @override
   _VideoItemState createState() => _VideoItemState();
 }
@@ -66,9 +67,12 @@ class _VideoItemState extends State<VideoItem> {
   }
 
   @override
-  void dispose() {
+  void dispose() async{
     super.dispose();
-    _controller.dispose();
+    await _controller.dispose();
+    setState(() {
+      _controller = null;
+    });
   }
 
   @override
