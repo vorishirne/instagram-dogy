@@ -28,10 +28,13 @@ class PostTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print("putting the comparision of sizes.");
+    // print(MediaQuery.of(context).size.width);
+
     bool vid = post.mediaUrl.toLowerCase().contains(".mp4");
     return GestureDetector(
       onTap: () => showPost(context),
-      child: vid ? VideoItem(post.mediaUrl,UniqueKey()):cachedNetworkImage(post.mediaUrl),
+      child: vid ? videoBurrow(context,thumbUrl: "") :cachedNetworkImage(post.mediaUrl),
     );
   }
 }

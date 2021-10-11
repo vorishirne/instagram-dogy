@@ -332,10 +332,10 @@ class _PostState extends State<Post> {
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
     final v = Theme(
-      data: ThemeData.light().copyWith(
-        platform: TargetPlatform.iOS,
-      ),
-      child:VideoItem(mediaUrl));
+        data: ThemeData.light().copyWith(
+          platform: TargetPlatform.iOS,
+        ),
+        child: VideoItem(mediaUrl));
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Stack(
@@ -497,9 +497,10 @@ class _VideoItemState extends State<VideoItem> {
   VideoPlayerController _videoController;
   Completer videoPlayerInitialized = Completer();
   UniqueKey stickyKey = UniqueKey();
-  bool readycontroller=false;
+  bool readycontroller = false;
+
   @override
-  void dispose() async{
+  void dispose() async {
     // Ensure disposing of the VideoPlayerController to free up resources.
     // _chewieController.dispose();
     // _controller.pause();
@@ -512,59 +513,91 @@ class _VideoItemState extends State<VideoItem> {
       setState(() {
         _videoController = null;
         videoPlayerInitialized = Completer(); // resets the Completer
-      });});
+      });
+    });
     super.dispose();
   }
-Widget googly(){
-    if (readycontroller){return VideoPlayer(_videoController);
-    }
-    else{
+
+  Widget googly() {
+    if (readycontroller) {
+      return VideoPlayer(_videoController);
+    } else {
       return CircularProgressIndicator();
     }
-}
+  }
+
   @override
   Widget build(BuildContext context) {
-
-
-    return SizedBox(width: 200,height:200,child:VisibilityDetector(
-      key: stickyKey,
-      onVisibilityChanged: (VisibilityInfo info) {
-        print("meri jung one man army");
-        print(info.visibleFraction);
-        if (info.visibleFraction > 0.5) {
-          if (_videoController == null) {
-            _videoController = VideoPlayerController.network(widget.url);
-            _videoController.initialize().then((_) {
-              videoPlayerInitialized.complete(true);
-              setState(() {readycontroller=true;});
-              _videoController.play();
-            });
-          }
-        } else {
-          setState(() {readycontroller=false;});
-          _videoController?.pause();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _videoController?.dispose()?.then((_) {
+    return SizedBox(
+        width: 200,
+        height: 200,
+        child: VisibilityDetector(
+          key: stickyKey,
+          onVisibilityChanged: (VisibilityInfo info) {
+            print("meri jung one man army");
+            print(info.visibleFraction);
+            if (info.visibleFraction > 0.5) {
+              if (_videoController == null) {
+                _videoController = VideoPlayerController.network(widget.url);
+                _videoController.initialize().then((_) {
+                  videoPlayerInitialized.complete(true);
+                  setState(() {
+                    readycontroller = true;
+                  });
+                  _videoController.play();
+                });
+              }
+            } else {
               setState(() {
-                _videoController = null;
-                videoPlayerInitialized = Completer(); // resets the Completer
+                readycontroller = false;
               });
-            });
-          });
-        }
-      },
-      child: FutureBuilder(
-        future: videoPlayerInitialized.future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              _videoController != null && readycontroller) {
-            // should also check that the video has not been disposed
-            return VideoPlayer(_videoController); // display the video
-          }
+              _videoController?.pause();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _videoController?.dispose()?.then((_) {
+                  setState(() {
+                    _videoController = null;
+                    videoPlayerInitialized =
+                        Completer(); // resets the Completer
+                  });
+                });
+              });
+            }
+          },
+          child: FutureBuilder(
+            future: videoPlayerInitialized.future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  _videoController != null &&
+                  readycontroller) {
+                // should also check that the video has not been disposed
+                return VideoPlayer(_videoController); // display the video
+              }
 
-          return CircularProgressIndicator();
-        },
-      ),
-    ));
+              return CircularProgressIndicator();
+            },
+          ),
+        ));
   }
 }
+
+Widget videoBurrow(BuildContext context,
+    {String thumbUrl = ""}) {
+  return Stack(
+
+    alignment: AlignmentDirectional.center,
+    children: [
+      thumbUrl != ""
+          ? CachedNetworkImage(
+          imageUrl: thumbUrl,
+          imageBuilder: (context, imageProvider) =>
+              ImageIcon(imageProvider),
+          errorWidget: (context, url, error) =>
+              Container(decoration: BoxDecoration(color: Colors.black54)),
+          placeholder: (context, url) =>
+              Container(decoration: BoxDecoration(color: Colors.black54)))
+          : Container(decoration: BoxDecoration(color: Colors.black54)),
+      Positioned(child: Icon(CupertinoIcons.arrowtriangle_left))
+    ],
+  );
+}
+
