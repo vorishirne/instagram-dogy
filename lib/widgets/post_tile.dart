@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dodogy_challange/models/postmini.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
@@ -10,7 +11,7 @@ import 'package:dodogy_challange/widgets/post.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PostTile extends StatelessWidget {
-  final Post post;
+  final postmini post;
 
   PostTile(this.post);
 
@@ -32,19 +33,27 @@ class PostTile extends StatelessWidget {
     // print(MediaQuery.of(context).size.width);
 
     bool vid = post.mediaUrl.toLowerCase().contains(".mp4");
-    return GestureDetector(
-      onTap: () => showPost(context),
-      child: vid ? videoBurrow(context,thumbUrl: "") :cachedNetworkImage(post.mediaUrl),
+    return Container(
+      decoration: BoxDecoration(
+          border: Border(
+              right: BorderSide(color: Colors.blueGrey, width: .5),
+              bottom: BorderSide(color: Colors.blueGrey, width: .5))),
+      child: GestureDetector(
+        onTap: () => showPost(context),
+        child: vid
+            ? videoBurrow(context, thumbUrl: post.thumb)
+            : cachedNetworkImage(post.mediaUrl),
+      ),
     );
   }
 }
-
 
 class VideoItem extends StatefulWidget {
   final String url;
 
   final UniqueKey newKey;
-  VideoItem(this.url, this.newKey): super(key: newKey);
+
+  VideoItem(this.url, this.newKey) : super(key: newKey);
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -66,7 +75,7 @@ class _VideoItemState extends State<VideoItem> {
     _initializeVideoPlayerFuture = _controller.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _controller,
-      aspectRatio: 1/1,
+      aspectRatio: 1 / 1,
       autoPlay: true,
       looping: true,
       showControls: false,
@@ -100,14 +109,10 @@ class _VideoItemState extends State<VideoItem> {
   Widget build(BuildContext context) {
     return _controller.value.initialized
         ? Container(
-
-      child: Chewie(
-        controller: _chewieController,
-      ),
-    )
+            child: Chewie(
+              controller: _chewieController,
+            ),
+          )
         : circularProgress();
-
   }
 }
-
-

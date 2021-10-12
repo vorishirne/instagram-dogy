@@ -28,6 +28,7 @@ class Post extends StatefulWidget {
   final bool addDivider;
   final BuildContext masterContext;
   final Timestamp timestamp;
+  final String thumb;
 
   Post(
       {this.myPhoto = false,
@@ -40,6 +41,7 @@ class Post extends StatefulWidget {
       this.likes,
       this.timestamp,
       this.addDivider = false,
+      this.thumb,
       this.masterContext})
       : super(key: ValueKey(postId));
 
@@ -59,6 +61,7 @@ class Post extends StatefulWidget {
       addDivider: addDivider,
       masterContext: masterContext,
       myPhoto: myPhoto,
+      thumb: doc["thumb"] ?? "",
     );
   }
 
@@ -79,16 +82,16 @@ class Post extends StatefulWidget {
 
   @override
   _PostState createState() => _PostState(
-        postId: this.postId,
-        ownerId: this.ownerId,
-        username: this.username,
-        location: this.location,
-        description: this.description,
-        mediaUrl: this.mediaUrl,
-        likes: this.likes,
-        likeCount: getLikeCount(this.likes),
-        timestamp: this.timestamp,
-      );
+      postId: this.postId,
+      ownerId: this.ownerId,
+      username: this.username,
+      location: this.location,
+      description: this.description,
+      mediaUrl: this.mediaUrl,
+      likes: this.likes,
+      likeCount: getLikeCount(this.likes),
+      timestamp: this.timestamp,
+      thumb: this.thumb);
 }
 
 class _PostState extends State<Post> {
@@ -105,6 +108,7 @@ class _PostState extends State<Post> {
   bool isLiked;
   int likeCount;
   Map likes;
+  final String thumb;
 
   _PostState(
       {this.postId,
@@ -115,7 +119,8 @@ class _PostState extends State<Post> {
       this.mediaUrl,
       this.likes,
       this.likeCount,
-      this.timestamp});
+      this.timestamp,
+      this.thumb});
 
   buildPostHeader(BuildContext context) {
     return FutureBuilder(
@@ -323,6 +328,8 @@ class _PostState extends State<Post> {
           .get()
           .then((doc) {
         if (doc.exists) {
+          print("here is the type");
+          print(doc["type"]);
           doc.reference.delete();
         }
       });
@@ -331,17 +338,19 @@ class _PostState extends State<Post> {
 
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
-    final v = Theme(
-        data: ThemeData.light().copyWith(
-          platform: TargetPlatform.iOS,
-        ),
-        child: VideoItem(mediaUrl));
+
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          vid ? v : cachedNetworkImage(mediaUrl),
+          vid
+              ? Theme(
+                  data: ThemeData.light().copyWith(
+                    platform: TargetPlatform.iOS,
+                  ),
+                  child: VideoItem(mediaUrl))
+              : cachedNetworkImage(mediaUrl),
           showHeart
               ? Animator(
                   duration: Duration(milliseconds: 300),
@@ -580,24 +589,31 @@ class _VideoItemState extends State<VideoItem> {
   }
 }
 
-Widget videoBurrow(BuildContext context,
-    {String thumbUrl = ""}) {
-  return Stack(
-
-    alignment: AlignmentDirectional.center,
-    children: [
-      thumbUrl != ""
-          ? CachedNetworkImage(
-          imageUrl: thumbUrl,
-          imageBuilder: (context, imageProvider) =>
-              ImageIcon(imageProvider),
-          errorWidget: (context, url, error) =>
-              Container(decoration: BoxDecoration(color: Colors.black54)),
-          placeholder: (context, url) =>
-              Container(decoration: BoxDecoration(color: Colors.black54)))
-          : Container(decoration: BoxDecoration(color: Colors.black54)),
-      Positioned(child: Icon(CupertinoIcons.arrowtriangle_left))
-    ],
+Widget videoBurrow(BuildContext context, {String thumbUrl = ""}) {
+  return Container(
+    child: Stack(
+      alignment: AlignmentDirectional.center,
+      children: [
+        thumbUrl != ""
+            ? Container(
+                child: Container(
+                child: Container(child:CachedNetworkImage(
+                    imageUrl: thumbUrl,
+                    imageBuilder: (context, imageProvider) =>
+                        Image(image: imageProvider),
+                    errorWidget: (context, url, error) => Container(
+                        decoration: BoxDecoration(color: Colors.black87)),
+                    placeholder: (context, url) => Container(
+                        decoration: BoxDecoration(color: Colors.black87))),
+              )))
+            : Container(decoration: BoxDecoration(color: Colors.black87)),
+        Positioned(
+            child: Icon(
+          CupertinoIcons.play_arrow_solid,
+          color: Colors.white70,
+          size: 54,
+        ))
+      ],
+    ),
   );
 }
-

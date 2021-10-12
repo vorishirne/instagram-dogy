@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/models/user.dart';
+import 'package:dodogy_challange/models/postmini.dart';
 import 'package:dodogy_challange/pages/edit_profile.dart';
 import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/homyz.dart';
@@ -420,16 +421,17 @@ class _ProfileState extends State<Profile>
               List<GridTile> gridTiles = [];
               snapshot.data.documents.forEach((post) {
                 gridTiles
-                    .add(GridTile(child: PostTile(Post.fromDocument(post))));
+                    .add(GridTile(child: PostTile(postmini.fromDocument(post))));
               });
-              return GridView.count(
-                crossAxisCount: 3,
-                childAspectRatio: 1.0,
-                mainAxisSpacing: 1.5,
-                crossAxisSpacing: 1.5,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: gridTiles,
+              return Container(
+                // decoration: BoxDecoration(color: Colors.black87),
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.0,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: gridTiles,
+                ),
               );
             } else if (postOrientation == "list") {
               List<Post> postsa = [];
