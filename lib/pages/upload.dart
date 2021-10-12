@@ -37,6 +37,8 @@ class _UploadState extends State<Upload>
   final StorageReference storageRef = FirebaseStorage.instance.ref();
   File file;
   File file2;
+  int height_upload=0;
+  int width_upload=0;
   bool isPic = true;
   bool isUploading = false;
   String postId = Uuid().v4();
@@ -305,6 +307,8 @@ class _UploadState extends State<Upload>
   clearImage() {
     setState(() {
       file = null;
+      height_upload=0;
+      width_upload=0;
       postId = Uuid().v4();
     });
   }
@@ -342,9 +346,15 @@ class _UploadState extends State<Upload>
     if (!isPic) {
       final File thumb =
       await _flutterVideoCompress.getThumbnailWithFile(imageFile.path,
-          quality: 75, // default(100)
+          quality: 55, // default(100)
           position: -1 // default(-1)
       );
+      var decodedImage = await decodeImageFromList(thumb.readAsBytesSync());
+      print("bheki hawwa sa tha voh");
+      print(decodedImage.width);
+      print(decodedImage.height);
+      height_upload = decodedImage.height;
+      width_upload = decodedImage.width;
       final MediaInfo info = await _flutterVideoCompress.compressVideo(
         imageFile.path,
         deleteOrigin: true,
@@ -353,6 +363,14 @@ class _UploadState extends State<Upload>
       thumbFile = thumb;
       imageFile = info.file;
       thumbName = "post_$postId.jpg";
+    }
+    else{
+      var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
+      print("milne hum ayenge tumko sajna");
+      print(decodedImage.width);
+      print(decodedImage.height);
+      height_upload = decodedImage.height;
+      width_upload = decodedImage.width;
     }
     if (thumbName != "") {
       StorageUploadTask uploadTask =
@@ -393,6 +411,8 @@ class _UploadState extends State<Upload>
       "location": location,
       "timestamp": DateTime.now(),
       "likes": {},
+      "height":height_upload,
+      "width":width_upload
     });
     print("hogya");
   }
@@ -424,6 +444,8 @@ class _UploadState extends State<Upload>
     captionController.clear();
     locationController.clear();
     setState(() {
+      height_upload=0;
+      width_upload=0;
       file = null;
       isUploading = false;
       postId = Uuid().v4();
@@ -638,9 +660,14 @@ class _UploadState extends State<Upload>
         iosUiSettings: IOSUiSettings(
           title: 'Edit',
         ));
+    var decodedImage = await decodeImageFromList(croppedFile.readAsBytesSync());
+    print("hora hai pyar sajna");
+    print(decodedImage.width);
+    print(decodedImage.height);
     if (croppedFile != null) {
       setState(() {
         file = croppedFile;
+
       });
     }
   }

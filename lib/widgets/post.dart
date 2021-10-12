@@ -1,8 +1,10 @@
 import 'package:chewie/chewie.dart';
 import 'package:chewie/src/chewie_player.dart';
+import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animator/animator.dart';
@@ -29,6 +31,8 @@ class Post extends StatefulWidget {
   final BuildContext masterContext;
   final Timestamp timestamp;
   final String thumb;
+  final int heightf;
+  final int widthf;
 
   Post(
       {this.myPhoto = false,
@@ -42,7 +46,9 @@ class Post extends StatefulWidget {
       this.timestamp,
       this.addDivider = false,
       this.thumb,
-      this.masterContext})
+      this.masterContext,
+      this.heightf = 0,
+      this.widthf = 0})
       : super(key: ValueKey(postId));
 
   factory Post.fromDocument(DocumentSnapshot doc,
@@ -62,6 +68,8 @@ class Post extends StatefulWidget {
       masterContext: masterContext,
       myPhoto: myPhoto,
       thumb: doc["thumb"] ?? "",
+      heightf: doc["height"] ?? 0,
+      widthf: doc["width"] ?? 0,
     );
   }
 
@@ -91,7 +99,9 @@ class Post extends StatefulWidget {
       likes: this.likes,
       likeCount: getLikeCount(this.likes),
       timestamp: this.timestamp,
-      thumb: this.thumb);
+      thumb: this.thumb,
+      widthf: this.widthf,
+      heightf: this.heightf);
 }
 
 class _PostState extends State<Post> {
@@ -109,6 +119,8 @@ class _PostState extends State<Post> {
   int likeCount;
   Map likes;
   final String thumb;
+  final int heightf;
+  final int widthf;
 
   _PostState(
       {this.postId,
@@ -120,7 +132,9 @@ class _PostState extends State<Post> {
       this.likes,
       this.likeCount,
       this.timestamp,
-      this.thumb});
+      this.thumb,
+      this.heightf = 0,
+      this.widthf = 0});
 
   buildPostHeader(BuildContext context) {
     return FutureBuilder(
@@ -327,9 +341,7 @@ class _PostState extends State<Post> {
           .document(postId)
           .get()
           .then((doc) {
-        if (doc.exists) {
-          print("here is the type");
-          print(doc["type"]);
+        if (doc.exists && doc["type"] == "like") {
           doc.reference.delete();
         }
       });
@@ -338,36 +350,46 @@ class _PostState extends State<Post> {
 
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
+    double h = 260;
+    if (heightf != 0 && widthf != 0) {
+      h = (heightf / widthf) * MediaQuery.of(context).size.width;
+    }
 
     return GestureDetector(
       onDoubleTap: handleLikePost,
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          vid
-              ? Theme(
-                  data: ThemeData.light().copyWith(
-                    platform: TargetPlatform.iOS,
-                  ),
-                  child: VideoItem(mediaUrl))
-              : cachedNetworkImage(mediaUrl),
-          showHeart
-              ? Animator(
-                  duration: Duration(milliseconds: 300),
-                  tween: Tween(begin: 0.8, end: 1.4),
-                  curve: Curves.elasticOut,
-                  cycles: 0,
-                  builder: (anim) => Transform.scale(
-                    scale: anim.value,
-                    child: Icon(
-                      CupertinoIcons.heart,
-                      size: 80.0,
-                      color: Colors.pink,
+      child: SizedBox(
+        height: h,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            vid
+                ?
+                // Theme(
+                //         data: ThemeData.light().copyWith(
+                //           platform: TargetPlatform.iOS,
+                //         ),
+                //         child:
+                VideoItem(mediaUrl, thumb, h)
+                // )
+                : cachedNetworkImage(mediaUrl),
+            showHeart
+                ? Animator(
+                    duration: Duration(milliseconds: 300),
+                    tween: Tween(begin: 0.8, end: 1.4),
+                    curve: Curves.elasticOut,
+                    cycles: 0,
+                    builder: (anim) => Transform.scale(
+                      scale: anim.value,
+                      child: Icon(
+                        CupertinoIcons.heart,
+                        size: 80.0,
+                        color: Colors.pink,
+                      ),
                     ),
-                  ),
-                )
-              : Text(""),
-        ],
+                  )
+                : Text(""),
+          ],
+        ),
       ),
     );
   }
@@ -492,8 +514,10 @@ showComments(BuildContext context,
 
 class VideoItem extends StatefulWidget {
   final String url;
+  final String thumbUrl;
+  final double h;
 
-  VideoItem(this.url);
+  VideoItem(this.url, this.thumbUrl, this.h);
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -503,10 +527,16 @@ class _VideoItemState extends State<VideoItem> {
   // ChewieController _chewieController;
   // VideoPlayerController _controller;
   // Future<void> _initializeVideoPlayerFuture;
-  VideoPlayerController _videoController;
+  CachedVideoPlayerController _videoController;
   Completer videoPlayerInitialized = Completer();
   UniqueKey stickyKey = UniqueKey();
   bool readycontroller = false;
+  bool play = false;
+
+  @override
+  void initstate() {
+    super.initState();
+  }
 
   @override
   void dispose() async {
@@ -527,93 +557,136 @@ class _VideoItemState extends State<VideoItem> {
     super.dispose();
   }
 
-  Widget googly() {
-    if (readycontroller) {
-      return VideoPlayer(_videoController);
-    } else {
-      return CircularProgressIndicator();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: 200,
-        height: 200,
+    return Container(
+        // width: 200,
+        // height: 200,
         child: VisibilityDetector(
-          key: stickyKey,
-          onVisibilityChanged: (VisibilityInfo info) {
-            print("meri jung one man army");
-            print(info.visibleFraction);
-            if (info.visibleFraction > 0.5) {
-              if (_videoController == null) {
-                _videoController = VideoPlayerController.network(widget.url);
-                _videoController.initialize().then((_) {
-                  videoPlayerInitialized.complete(true);
-                  setState(() {
-                    readycontroller = true;
-                  });
-                  _videoController.play();
-                });
-              }
-            } else {
+      key: stickyKey,
+      onVisibilityChanged: (VisibilityInfo info) {
+        print("meri jung one man army");
+        print(info.visibleFraction);
+        if (info.visibleFraction > 0.70) {
+          play = playAtFirst == 2;
+          if (play) {
+            playAtFirst = 1;
+          }
+          if (_videoController == null) {
+            _videoController = CachedVideoPlayerController.network(widget.url);
+            _videoController.initialize().then((_) {
+              videoPlayerInitialized.complete(true);
               setState(() {
-                readycontroller = false;
+                readycontroller = true;
               });
-              _videoController?.pause();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _videoController?.dispose()?.then((_) {
-                  setState(() {
-                    _videoController = null;
-                    videoPlayerInitialized =
-                        Completer(); // resets the Completer
-                  });
-                });
-              });
-            }
-          },
-          child: FutureBuilder(
-            future: videoPlayerInitialized.future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done &&
-                  _videoController != null &&
-                  readycontroller) {
-                // should also check that the video has not been disposed
-                return VideoPlayer(_videoController); // display the video
+              _videoController.setLooping(true);
+              if (play) {
+                _videoController.play();
               }
+            });
+          }
+        } else if (info.visibleFraction < 0.60) {
+          setState(() {
+            readycontroller = false;
+          });
+          if (playAtFirst == 1) {
+            playAtFirst = 2;
+          }
+          _videoController?.pause();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _videoController?.dispose()?.then((_) {
+              setState(() {
+                _videoController = null;
+                videoPlayerInitialized = Completer(); // resets the Completer
+              });
+            });
+          });
+        }
+      },
+      child: FutureBuilder(
+        future: videoPlayerInitialized.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              _videoController != null &&
+              readycontroller) {
+            // should also check that the video has not been disposed
+            return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (_videoController?.value?.isPlaying) {
+                      _videoController?.pause();
+                      setState(() {
+                        print("google stole my data");
+                        play = false;
+                      });
+                      playAtFirst = 0;
+                    } else {
+                      _videoController?.play();
+                      playAtFirst = 1;
+                      setState(() {
+                        print("being played now");
+                        play = true;
+                      });
+                    }
+                  });
+                },
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    CachedVideoPlayer(_videoController),
+                    !play
+                        ? Icon(
+                            CupertinoIcons.paw_solid,
+                            color: Colors.white70,
+                            size: 126,
+                          )
+                        : Text("")
+                  ],
+                )); // display the video
+          }
 
-              return CircularProgressIndicator();
-            },
-          ),
-        ));
+          return videoBurrow(context, thumbUrl: widget.thumbUrl, h: widget.h);
+        },
+      ),
+    ));
   }
 }
 
-Widget videoBurrow(BuildContext context, {String thumbUrl = ""}) {
-  return Container(
-    child: Stack(
-      alignment: AlignmentDirectional.center,
-      children: [
-        thumbUrl != ""
-            ? Container(
-                child: Container(
-                child: Container(child:CachedNetworkImage(
-                    imageUrl: thumbUrl,
-                    imageBuilder: (context, imageProvider) =>
-                        Image(image: imageProvider),
-                    errorWidget: (context, url, error) => Container(
-                        decoration: BoxDecoration(color: Colors.black87)),
-                    placeholder: (context, url) => Container(
-                        decoration: BoxDecoration(color: Colors.black87))),
-              )))
-            : Container(decoration: BoxDecoration(color: Colors.black87)),
-        Positioned(
-            child: Icon(
-          CupertinoIcons.play_arrow_solid,
-          color: Colors.white70,
-          size: 54,
-        ))
-      ],
+Widget videoBurrow(BuildContext context, {String thumbUrl = "", double h}) {
+  return SizedBox(
+//    height: h,
+    child: Container(
+      color: Colors.black,
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          thumbUrl != ""
+              ? Container(
+                  // color:Colors.red,
+                  child: Container(
+                      child: Container(
+                  child: CachedNetworkImage(
+                      imageUrl: thumbUrl,
+                      imageBuilder: (context, imageProvider) => SizedBox(
+                              child: Image(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                            height: h,
+                          )),
+                      errorWidget: (context, url, error) => Container(
+                          decoration: BoxDecoration(color: Colors.black87)),
+                      placeholder: (context, url) => Container(
+                          decoration: BoxDecoration(color: Colors.black87))),
+                )))
+              : Container(decoration: BoxDecoration(color: Colors.black87)),
+          Positioned(
+              child: Icon(
+            h != null ? CupertinoIcons.paw : CupertinoIcons.play_arrow_solid,
+            color: Colors.white70,
+            size: h != null ? 126 : 54,
+          ))
+        ],
+      ),
     ),
   );
 }

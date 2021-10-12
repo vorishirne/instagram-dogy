@@ -45,6 +45,7 @@ dependencies:
   splashscreen:
   image_cropper: ^1.2.2
   flutter_video_compress: 0.3.7+8
+  cached_video_player: ^1.0.3
 
 
 
