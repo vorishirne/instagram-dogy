@@ -337,7 +337,7 @@ class _UploadState extends State<Upload>
   }
 
 //windowStopped(true) false io.flutter.embedding.android.FlutterSurfaceView{5344268
-  Future<List<String>> uploadImage(imageFile) async {
+  Future<List<String>> uploadImage(File imageFile) async {
     print("Came here to print");
     String name = isPic ? "post_$postId.jpg" : "post_$postId.mp4";
     String thumbnail = "";
@@ -384,6 +384,13 @@ class _UploadState extends State<Upload>
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     print(downloadUrl);
+//    imageFile.delete(recursive: true);
+
+    Directory tempdir= await getApplicationDocumentsDirectory();
+    print("hogai bhai hogai");
+    print(tempdir.path);
+    //tempdir.deleteSync(recursive: true);
+    await _flutterVideoCompress.deleteAllCache();
     final snackBar = SnackBar(
       content: Text('Media Shared!'),
       duration: Duration(seconds: 2),
@@ -666,6 +673,7 @@ class _UploadState extends State<Upload>
     print(decodedImage.height);
     if (croppedFile != null) {
       setState(() {
+        // file.deleteSync(recursive: true);
         file = croppedFile;
 
       });

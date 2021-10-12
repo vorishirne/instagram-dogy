@@ -141,64 +141,72 @@ class _PostState extends State<Post> {
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return SizedBox(
-            height: 72,
+          return AnimatedSwitcher(
+            duration: Duration(milliseconds: 500),
+            //transitionBuilder: (Widget child,Animation<double> anim)=> ScaleTransition(scale: anim,child: child,),
+            child: SizedBox(
+              height: 72,
+            ),
           );
         }
         User user = User.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == ownerId;
-        return Container(
-          height: 72,
-          child: GestureDetector(
-              onTap: () => showProfile(context, profileId: user.id),
-              child: ListTile(
-                leading: SizedBox(
-                  height:45,
-                  width: 45,
-                  child: CachedNetworkImage(
-                      imageUrl: user.photoUrl ??
-                          "https://www.asjfkfhdgihdknjskdjfeid.com",
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage: imageProvider,
+        return AnimatedSwitcher(
+          // transitionBuilder: (Widget child,Animation<double> anim)=> ScaleTransition(scale: anim,child: child,),
+          duration: Duration(milliseconds: 500),
+          child: Container(
+            height: 72,
+            child: GestureDetector(
+                onTap: () => showProfile(context, profileId: user.id),
+                child: ListTile(
+                  leading: SizedBox(
+                    height:45,
+                    width: 45,
+                    child: CachedNetworkImage(
+                        imageUrl: user.photoUrl ??
+                            "https://www.asjfkfhdgihdknjskdjfeid.com",
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              backgroundImage: imageProvider,
+                            ),
+                        errorWidget: (context, url, error) => Padding(
+                            padding: EdgeInsets.all(12), //heret
+                            child: Icon(
+                              CupertinoIcons.person_solid,
+                              color: Colors.black,
+                            ))),
+                  ),
+
+
+                  title: Container(
+                    child: widget.myPhoto
+                        ? Text(
+                            timeago.format(timestamp.toDate()),
+                            style: TextStyle(color: Colors.grey, fontSize: 12.5),
+                          )
+                        : Text(
+                            user.username,
+                            style: TextStyle(
+                                color: Color.fromRGBO(24, 115, 172, 1),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 20),
                           ),
-                      errorWidget: (context, url, error) => Padding(
-                          padding: EdgeInsets.all(12), //heret
-                          child: Icon(
-                            CupertinoIcons.person_solid,
-                            color: Colors.black,
-                          ))),
-                ),
-
-
-                title: Container(
-                  child: widget.myPhoto
-                      ? Text(
-                          timeago.format(timestamp.toDate()),
-                          style: TextStyle(color: Colors.grey, fontSize: 12.5),
-                        )
-                      : Text(
-                          user.username,
-                          style: TextStyle(
-                              color: Color.fromRGBO(24, 115, 172, 1),
-                              fontWeight: FontWeight.w400,
-                              fontSize: 20),
-                        ),
-                ),
-                subtitle: Container(
-                  child: widget.myPhoto
-                      ? Text("")
-                      : Text(timeago.format(timestamp.toDate())),
-                ),
-                trailing: Container(
-                  child: isPostOwner
-                      ? IconButton(
-                          onPressed: () => handleDeletePost(context),
-                          icon: Icon(CupertinoIcons.delete_solid),
-                        )
-                      : Text(''),
-                ),
-              )),
+                  ),
+                  subtitle: Container(
+                    child: widget.myPhoto
+                        ? Text("")
+                        : Text(timeago.format(timestamp.toDate())),
+                  ),
+                  trailing: Container(
+                    child: isPostOwner
+                        ? IconButton(
+                            onPressed: () => handleDeletePost(context),
+                            icon: Icon(CupertinoIcons.delete_solid),
+                          )
+                        : Text(''),
+                  ),
+                )),
+          ),
         );
       },
     );
@@ -564,12 +572,12 @@ class _VideoItemState extends State<VideoItem> {
     // setState(() {
     //   _controller = null;
     // });
-    await _videoController?.dispose()?.then((_) {
-      setState(() {
+    _videoController?.dispose()?.then((_) {
+
         readycontroller = false;
         _videoController = null;
         videoPlayerInitialized = Completer(); // resets the Completer
-      });
+
     });
     super.dispose();
   }
@@ -602,7 +610,7 @@ class _VideoItemState extends State<VideoItem> {
               }
             });
           }
-        } else if (info.visibleFraction < 0.60) {
+        } else if (info.visibleFraction < 0.30) {
           setState(() {
             readycontroller = false;
           });
