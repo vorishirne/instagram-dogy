@@ -12,6 +12,7 @@ import 'package:dodogy_challange/widgets/post.dart';
 import 'package:dodogy_challange/widgets/post_tile.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'dart:math';
+import 'activity_feed.dart';
 
 class Profile extends StatefulWidget {
   final String profileId;
@@ -22,8 +23,7 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile>
-     {
+class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
 
   String postOrientation = "grid";
@@ -105,7 +105,8 @@ class _ProfileState extends State<Profile>
               children: <Widget>[
                 IconButton(
                   icon: Text((count > 0 ? count : 0).toString(),
-                  style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400)),
+                      style: TextStyle(
+                          fontSize: 22.0, fontWeight: FontWeight.w400)),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 0.0),
@@ -122,7 +123,19 @@ class _ProfileState extends State<Profile>
             )));
   }
 
-  editProfile(contextx) {
+  void viewActivity(contextx) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (contex) => ActivityFeed()
+            // EditProfile(
+            //         currentUserId: currentUserId,
+            //         mastercontext: contextx,
+            //       ))
+
+            ));
+  }
+
+  void editProfile(contextx) {
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -165,9 +178,9 @@ class _ProfileState extends State<Profile>
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner) {
       return buildButton(
-        text: "Edit Profile",
+        text: "See activity",
         function: () {
-          editProfile(context);
+          viewActivity(context);
         },
       );
     } else if (isFollowing) {
@@ -254,123 +267,149 @@ class _ProfileState extends State<Profile>
   }
 
   buildProfileHeader(BuildContext childContext) {
-    return FutureBuilder(
-        future: usersRef.document(widget.profileId).get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data == null) {
-            return SizedBox(
-              height: 200,
-            ); //cll
-          }
-          if (!snapshot.data.exists) {
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-              Navigator.of(childContext).popUntil((route) => route.isFirst);
-            });
-          }
-          User user = User.fromDocument(snapshot.data);
-          print("ole ole ole");
-          return Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    CachedNetworkImage(
-                        imageUrl: user.photoUrl ??
-                            "https://www.asjfkfhdgihdknjskdjfeid.com",
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                              backgroundColor: Colors.grey,
-                              backgroundImage: imageProvider,
-                              radius: 40,
+    return SizedBox(
+        height: 220,
+        child: FutureBuilder(
+            future: usersRef.document(widget.profileId).get(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data == null) {
+                return SizedBox(
+                  height: 200,
+                ); //cll
+              }
+              if (!snapshot.data.exists) {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  Navigator.of(childContext).popUntil((route) => route.isFirst);
+                });
+              }
+              User user = User.fromDocument(snapshot.data);
+              print("ole ole ole");
+              return SizedBox(
+                  height: 200,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () => editProfile(context),
+                              child: SizedBox(
+                                height: 75,
+                                width: 75,
+                                child: CachedNetworkImage(
+                                    imageUrl: user.photoUrl ??
+                                        "https://www.asjfkfhdgihdknjskdjfeid.com",
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                          backgroundColor: Colors.grey,
+                                          backgroundImage: imageProvider,
+                                          radius: 40,
+                                        ),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
+                                            color: Colors.white10,
+                                            padding: EdgeInsets.all(25),
+                                            child: Icon(
+                                              CupertinoIcons.person_solid,
+                                            ))),
+                              ),
                             ),
-                        errorWidget: (context, url, error) => Container(
-                            color: Colors.white10,
-                            padding: EdgeInsets.all(25),
-                            child: Icon(
-                              CupertinoIcons.person_solid,
-                            ))),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildCountColumn("posts", postCount, null),
-                              buildCountColumn("followers", followerCount - 1,
-                                  () {
-                                setState(() {
-                                  //miniPageController.jumpToPage(1);
-                                  miniPageIndex = 1;
-                                  pageController.jumpToPage(1);
-                                  pageIndex = 1;
-                                  print("applied page index");
-                                  miniPageController.animateTo(1);
-                                });
-                              }),
-                              buildCountColumn("following", followingCount - 1,
-                                  () {
-                                setState(() {
-
-                                  miniPageIndex = 0;
-                                  pageController.jumpToPage(1);
-                                  pageIndex = 1;
-                                  print("applied page index");
-                                  //miniPageIndex = 0;
-                                  miniPageController.animateTo(0);
-                                });
-                              }),
-                            ],
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      buildCountColumn(
+                                          "posts", postCount, null),
+                                      buildCountColumn(
+                                          "followers", followerCount - 1, () {
+                                        if (widget.profileId == currentUserId) {
+                                          setState(() {
+                                            //miniPageController.jumpToPage(1);
+                                            miniPageIndex = 1;
+                                            pageController.jumpToPage(1);
+                                            pageIndex = 1;
+                                            print("applied page index");
+                                            miniPageController.animateTo(1);
+                                          });
+                                          Navigator.of(context).popUntil(
+                                              (route) => route.isFirst);
+                                        }
+                                      }),
+                                      buildCountColumn(
+                                          "following", followingCount - 1, () {
+                                        if (widget.profileId == currentUserId) {
+                                          setState(() {
+                                            miniPageIndex = 0;
+                                            pageController.jumpToPage(1);
+                                            pageIndex = 1;
+                                            print("applied page index");
+                                            //miniPageIndex = 0;
+                                            miniPageController.animateTo(0);
+                                          });
+                                          Navigator.of(context).popUntil(
+                                              (route) => route.isFirst);
+                                        }
+                                      }),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: 50,
+                                        child: buildProfileButton(),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(top: 12.0),
+                          child: Text(
+                            user.username,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                              color: Color.fromRGBO(24, 115, 172, 1),
+                            ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildProfileButton(),
-                            ],
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            user.displayName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(top: 2.0),
+                          child: Text(
+                            user.bio,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black38,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(top: 12.0),
-                  child: Text(
-                    user.username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(24, 115, 172, 1),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    user.displayName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(top: 2.0),
-                  child: Text(
-                    user.bio,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black38,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+                  ));
+            }));
   }
 
   buildProfilePosts() {
@@ -420,8 +459,8 @@ class _ProfileState extends State<Profile>
             if (postOrientation == "grid") {
               List<GridTile> gridTiles = [];
               snapshot.data.documents.forEach((post) {
-                gridTiles
-                    .add(GridTile(child: PostTile(postmini.fromDocument(post))));
+                gridTiles.add(
+                    GridTile(child: PostTile(postmini.fromDocument(post))));
               });
               return Container(
                 // decoration: BoxDecoration(color: Colors.black87),
@@ -482,7 +521,6 @@ class _ProfileState extends State<Profile>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: header(context, titleText: "Profile"),
       body: ListView(

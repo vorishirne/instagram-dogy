@@ -26,10 +26,13 @@ class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
 
   @override
   void initState() {
-
     // TODO: implement initState
     super.initState();
-    miniPageController = TabController(initialIndex: miniPageIndex,length: 2, vsync: this);
+    miniPageController =
+        TabController(initialIndex: miniPageIndex, length: 2, vsync: this);
+    miniPageController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -70,38 +73,45 @@ class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
             ]),
         body: Scaffold(
           appBar: AppBar(
-            title: TabBar(indicatorColor: Color.fromRGBO(24, 115, 172, 1) ,labelColor:Colors.black87,
+            title: TabBar(
+                indicatorColor: Color.fromRGBO(24, 115, 172, 1),
+                labelColor: Colors.black87,
                 //Color.fromRGBO(222, 253, 255, 1),
-                labelStyle: TextStyle(
-                  fontWeight: FontWeight.w300
-                ),
+                labelStyle: TextStyle(fontWeight: FontWeight.w300),
                 indicatorPadding: EdgeInsets.all(0),
                 indicatorWeight: .7,
-
-                controller: miniPageController, tabs: [
-              Padding(
-                  padding: EdgeInsets.only(top: 6),
-                  child: Tab(
-                    icon: Icon(CupertinoIcons.paw_solid,
-                      color: Color.fromRGBO(24, 115, 172, 1) ,
-                      size: 22,
-                    ),
-                    //text: "Following",
-
-                  )),
-              Padding(
-                  padding: EdgeInsets.only(top: 6),
-                  child: Tab(
-                    icon: Icon(CupertinoIcons.eye_solid,color: Color.fromRGBO(24, 115, 172, 1) ,size: 32,),
-                    //text: "Followers",
-                  ))
-            ]),
+                controller: miniPageController,
+                tabs: [
+                  Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Text(
+                        "Following",
+                        style: TextStyle(
+                            color: Color.fromRGBO(24, 115, 172, 1),
+                            fontSize: 16,
+                            fontWeight: miniPageController.index == 0
+                                ? FontWeight.bold
+                                : FontWeight.normal),
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Tab(
+                          icon: Text("Followers",
+                              style: TextStyle(
+                                  color: Color.fromRGBO(24, 115, 172, 1),
+                                  fontSize: 16,
+                                  fontWeight: miniPageController.index == 1
+                                      ? FontWeight.bold
+                                      : FontWeight.normal))))
+                ]),
           ),
           body: TabBarView(
             controller: miniPageController,
             children: <Widget>[
-              buildSearchResults(followingRef,'userFollowing',"You following No one"),
-              buildSearchResults(followersRef,'userFollowers',"No one following you")
+              buildSearchResults(
+                  followingRef, 'userFollowing', "You following No one"),
+              buildSearchResults(
+                  followersRef, 'userFollowers', "No one following you")
             ],
           ),
         ));
@@ -133,14 +143,12 @@ class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
     );
   }
 
-  buildSearchResults(CollectionReference ref,String collection,String strongtext) {
+  buildSearchResults(
+      CollectionReference ref, String collection, String strongtext) {
     print(
         "I am being(*&*(*()*((((((((((((((((((((((((((((((((((((((((((((((((((((((99");
     return StreamBuilder(
-      stream: ref
-          .document(currentUser.id)
-          .collection(collection)
-          .snapshots(),
+      stream: ref.document(currentUser.id).collection(collection).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
@@ -159,7 +167,8 @@ class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
             if (doc2.exists &&
                 (doc2["username"] != null &&
                     doc2["username"] != "" &&
-                    doc2["username"] != curruser.username && doc2.documentID != company)) {
+                    doc2["username"] != curruser.username &&
+                    doc2.documentID != company)) {
               print(doc2["username"] + "dsd");
               User user = User.fromDocument(doc2);
               print(user.username + "as");
@@ -224,16 +233,20 @@ class UserResult extends StatelessWidget {
             child: ListTile(
               leading: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: CachedNetworkImage(
-                    imageUrl: user.photoUrl ??
-                        "https://www.asjfkfhdgihdknjskdjfeid.com",
-                    imageBuilder: (context, imageProvider) => CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          backgroundImage: imageProvider,
-                        ),
-                    errorWidget: (context, url, error) => Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Icon(CupertinoIcons.person_solid))),
+                child: SizedBox(
+                  height: 45,
+                  width: 45,
+                  child: CachedNetworkImage(
+                      imageUrl: user.photoUrl ??
+                          "https://www.asjfkfhdgihdknjskdjfeid.com",
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            backgroundImage: imageProvider,
+                          ),
+                      errorWidget: (context, url, error) => Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(CupertinoIcons.person_solid))),
+                ),
               ),
               title: Text(
                 user.username,

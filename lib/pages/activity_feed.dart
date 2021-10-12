@@ -74,7 +74,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       appBar: header(context, titleText: "Activity Feed"),
       body: Container(
           child: FutureBuilder(
@@ -193,17 +193,21 @@ class ActivityFeedItem extends StatelessWidget {
                       ),
                     ]),
               ),
-              leading: CachedNetworkImage(
-                  imageUrl: userProfileImg ??
-                      "https://www.asjfkfhdgihdknjskdjfeid.com",
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        backgroundImage: imageProvider,
-                      ),
-                  errorWidget: (context, url, error) => new Icon(
-                        CupertinoIcons.person_solid,
-                        color: Color.fromRGBO(24, 115, 172, 1),
-                      )),
+              leading: SizedBox(
+                height: 45,
+                width: 45,
+                child: CachedNetworkImage(
+                    imageUrl: userProfileImg ??
+                        "https://www.asjfkfhdgihdknjskdjfeid.com",
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          backgroundImage: imageProvider,
+                        ),
+                    errorWidget: (context, url, error) => new Icon(
+                          CupertinoIcons.person_solid,
+                          color: Color.fromRGBO(24, 115, 172, 1),
+                        )),
+              ),
               subtitle: Text(
                 timeago.format(timestamp.toDate()),
                 overflow: TextOverflow.ellipsis,

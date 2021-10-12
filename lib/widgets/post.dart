@@ -147,44 +147,59 @@ class _PostState extends State<Post> {
         }
         User user = User.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == ownerId;
-        return GestureDetector(
-            onTap: () => showProfile(context, profileId: user.id),
-            child: ListTile(
-              leading: CachedNetworkImage(
-                  imageUrl: user.photoUrl ??
-                      "https://www.asjfkfhdgihdknjskdjfeid.com",
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        backgroundImage: imageProvider,
-                      ),
-                  errorWidget: (context, url, error) => Padding(
-                      padding: EdgeInsets.all(12), //heret
-                      child: Icon(
-                        CupertinoIcons.person_solid,
-                        color: Colors.black,
-                      ))),
-              title: widget.myPhoto
-                  ? Text(
-                      timeago.format(timestamp.toDate()),
-                      style: TextStyle(color: Colors.grey, fontSize: 12.5),
-                    )
-                  : Text(
-                      user.username,
-                      style: TextStyle(
-                          color: Color.fromRGBO(24, 115, 172, 1),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 20),
-                    ),
-              subtitle: widget.myPhoto
-                  ? null
-                  : Text(timeago.format(timestamp.toDate())),
-              trailing: isPostOwner
-                  ? IconButton(
-                      onPressed: () => handleDeletePost(context),
-                      icon: Icon(CupertinoIcons.delete_solid),
-                    )
-                  : Text(''),
-            ));
+        return Container(
+          height: 72,
+          child: GestureDetector(
+              onTap: () => showProfile(context, profileId: user.id),
+              child: ListTile(
+                leading: SizedBox(
+                  height:45,
+                  width: 45,
+                  child: CachedNetworkImage(
+                      imageUrl: user.photoUrl ??
+                          "https://www.asjfkfhdgihdknjskdjfeid.com",
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            backgroundImage: imageProvider,
+                          ),
+                      errorWidget: (context, url, error) => Padding(
+                          padding: EdgeInsets.all(12), //heret
+                          child: Icon(
+                            CupertinoIcons.person_solid,
+                            color: Colors.black,
+                          ))),
+                ),
+
+
+                title: Container(
+                  child: widget.myPhoto
+                      ? Text(
+                          timeago.format(timestamp.toDate()),
+                          style: TextStyle(color: Colors.grey, fontSize: 12.5),
+                        )
+                      : Text(
+                          user.username,
+                          style: TextStyle(
+                              color: Color.fromRGBO(24, 115, 172, 1),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 20),
+                        ),
+                ),
+                subtitle: Container(
+                  child: widget.myPhoto
+                      ? Text("")
+                      : Text(timeago.format(timestamp.toDate())),
+                ),
+                trailing: Container(
+                  child: isPostOwner
+                      ? IconButton(
+                          onPressed: () => handleDeletePost(context),
+                          icon: Icon(CupertinoIcons.delete_solid),
+                        )
+                      : Text(''),
+                ),
+              )),
+        );
       },
     );
   }
@@ -357,38 +372,39 @@ class _PostState extends State<Post> {
 
     return GestureDetector(
       onDoubleTap: handleLikePost,
-      child: SizedBox(
-        height: h,
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            vid
-                ?
-                // Theme(
-                //         data: ThemeData.light().copyWith(
-                //           platform: TargetPlatform.iOS,
-                //         ),
-                //         child:
-                VideoItem(mediaUrl, thumb, h)
-                // )
-                : cachedNetworkImage(mediaUrl),
-            showHeart
-                ? Animator(
-                    duration: Duration(milliseconds: 300),
-                    tween: Tween(begin: 0.8, end: 1.4),
-                    curve: Curves.elasticOut,
-                    cycles: 0,
-                    builder: (anim) => Transform.scale(
-                      scale: anim.value,
-                      child: Icon(
-                        CupertinoIcons.heart,
-                        size: 80.0,
-                        color: Colors.pink,
+
+        child: SizedBox(
+          height: h,
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              vid
+                  ?
+                  // Theme(
+                  //         data: ThemeData.light().copyWith(
+                  //           platform: TargetPlatform.iOS,
+                  //         ),
+                  //         child:
+                  VideoItem(mediaUrl, thumb, h)
+                  // )
+                  : cachedNetworkImage(mediaUrl),
+              showHeart
+                  ? Animator(
+                      duration: Duration(milliseconds: 300),
+                      tween: Tween(begin: 0.8, end: 1.4),
+                      curve: Curves.elasticOut,
+                      cycles: 0,
+                      builder: (anim) => Transform.scale(
+                        scale: anim.value,
+                        child: Icon(
+                          CupertinoIcons.heart,
+                          size: 80.0,
+                          color: Colors.pink,
+                        ),
                       ),
-                    ),
-                  )
-                : Text(""),
-          ],
+                    )
+                  : Text(""),
+            ],
         ),
       ),
     );
@@ -550,6 +566,7 @@ class _VideoItemState extends State<VideoItem> {
     // });
     await _videoController?.dispose()?.then((_) {
       setState(() {
+        readycontroller = false;
         _videoController = null;
         videoPlayerInitialized = Completer(); // resets the Completer
       });
