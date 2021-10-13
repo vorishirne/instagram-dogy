@@ -401,6 +401,7 @@ class _UploadState extends State<Upload>
     print("hogai bhai hogai");
     print(tempdir.path);
     tempdir.deleteSync(recursive: true);
+    tempdir.create();
 
     await _flutterVideoCompress.deleteAllCache();
     final snackBar = SnackBar(
@@ -478,7 +479,7 @@ class _UploadState extends State<Upload>
       maxHeight: 675,
       maxWidth: 960,
     );
-
+    print("mitti");
     if (file == null) {
       return;
     }

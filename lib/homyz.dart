@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'models/user.dart';
+
 const String company = "2kJgasDVBkVJZkzmruIW9UfQRUw1";
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final FirebaseAuth vauth = _auth;
@@ -21,55 +22,49 @@ CollectionReference activityFeedRef;
 CollectionReference followersRef;
 CollectionReference followingRef;
 CollectionReference timelineRef;
-StorageReference storageRef ;
+StorageReference storageRef;
+
 FirebaseUser user;
 User curruser;
 User currentUser;
 int pageIndex = 0;
 PageController pageController;
 
-class homy extends StatefulWidget{
+class homy extends StatefulWidget {
   final FirebaseUser userx;
   final User curruserx;
-  homy
-      (FirebaseUser this.userx, User this.curruserx) ;
+
+  homy(FirebaseUser this.userx, User this.curruserx);
 
   @override
   homystate createState() => homystate();
 }
 
 class homystate extends State<homy> {
-
-
-
-
   @override
   void initState() {
     super.initState();
+    pageIndex = 0;
     user = widget.userx;
     curruser = widget.curruserx;
     currentUser = widget.curruserx;
     pageController = PageController();
     //curUser = widget.user;
-    usersRef =  Firestore.instance.collection('users');
-    postsRef =  Firestore.instance.collection('posts');
+    usersRef = Firestore.instance.collection('users');
+    postsRef = Firestore.instance.collection('posts');
     commentsRef = Firestore.instance.collection('comments');
     activityFeedRef = Firestore.instance.collection('feed');
     followersRef = Firestore.instance.collection('followers');
     followingRef = Firestore.instance.collection('following');
     timelineRef = Firestore.instance.collection('timeline');
     storageRef = FirebaseStorage.instance.ref();
-
-
   }
 
   @override
-  dispose(){
+  dispose() {
     pageController.dispose();
     super.dispose();
   }
-
-
 
   Future<bool> _goToLogin(BuildContext context) async {
     await _auth.signOut();
@@ -80,8 +75,6 @@ class homystate extends State<homy> {
         .then((_) => false);
   }
 
-
-
   onPageChanged(int pageIndex_) {
     setState(() {
       pageIndex = pageIndex_;
@@ -91,19 +84,17 @@ class homystate extends State<homy> {
   onTap(int pageIndex) {
     pageController.jumpToPage(
       pageIndex,
-
     );
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-           Timeline(currentUser: curruser,),
+          Timeline(
+            currentUser: curruser,
+          ),
 //          RaisedButton(
 //            child: Text('Logout'),
 //            onPressed: () async {
@@ -111,24 +102,29 @@ class homystate extends State<homy> {
 //            },
 //          ),
           Search(usersRef),
-          Upload(user,curruser,usersRef,postsRef),
+          Upload(user, curruser, usersRef, postsRef),
           ActivityFeed(),
-          Profile(profileId: curruser.id,),
+          Profile(
+            profileId: curruser.id,
+          ),
         ],
-        controller: pageController, 
+        controller: pageController,
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
-        border: Border(top:BorderSide(color: Color.fromRGBO(24, 115, 172, 1),width: .5)),
-        //backgroundColor: ,
+          border: Border(
+              top: BorderSide(
+                  color: Color.fromRGBO(24, 115, 172, 1), width: .5)),
+          //backgroundColor: ,
           currentIndex: pageIndex,
           onTap: onTap,
           backgroundColor: Colors.white,
           activeColor: Color.fromRGBO(24, 115, 172, 1),
           inactiveColor: Color.fromRGBO(34, 135, 190, .2),
           items: [
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.game_controller_solid)),
+            BottomNavigationBarItem(
+                icon: Icon(CupertinoIcons.game_controller_solid)),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.group_solid)),
             BottomNavigationBarItem(
               icon: Icon(

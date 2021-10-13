@@ -1,9 +1,4 @@
-import 'package:chewie/chewie.dart';
-import 'package:chewie/src/chewie_player.dart';
-import 'package:dodogy_challange/sample_pagge.dart';
-import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:video_player/video_player.dart';
 import 'package:cached_video_player/cached_video_player.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -351,6 +346,7 @@ class _PostState extends State<Post> {
         "postId": postId,
         "mediaUrl": mediaUrl,
         "timestamp": DateTime.now(),
+        "thumb":thumb
       });
     }
   }
@@ -440,6 +436,7 @@ class _PostState extends State<Post> {
                 postId: postId,
                 ownerId: ownerId,
                 mediaUrl: mediaUrl,
+                thumb: thumb
               ),
               child: Icon(
                 CupertinoIcons.conversation_bubble,
@@ -526,12 +523,13 @@ class _PostState extends State<Post> {
 }
 
 showComments(BuildContext context,
-    {String postId, String ownerId, String mediaUrl}) {
+    {String postId, String ownerId, String mediaUrl,String thumb}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Comments(
       postId: postId,
       postOwnerId: ownerId,
       postMediaUrl: mediaUrl,
+      thumb: thumb,
     );
   }));
 }

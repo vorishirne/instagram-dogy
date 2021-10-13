@@ -12,19 +12,16 @@ class Comments extends StatefulWidget {
   final String postId;
   final String postOwnerId;
   final String postMediaUrl;
+  final String thumb;
 
-  Comments({
-    this.postId,
-    this.postOwnerId,
-    this.postMediaUrl,
-  });
+  Comments({this.postId, this.postOwnerId, this.postMediaUrl, this.thumb = ""});
 
   @override
   CommentsState createState() => CommentsState(
-        postId: this.postId,
-        postOwnerId: this.postOwnerId,
-        postMediaUrl: this.postMediaUrl,
-      );
+      postId: this.postId,
+      postOwnerId: this.postOwnerId,
+      postMediaUrl: this.postMediaUrl,
+      thumb: thumb);
 }
 
 class CommentsState extends State<Comments> {
@@ -32,12 +29,10 @@ class CommentsState extends State<Comments> {
   final String postId;
   final String postOwnerId;
   final String postMediaUrl;
+  final String thumb;
 
-  CommentsState({
-    this.postId,
-    this.postOwnerId,
-    this.postMediaUrl,
-  });
+  CommentsState(
+      {this.postId, this.postOwnerId, this.postMediaUrl, this.thumb = ""});
 
   buildComments() {
     return StreamBuilder(
@@ -79,6 +74,7 @@ class CommentsState extends State<Comments> {
         "username": currentUser.username,
         "userProfileImg": currentUser.photoUrl,
         "mediaUrl": postMediaUrl,
+        "thumb":thumb
       });
     }
     commentController.clear();

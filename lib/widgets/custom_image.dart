@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dodogy_challange/widgets/post.dart';
 import 'package:video_player/video_player.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +12,7 @@ Widget cachedNetworkImage(String mediaUrl) {
     fit: BoxFit.cover,
     placeholder: (context, url) => Padding(
       child: circularProgress(),//Container(height: 200, color: Colors.black12,child: SizedBox(height: 200,),),
-      padding: EdgeInsets.symmetric(vertical:200.0),
+      padding: EdgeInsets.symmetric(vertical:5.0),
     ),
     errorWidget: (context, url, error) => Icon(Icons.error),
   );
@@ -30,9 +31,9 @@ Widget cachedPostNetworkImage(String mediaUrl) {
   );
 }
 
-Widget cachedNetworkImageLead(String mediaUrl) {
+Widget cachedNetworkImageLead(BuildContext context,String mediaUrl,String thumb) {
   bool vid = mediaUrl.toLowerCase().contains(".mp4");
-  return vid? VideoItem(mediaUrl,UniqueKey()) : CachedNetworkImage(
+  return vid? videoBurrowCustom(context,thumbUrl: thumb) : CachedNetworkImage(
     imageUrl: mediaUrl ??
         "https://www.asjfkfhdgihdknjskdjfeid.com",
     fit: BoxFit.cover,
@@ -44,45 +45,44 @@ Widget cachedNetworkImageLead(String mediaUrl) {
   ));
 }
 
-
-
-class VideoItem extends StatefulWidget{
-  final String url;
-  final UniqueKey newKey;
-  VideoItem(this.url, this.newKey): super(key: newKey);
-  @override
-  _VideoItemState createState() => _VideoItemState();
+Widget videoBurrowCustom(BuildContext context, {String thumbUrl = "", double h}) {
+  return SizedBox(
+    height: 50,
+    width: 50,
+    child: Container(
+      child: Stack(
+        fit:StackFit.passthrough,
+        alignment: AlignmentDirectional.center,
+        children: [
+          thumbUrl != ""
+              ? Container(
+            // color:Colors.red,
+              child: Container(
+                  child: Container(
+                    child: CachedNetworkImage(
+                        imageUrl: thumbUrl,
+                        imageBuilder: (context, imageProvider) => SizedBox(
+                            child: Image(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                              // height: h,
+                            )),
+                        errorWidget: (context, url, error) => Container(
+                            decoration: BoxDecoration(color: Colors.black54)),
+                        placeholder: (context, url) => Container(
+                            decoration: BoxDecoration(color: Colors.black54))),
+                  )))
+              : Container(decoration: BoxDecoration(color: Colors.black54)),
+          Positioned(
+              child: Icon(
+                CupertinoIcons.play,
+                color: Colors.white70,
+                size: 28,
+              ))
+        ],
+      ),
+    ),
+  );
 }
 
-class _VideoItemState extends State<VideoItem> {
-  VideoPlayerController _controller;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.network(widget.url)
-      ..initialize().then((_) {
-        setState(() {});  //when your thumbnail will show.
-      });
-  }
-
-  @override
-  void dispose() async{
-    super.dispose();
-    await _controller.dispose();
-    setState(() {
-      _controller = null;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _controller.value.initialized
-        ? Container(
-
-      child: VideoPlayer(_controller),
-    )
-        : CircularProgressIndicator();
-
-  }
-}

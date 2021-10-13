@@ -102,6 +102,7 @@ class ActivityFeedItem extends StatelessWidget {
   final String userProfileImg;
   final String commentData;
   final Timestamp timestamp;
+  final String thumb;
 
   ActivityFeedItem({
     this.username,
@@ -112,6 +113,7 @@ class ActivityFeedItem extends StatelessWidget {
     this.userProfileImg,
     this.commentData,
     this.timestamp,
+    this.thumb =""
   });
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
@@ -124,6 +126,7 @@ class ActivityFeedItem extends StatelessWidget {
       commentData: doc['commentData'],
       timestamp: doc['timestamp'],
       mediaUrl: doc['mediaUrl'],
+      thumb: doc["thumb"] ?? "",
     );
   }
 
@@ -141,17 +144,21 @@ class ActivityFeedItem extends StatelessWidget {
 
   configureMediaPreview(context) {
     if (type == "like" || type == 'comment') {
-      mediaPreview = GestureDetector(
-        onTap: () => showPost(context),
-        child: Container(
-          height: 50.0,
-          width: 50.0,
-          child: AspectRatio(
-              aspectRatio: 16 / 9, child: cachedNetworkImageLead(mediaUrl)),
+      mediaPreview = SizedBox(
+        height: 50.0,
+        width: 50.0,
+        child: GestureDetector(
+          onTap: () => showPost(context),
+          child: Container(
+            child: AspectRatio(
+                aspectRatio: 1, child: cachedNetworkImageLead(context,mediaUrl,thumb)),
+          ),
         ),
       );
     } else {
-      mediaPreview = Text('');
+      mediaPreview = SizedBox(
+        height: 50.0,
+        width: 50.0);
     }
 
     if (type == 'like') {
@@ -212,7 +219,7 @@ class ActivityFeedItem extends StatelessWidget {
                 timeago.format(timestamp.toDate()),
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: mediaPreview,
+              trailing: FittedBox(alignment: Alignment.center,child: mediaPreview,),
             ),
           ),
         ));

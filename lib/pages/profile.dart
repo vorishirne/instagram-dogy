@@ -292,128 +292,127 @@ class _ProfileState extends State<Profile> {
               return AnimatedSwitcher(
                 duration: Duration(milliseconds: 500),
                 child: Padding(
-                      padding: EdgeInsets.fromLTRB(12, 12, 0, 0),
-                      child: Column(
+                  padding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
                         children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              GestureDetector(
-                                onTap: () => editProfile(context),
-                                child: SizedBox(
-                                  height: 75,
-                                  width: 75,
-                                  child: CachedNetworkImage(
-                                      imageUrl: user.photoUrl ??
-                                          "https://www.asjfkfhdgihdknjskdjfeid.com",
-                                      imageBuilder: (context, imageProvider) =>
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey,
-                                            backgroundImage: imageProvider,
-                                            radius: 40,
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                              color: Colors.white10,
-                                              padding: EdgeInsets.all(25),
-                                              child: Icon(
-                                                CupertinoIcons.person_solid,
-                                              ))),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Column(
+                          GestureDetector(
+                            onTap: () => editProfile(context),
+                            child: SizedBox(
+                              height: 75,
+                              width: 75,
+                              child: CachedNetworkImage(
+                                  imageUrl: user.photoUrl ??
+                                      "https://www.asjfkfhdgihdknjskdjfeid.com",
+                                  imageBuilder: (context, imageProvider) =>
+                                      CircleAvatar(
+                                        backgroundColor: Colors.grey,
+                                        backgroundImage: imageProvider,
+                                        radius: 40,
+                                      ),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                          color: Colors.white10,
+                                          padding: EdgeInsets.all(25),
+                                          child: Icon(
+                                            CupertinoIcons.person_solid,
+                                          ))),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: <Widget>[
+                                Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        buildCountColumn(
-                                            "posts", postCount, null),
-                                        buildCountColumn(
-                                            "followers", followerCount - 1, () {
-                                          if (widget.profileId == currentUserId) {
-                                            setState(() {
-                                              //miniPageController.jumpToPage(1);
-                                              miniPageIndex = 1;
-                                              pageController.jumpToPage(1);
-                                              pageIndex = 1;
-                                              print("applied page index");
-                                              miniPageController.animateTo(1);
-                                            });
-                                            Navigator.of(context).popUntil(
-                                                (route) => route.isFirst);
-                                          }
-                                        }),
-                                        buildCountColumn(
-                                            "following", followingCount - 1, () {
-                                          if (widget.profileId == currentUserId) {
-                                            setState(() {
-                                              miniPageIndex = 0;
-                                              pageController.jumpToPage(1);
-                                              pageIndex = 1;
-                                              print("applied page index");
-                                              //miniPageIndex = 0;
-                                              miniPageController.animateTo(0);
-                                            });
-                                            Navigator.of(context).popUntil(
-                                                (route) => route.isFirst);
-                                          }
-                                        }),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        SizedBox(
-                                          height: 50,
-                                          child: buildProfileButton(),
-                                        )
-                                      ],
-                                    ),
+                                    buildCountColumn("posts", postCount, null),
+                                    buildCountColumn(
+                                        "followers", followerCount - 1, () {
+                                      if (widget.profileId == currentUserId) {
+                                        setState(() {
+                                          //miniPageController.jumpToPage(1);
+                                          miniPageIndex = 1;
+                                          pageController.jumpToPage(1);
+                                          pageIndex = 1;
+                                          print("applied page index");
+                                          miniPageController.animateTo(1);
+                                        });
+                                        Navigator.of(context)
+                                            .popUntil((route) => route.isFirst);
+                                      }
+                                    }),
+                                    buildCountColumn(
+                                        "following", followingCount - 1, () {
+                                      if (widget.profileId == currentUserId) {
+                                        setState(() {
+                                          miniPageIndex = 0;
+                                          pageController.jumpToPage(1);
+                                          pageIndex = 1;
+                                          print("applied page index");
+                                          //miniPageIndex = 0;
+                                          miniPageController.animateTo(0);
+                                        });
+                                        Navigator.of(context)
+                                            .popUntil((route) => route.isFirst);
+                                      }
+                                    }),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.only(top: 12.0),
-                            child: Text(
-                              user.username,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                                color: Color.fromRGBO(24, 115, 172, 1),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              user.displayName,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.only(top: 2.0),
-                            child: Text(
-                              user.bio,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black38,
-                              ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      height: 50,
+                                      child: buildProfileButton(),
+                                    )
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(top: 12.0),
+                        child: Text(
+                          user.username,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                            color: Color.fromRGBO(24, 115, 172, 1),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          user.displayName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(top: 2.0),
+                        child: Text(
+                          user.bio,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black38,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             }));
   }
