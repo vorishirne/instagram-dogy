@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:dodogy_challange/models/user.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image/image.dart' as Im;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
@@ -37,8 +35,8 @@ class _UploadState extends State<Upload>
   final StorageReference storageRef = FirebaseStorage.instance.ref();
   File file;
   File file2;
-  int height_upload=0;
-  int width_upload=0;
+  int height_upload = 0;
+  int width_upload = 0;
   bool isPic = true;
   bool isUploading = false;
   String postId = Uuid().v4();
@@ -48,17 +46,21 @@ class _UploadState extends State<Upload>
         child: Column(
       children: <Widget>[
         ListTile(
-          leading: CachedNetworkImage(
-              imageUrl: widget.user.photoUrl ??
-                  "https://www.asjfkfhdgihdknjskdjfeid.com",
-              imageBuilder: (context, imageProvider) => CircleAvatar(
-                    backgroundColor: Colors.grey,
-                    backgroundImage: imageProvider,
-                  ),
-              errorWidget: (context, url, error) => new Icon(
-                    CupertinoIcons.person_solid,
-                    size: 20,
-                  )),
+          leading: SizedBox(
+            height: 45,
+            width: 45,
+            child: CachedNetworkImage(
+                imageUrl: widget.user.photoUrl ??
+                    "https://www.asjfkfhdgihdknjskdjfeid.com",
+                imageBuilder: (context, imageProvider) => CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      backgroundImage: imageProvider,
+                    ),
+                errorWidget: (context, url, error) => new Icon(
+                      CupertinoIcons.person_solid,
+                      size: 20,
+                    )),
+          ),
           title: Container(
             width: 250.0,
             child: TextField(
@@ -307,8 +309,8 @@ class _UploadState extends State<Upload>
   clearImage() {
     setState(() {
       file = null;
-      height_upload=0;
-      width_upload=0;
+      height_upload = 0;
+      width_upload = 0;
       postId = Uuid().v4();
     });
   }
@@ -345,10 +347,10 @@ class _UploadState extends State<Upload>
     String thumbName = "";
     if (!isPic) {
       final File thumb =
-      await _flutterVideoCompress.getThumbnailWithFile(imageFile.path,
-          quality: 55, // default(100)
-          position: -1 // default(-1)
-      );
+          await _flutterVideoCompress.getThumbnailWithFile(imageFile.path,
+              quality: 55, // default(100)
+              position: -1 // default(-1)
+              );
       var decodedImage = await decodeImageFromList(thumb.readAsBytesSync());
       print("bheki hawwa sa tha voh");
       print(decodedImage.width);
@@ -363,8 +365,7 @@ class _UploadState extends State<Upload>
       thumbFile = thumb;
       imageFile = info.file;
       thumbName = "post_$postId.jpg";
-    }
-    else{
+    } else {
       var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
       print("milne hum ayenge tumko sajna");
       print(decodedImage.width);
@@ -386,10 +387,21 @@ class _UploadState extends State<Upload>
     print(downloadUrl);
 //    imageFile.delete(recursive: true);
 
-    Directory tempdir= await getApplicationDocumentsDirectory();
+    // Directory tempdir= await getApplicationDocumentsDirectory();
+    // print("hogai bhai hogai");
+    // print(tempdir.path);
+    // tempdir= await getApplicationSupportDirectory();
+    // print("hogai bhai hogai");
+    // print(tempdir.path);
+    // tempdir= await getLibraryDirectory();
+    // print("hogai bhai hogai");
+    // print(tempdir.path);
+    Directory tempdir =
+        Directory((await getExternalStorageDirectory()).path + "/Pictures");
     print("hogai bhai hogai");
     print(tempdir.path);
-    //tempdir.deleteSync(recursive: true);
+    tempdir.deleteSync(recursive: true);
+
     await _flutterVideoCompress.deleteAllCache();
     final snackBar = SnackBar(
       content: Text('Media Shared!'),
@@ -418,8 +430,8 @@ class _UploadState extends State<Upload>
       "location": location,
       "timestamp": DateTime.now(),
       "likes": {},
-      "height":height_upload,
-      "width":width_upload
+      "height": height_upload,
+      "width": width_upload
     });
     print("hogya");
   }
@@ -451,8 +463,8 @@ class _UploadState extends State<Upload>
     captionController.clear();
     locationController.clear();
     setState(() {
-      height_upload=0;
-      width_upload=0;
+      height_upload = 0;
+      width_upload = 0;
       file = null;
       isUploading = false;
       postId = Uuid().v4();
@@ -502,7 +514,11 @@ class _UploadState extends State<Upload>
     print("^^^^^^^^^^^^^^^^^^^^^^^^");
     print(filed.absolute);
 
-    final String path = (await getApplicationDocumentsDirectory()).path;
+    final String path =
+        (await getExternalStorageDirectory()).path + "/Pictures";
+    print("mega info");
+    print(path);
+    print(filed.path);
     final File newImage = await filed.copy("$path/xcv.mp4");
     await compressImage(newImage);
 //    setState(() {
@@ -675,7 +691,6 @@ class _UploadState extends State<Upload>
       setState(() {
         // file.deleteSync(recursive: true);
         file = croppedFile;
-
       });
     }
   }
