@@ -1,13 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/profile.dart';
 import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/pages/timeline.dart';
 import 'package:dodogy_challange/pages/upload.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'models/user.dart';
 
@@ -41,6 +45,9 @@ class homy extends StatefulWidget {
 }
 
 class homystate extends State<homy> {
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     super.initState();
@@ -58,12 +65,73 @@ class homystate extends State<homy> {
     followingRef = Firestore.instance.collection('following');
     timelineRef = Firestore.instance.collection('timeline');
     storageRef = FirebaseStorage.instance.ref();
+    registerNotification();
+    configLocalNotification();
   }
 
   @override
   dispose() {
     pageController.dispose();
     super.dispose();
+  }
+
+  void registerNotification() {
+    firebaseMessaging.requestNotificationPermissions();
+
+    firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
+      print('onMessage: $message');
+      Platform.isAndroid
+          ? showNotification(message['notification'])
+          : showNotification(message['aps']['alert']);
+      return;
+    }, onResume: (Map<String, dynamic> message) {
+      print('onResume: $message');
+      return;
+    }, onLaunch: (Map<String, dynamic> message) {
+      print('onLaunch: $message');
+      return;
+    },
+    );
+
+    firebaseMessaging.getToken().then((token) {
+      print('token: $token');
+      print("uid is ${user.uid}");
+      Firestore.instance
+          .collection('users')
+          .document(user.uid)
+          .updateData({'pushToken': token});
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  void configLocalNotification() {
+    var initializationSettingsAndroid =
+    new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void showNotification(message) async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+      Platform.isAndroid ? 'com.dodogy.www' : 'ios.dodogy.www',
+      'Dodogy ka pyar',
+      'apko mubarak mere yar',
+      playSound: true,
+      enableVibration: true,
+      importance: Importance.Max,
+      priority: Priority.High,
+    );
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+
+    print(message);
+    await flutterLocalNotificationsPlugin.show(0, message['title'].toString(),
+        message['body'].toString(), platformChannelSpecifics,
+        payload: json.encode(message));
   }
 
   Future<bool> _goToLogin(BuildContext context) async {
