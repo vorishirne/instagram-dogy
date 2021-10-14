@@ -7,12 +7,11 @@ import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:dodogy_challange/widgets/header.dart';
 
-
-
 class EditProfile extends StatefulWidget {
   final String currentUserId;
   final BuildContext mastercontext;
-  EditProfile({this.currentUserId,this.mastercontext});
+
+  EditProfile({this.currentUserId, this.mastercontext});
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -92,7 +91,7 @@ class _EditProfileState extends State<EditProfile> {
   updateProfileData(BuildContext contextx) {
     setState(() {
       displayNameController.text.trim().length < 3 ||
-          displayNameController.text.isEmpty
+              displayNameController.text.isEmpty
           ? _displayNameValid = false
           : _displayNameValid = true;
       bioController.text.trim().length > 100
@@ -118,78 +117,80 @@ class _EditProfileState extends State<EditProfile> {
   logout() async {
     await vauth.signOut();
     print("Signed out");
-    return Navigator.of(context)
-        .pushReplacementNamed('/')
-    // we dont want to pop the screen, just replace it completely
-        .then((_) => false);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(context,titleText: "Edit your profile!"),
+      appBar: header(context, titleText: "Edit your profile!"),
       body: isLoading
           ? circularProgress()
           : ListView(
-        children: <Widget>[
-          Container(
-            child: Column(
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: 16.0,
-                    bottom: 8.0,
-                  ),
-                  child: CachedNetworkImage(
-                      imageUrl: user.photoUrl ??
-                          "https://www.asjfkfhdgihdknjskdjfeid.com",
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        backgroundImage: imageProvider,
-                        radius: 50,
-                      ),
-                      errorWidget: (context, url, error) => new Icon(
-                        CupertinoIcons.person_solid,
-                        color: Color.fromRGBO(24, 115, 172, 1),
-                      )),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(16.0),
+                Container(
                   child: Column(
                     children: <Widget>[
-                      buildDisplayNameField(),
-                      buildBioField(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 16.0,
+                          bottom: 8.0,
+                        ),
+                        child: CachedNetworkImage(
+                            imageUrl: user.photoUrl ??
+                                "https://www.asjfkfhdgihdknjskdjfeid.com",
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                                  backgroundColor: Colors.grey,
+                                  backgroundImage: imageProvider,
+                                  radius: 50,
+                                ),
+                            errorWidget: (context, url, error) => new Icon(
+                                  CupertinoIcons.person_solid,
+                                  color: Color.fromRGBO(24, 115, 172, 1),
+                                )),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            buildDisplayNameField(),
+                            buildBioField(),
+                          ],
+                        ),
+                      ),
+                      RaisedButton(
+                        color: Color.fromRGBO(24, 115, 172, 1),
+                        onPressed: () {
+                          updateProfileData(context);
+                        },
+                        child: Text(
+                          "  Update  ",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        elevation: 12,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: FlatButton.icon(
+                          onPressed: logout,
+                          icon: Icon(Icons.cancel, color: Colors.red),
+                          label: Text(
+                            "Logout",
+                            style: TextStyle(color: Colors.red, fontSize: 20.0),
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-                RaisedButton(color: Color.fromRGBO(24, 115, 172, 1),
-                  onPressed: (){updateProfileData(context);},
-                  child: Text(
-                    "  Update  ",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                elevation: 12,),
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: FlatButton.icon(
-                    onPressed: logout,
-                    icon: Icon(Icons.cancel, color: Colors.red),
-                    label: Text(
-                      "Logout",
-                      style: TextStyle(color: Colors.red, fontSize: 20.0),
-                    ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

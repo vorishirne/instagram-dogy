@@ -13,6 +13,7 @@ import 'package:dodogy_challange/widgets/post_tile.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'dart:math';
 import 'activity_feed.dart';
+import 'chat.dart';
 
 class Profile extends StatefulWidget {
   final String profileId;
@@ -34,7 +35,7 @@ class _ProfileState extends State<Profile> {
   int followingCount = 0;
   int tempflrcount = 0;
   List posts = [];
-
+  User user;
   @override
   void initState() {
     super.initState();
@@ -145,28 +146,25 @@ class _ProfileState extends State<Profile> {
                 )));
   }
 
-  Container buildButton({String text, Function function}) {
-    return Container(
-      padding: EdgeInsets.only(top: 2.0),
-      child: FlatButton(
-        onPressed: function,
-        child: Container(
-          width: 250.0,
-          height: 27.0,
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isFollowing ? Colors.black : Colors.white,
-              fontWeight: FontWeight.bold,
+  Widget buildButton({String text, Function function}) {
+    return Padding(
+      padding: const EdgeInsets.only(top:12),
+      child: SizedBox(
+        height: 40,
+        child: CupertinoButton(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          color: Color.fromRGBO(24, 115, 172, 1),
+          onPressed: function,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isFollowing ? Colors.white : Color.fromRGBO(24, 115, 172, 1),
-//            border: Border.all(
-//              color: isFollowing ? Colors.grey : Colors.blue,
-//            ),
-//            borderRadius: BorderRadius.circular(5.0),
+            alignment: Alignment.center,
           ),
         ),
       ),
@@ -183,16 +181,32 @@ class _ProfileState extends State<Profile> {
           viewActivity(context);
         },
       );
-    } else if (isFollowing) {
-      return buildButton(
-        text: "Unfollow",
-        function: handleUnfollowUser,
-      );
-    } else if (!isFollowing) {
-      return buildButton(
-        text: "Follow",
-        function: handleFollowUser,
-      );
+    } else {
+      return Row(children: [
+        buildButton(
+            text: "Message",
+            function: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (contex) => Chat(
+                            currentUserId: currentUserId,
+                            friendId: widget.profileId,
+                          )));
+            }),
+        SizedBox(
+          width: 12,
+        ),
+        (isFollowing)
+            ? buildButton(
+                text: "Unfollow",
+                function: handleUnfollowUser,
+              )
+            : buildButton(
+                text: "Follow",
+                function: handleFollowUser,
+              )
+      ]);
     }
   }
 
@@ -268,7 +282,7 @@ class _ProfileState extends State<Profile> {
 
   buildProfileHeader(BuildContext childContext) {
     return SizedBox(
-        height: 240,
+        height: 250,
         child: FutureBuilder(
             future: usersRef.document(widget.profileId).get(),
             builder: (context, snapshot) {
@@ -277,7 +291,7 @@ class _ProfileState extends State<Profile> {
                   duration: Duration(milliseconds: 500),
                   child: Center(
                     child: SizedBox(
-                      height: 220,
+                      height: 250,
                     ),
                   ),
                 ); //cll
@@ -287,7 +301,7 @@ class _ProfileState extends State<Profile> {
                   Navigator.of(childContext).popUntil((route) => route.isFirst);
                 });
               }
-              User user = User.fromDocument(snapshot.data);
+              user = User.fromDocument(snapshot.data);
               print("ole ole ole");
               return AnimatedSwitcher(
                 duration: Duration(milliseconds: 500),
@@ -365,12 +379,7 @@ class _ProfileState extends State<Profile> {
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 50,
-                                      child: buildProfileButton(),
-                                    )
-                                  ],
+                                  children: <Widget>[buildProfileButton()],
                                 ),
                               ],
                             ),

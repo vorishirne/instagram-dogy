@@ -5,26 +5,29 @@ import 'package:flutter_login/flutter_login.dart';
 import 'login_screen.dart';
 import 'transition_route_observer.dart';
 
-class LoginWidget extends StatefulWidget{
+class LoginWidget extends StatefulWidget {
   LoginWidget(
-  {@required this.getNumber,@required this.getOTP, this.lf,this.lg,this.lt,this.vexkey}
-      );
+      {@required this.getNumber,
+      @required this.getOTP,
+      this.lf,
+      this.lg,
+      this.lt,
+      this.vexkey});
+
   final Future<String> Function(LoginData) getOTP;
   final Future<void> Function() lg;
   final Future<void> Function() lf;
   final Future<void> Function() lt;
   final GlobalKey vexkey;
   final Future<String> Function(String) getNumber;
-  @override
-  LoginWidg createState()=> LoginWidg();
 
+  @override
+  LoginWidg createState() => LoginWidg();
 }
 
 class LoginWidg extends State<LoginWidget> {
-
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Dodogy',
       theme: ThemeData(
@@ -62,22 +65,28 @@ class LoginWidg extends State<LoginWidget> {
           overline: TextStyle(fontFamily: 'NotoSans'),
         ),
         cardTheme: CardTheme(
-
           elevation: 5,
           margin: EdgeInsets.only(top: 15),
           shape: ContinuousRectangleBorder(
               borderRadius: BorderRadius.circular(100.0)),
         ),
       ),
-      home: LoginScreen(getNumber: widget.getNumber,getOTP: widget.getOTP,lf: widget.lf,
+      home: LoginScreen(
+        getNumber: widget.getNumber,
+        getOTP: widget.getOTP,
+        lf: widget.lf,
         lg: widget.lg,
         lt: widget.lt,
-      vexkey: widget.vexkey,),
+        vexkey: widget.vexkey,
+      ),
       navigatorObservers: [TransitionRouteObserver()],
       routes: {
-        "/login": (context) => LoginScreen(getNumber: widget.getNumber,getOTP: widget.getOTP,lf: widget.lf,
-          lg: widget.lg,
-          lt: widget.lt,
+        "/login": (context) => LoginScreen(
+            getNumber: widget.getNumber,
+            getOTP: widget.getOTP,
+            lf: widget.lf,
+            lg: widget.lg,
+            lt: widget.lt,
             vexkey: widget.vexkey),
         "/homy": (context) => sample_pagge(),
       },

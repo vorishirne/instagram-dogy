@@ -27,6 +27,8 @@ CollectionReference followersRef;
 CollectionReference followingRef;
 CollectionReference timelineRef;
 StorageReference storageRef;
+CollectionReference messagesRef;
+CollectionReference chatsRef;
 
 FirebaseUser user;
 User curruser;
@@ -47,7 +49,8 @@ class homy extends StatefulWidget {
 class homystate extends State<homy> {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +67,8 @@ class homystate extends State<homy> {
     followersRef = Firestore.instance.collection('followers');
     followingRef = Firestore.instance.collection('following');
     timelineRef = Firestore.instance.collection('timeline');
+    chatsRef = Firestore.instance.collection('chats');
+    messagesRef = Firestore.instance.collection('messages');
     storageRef = FirebaseStorage.instance.ref();
     registerNotification();
     configLocalNotification();
@@ -78,19 +83,22 @@ class homystate extends State<homy> {
   void registerNotification() {
     firebaseMessaging.requestNotificationPermissions();
 
-    firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
-      print('onMessage: $message');
-      Platform.isAndroid
-          ? showNotification(message['notification'])
-          : showNotification(message['aps']['alert']);
-      return;
-    }, onResume: (Map<String, dynamic> message) {
-      print('onResume: $message');
-      return;
-    }, onLaunch: (Map<String, dynamic> message) {
-      print('onLaunch: $message');
-      return;
-    },
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) {
+        print('onMessage: $message');
+        Platform.isAndroid
+            ? showNotification(message['notification'])
+            : showNotification(message['aps']['alert']);
+        return;
+      },
+      onResume: (Map<String, dynamic> message) {
+        print('onResume: $message');
+        return;
+      },
+      onLaunch: (Map<String, dynamic> message) {
+        print('onLaunch: $message');
+        return;
+      },
     );
 
     firebaseMessaging.getToken().then((token) {
@@ -107,7 +115,7 @@ class homystate extends State<homy> {
 
   void configLocalNotification() {
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('@mipmap/ic_launcher');
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
 AppBar header(context,
-    {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    {bool isAppTitle = false, String titleText, bool removeBackButton = true}) {
   return AppBar(
-    automaticallyImplyLeading: removeBackButton ? false : true,
+    automaticallyImplyLeading: removeBackButton,
     title: isAppTitle
-        ? SizedBox(child:Image.asset("assets/images/ecorp.png",fit: BoxFit.scaleDown,),width: 115,)
+        ? SizedBox(
+            child: Image.asset(
+              "assets/images/ecorp.png",
+              fit: BoxFit.scaleDown,
+            ),
+            width: 115,
+          )
         : Text(
             isAppTitle ? "Dodogy" : titleText,
             style: TextStyle(
@@ -14,7 +20,6 @@ AppBar header(context,
             overflow: TextOverflow.ellipsis,
           ),
     backgroundColor: Colors.white,
-
     centerTitle: true,
   );
 }

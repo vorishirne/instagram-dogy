@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/create_account.dart';
+
 //import 'package:dodogy_challange/pages/home.dart';
 import 'package:dodogy_challange/homyz.dart' hide currentUser;
 import 'package:dodogy_challange/sample_pagge.dart';
@@ -37,13 +38,14 @@ class StatefulApp extends StatefulWidget {
   @override
   MyApp createState() => MyApp();
 }
+
 User currentUser;
 FirebaseAuth _auth = FirebaseAuth.instance;
 final usersRef = Firestore.instance.collection('users');
-FirebaseUser cUser ;
-class MyApp extends State<StatefulApp> {
+FirebaseUser cUser;
 
-  String stale="";
+class MyApp extends State<StatefulApp> {
+  String stale = "";
   String _verificationId;
   GoogleSignIn _googleSignIn = GoogleSignIn();
   String signed = "";
@@ -51,23 +53,24 @@ class MyApp extends State<StatefulApp> {
   @override
   void initState() {
     super.initState();
-    _auth.onAuthStateChanged.listen((FirebaseUser user) async{
+    _auth.onAuthStateChanged.listen((FirebaseUser user) async {
       print(user);
 
       if (user == null) {
-        stale="out";
-        cUser=user;
-        currentUser=null;
+        stale = "out";
+        cUser = user;
+        currentUser = null;
         setState(() {
           signed = "false";
           _verificationId = "";
         });
       } else {
-        stale=="in";
-        cUser=user;
+        stale == "in";
+        cUser = user;
 
         await createUserInFirestore();
-        currentUser = User.fromDocument(await usersRef.document(user.uid).get());
+        currentUser =
+            User.fromDocument(await usersRef.document(user.uid).get());
         setState(() {
           signed = "true";
         });
@@ -98,7 +101,7 @@ class MyApp extends State<StatefulApp> {
       try {
         print("trying babe");
         doc = await usersRef.document(user.uid).get();
-        i=0;
+        i = 0;
         break;
       } catch (e) {
         print(e);
@@ -109,14 +112,14 @@ class MyApp extends State<StatefulApp> {
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
       String username;
-      bool wastecount=false;
-      while(true){
+      bool wastecount = false;
+      while (true) {
         username = await Navigator.push(
             context, MaterialPageRoute(builder: (context) => CreateAccount()));
-        if (username != null){
+        if (username != null) {
           break;
         }
-        if (wastecount){
+        if (wastecount) {
           SystemNavigator.pop();
         }
         wastecount = true;
@@ -150,32 +153,27 @@ class MyApp extends State<StatefulApp> {
           .collection('userFollowers')
           .document(user.uid)
           .setData({});
-
     }
   }
 
   Future<String> verifyPhoneNumber(phonen) async {
     phonen = "+91" + phonen;
-    setState(() {
-
-    });
+    setState(() {});
 
     final PhoneVerificationCompleted verificationCompleted = null;
     var a = (FirebaseUser phoneAuthCredential) {
       setState(() {
-
         print("The message from ready made function");
         print(phoneAuthCredential);
       });
       Navigator.of(context).popUntil((route) => route.isFirst);
-      return Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (BuildContext context) => homy(cUser,currentUser)));
+      return Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (BuildContext context) => homy(cUser, currentUser)));
     };
 
     final PhoneVerificationFailed verificationFailed =
         (AuthException authException) {
       setState(() {
-
         print(authException);
       });
     };
@@ -275,7 +273,6 @@ class MyApp extends State<StatefulApp> {
 
       final FirebaseUser currentUser = await _auth.currentUser();
       assert(user.uid == currentUser.uid);
-
     } catch (e) {
       //ERROR_NETWORK_REQUEST_FAILED
       //network_error
@@ -303,33 +300,10 @@ class MyApp extends State<StatefulApp> {
       lf: gLogin,
       lg: gLogin,
       lt: gLogin,
-      //vexkey: vexkey,
     );
-
-//    return Scaffold(
-////    body:Builder(
-////        builder: (context) => PhoneSignInSection(Scaffold.of(context))));
-//        body: Container(
-//            decoration: BoxDecoration(
-//              color: Color(0xc9fffbea),
-//            ),
-//            alignment: Alignment.topCenter,
-//            child: Column(
-//              mainAxisAlignment: MainAxisAlignment.center,
-//              crossAxisAlignment: CrossAxisAlignment.center,
-//              children: <Widget>[
-//                SexyText([
-//                  Color.fromRGBO(24, 115, 172, 1),
-//                  Color.fromRGBO(222, 253, 255, 1)
-//                ]),
-//                SignBut(loginGoog),
-//                SignBut(logoutGoog)
-//              ],
-//            )));
   }
 
-
-  Widget oops(story){
+  Widget oops(story) {
     return new SplashScreen(
       seconds: 5,
       backgroundColor: Color.fromRGBO(222, 253, 255, 1),
@@ -340,15 +314,17 @@ class MyApp extends State<StatefulApp> {
       navigateAfterSeconds: story(),
     );
   }
-Widget choose(){
-    if(signed=="true"){
-      return homy(cUser,currentUser);
+
+  Widget choose() {
+    if (signed == "true") {
+      return homy(cUser, currentUser);
     }
-    if (signed=="false"){
+    if (signed == "false") {
       return loginPage();
     }
     return sample_pagge();
-}
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -479,7 +455,3 @@ MaterialColor createMaterialColor(Color color) {
   });
   return MaterialColor(color.value, swatch);
 }
-
-
-
-
