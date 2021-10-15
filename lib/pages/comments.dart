@@ -56,6 +56,9 @@ class CommentsState extends State<Comments> {
   }
 
   addComment() {
+    if (commentController.text.trim() == ""){
+      return;
+     }
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
       "comment": commentController.text,

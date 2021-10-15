@@ -381,10 +381,24 @@ class _UploadState extends State<Upload>
       print("New url");
       print(thumbnail);
     }
+    print("tarka bhai tarak bhai");
+
+
     StorageUploadTask uploadTask = storageRef.child(name).putFile(imageFile);
+    print("golanf");
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
+    print("bolla");
     String downloadUrl = await storageSnap.ref.getDownloadURL();
+
     print(downloadUrl);
+    try{
+      print(await storageRef.child(name).getDownloadURL());
+      print("originalOne");
+    }
+    catch(e){
+      print("bo bbbi bhai aha");
+      print(e);
+    }
 //    imageFile.delete(recursive: true);
 
     // Directory tempdir= await getApplicationDocumentsDirectory();
