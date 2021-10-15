@@ -225,7 +225,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
         "tosphoto": friend.photoUrl,
         "message": kind == "text"
             ? message.trim()
-            : (kind == "pic" ? "Sent you a photo." : "Sent you a video."),
+            : (kind == "pic" ? "Sent a photo." : "Sent a video."),
         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
         "name": temp,
         "mymessage":true
@@ -307,8 +307,8 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                 //    begin: Alignment.topCenter, end: Alignment.bottomCenter),
                 boxShadow: [
                   BoxShadow(
-                      blurRadius: 18,
-                      offset: Offset(5, 5),
+                      blurRadius: 6,
+                      offset: Offset(-3, 6),
                       color: Color.fromRGBO(222, 253, 255, 1) //Colors.blueGrey
                       )
                 ]),
@@ -360,7 +360,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                   bottomRight: Radius.circular(30),
                 ),
                 border: Border.all(
-                    color: Color.fromRGBO(120, 192, 237, 1), width: .5),
+                    color: Color.fromRGBO(120, 192, 237, 1), width: .3),
                 // gradient: LinearGradient(colors: [
                 //   Color.fromRGBO(222, 253, 255,1),
                 //    //Color.fromRGBO(24, 115, 172,1),
@@ -369,7 +369,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                 boxShadow: [
                   BoxShadow(
                       blurRadius: 6,
-                      offset: Offset(5, 5),
+                      offset: Offset(3, 6),
                       color: Color.fromRGBO(222, 253, 255, .8))
                 ]),
             constraints: BoxConstraints(

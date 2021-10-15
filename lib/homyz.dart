@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/profile.dart';
+import 'package:dodogy_challange/pages/messages.dart';
 import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/pages/timeline.dart';
 import 'package:dodogy_challange/pages/upload.dart';
@@ -179,7 +180,7 @@ class homystate extends State<homy> {
 //          ),
           Search(usersRef),
           Upload(user, curruser, usersRef, postsRef),
-          ActivityFeed(),
+          Messages(),
           Profile(
             profileId: curruser.id,
           ),
