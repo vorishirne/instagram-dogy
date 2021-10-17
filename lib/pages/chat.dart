@@ -368,8 +368,8 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                 //    begin: Alignment.topCenter, end: Alignment.bottomCenter),
                 boxShadow: [
                   BoxShadow(
-                      blurRadius: 6,
-                      offset: Offset(3, 6),
+                      blurRadius: 4,
+                      offset: Offset(3, 3),
                       color: Color.fromRGBO(222, 253, 255, .8))
                 ]),
             constraints: BoxConstraints(

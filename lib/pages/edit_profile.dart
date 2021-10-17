@@ -5,7 +5,6 @@ import "package:flutter/material.dart";
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
-import 'package:dodogy_challange/widgets/header.dart';
 
 class EditProfile extends StatefulWidget {
   final String currentUserId;
@@ -18,6 +17,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  String updatedUrlPhoto;
+  bool showPassword = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController displayNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
@@ -25,6 +26,13 @@ class _EditProfileState extends State<EditProfile> {
   User user;
   bool _displayNameValid = true;
   bool _bioValid = true;
+
+  String calltheProfilePicUpoader(String osamaUrl) {
+    tempfn1();
+    tempfn2();
+    return "https://picsum.photos/250?image=9";
+
+  }
 
   @override
   void initState() {
@@ -124,73 +132,255 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(context, titleText: "Edit your profile!"),
+      appBar: AppBar(
+        title: Text(
+          "Edit our profile",
+          style: TextStyle(
+              color: Color.fromRGBO(24, 115, 172, 1),
+              fontWeight: FontWeight.w300),
+        ),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 1,
+        actions: [
+          IconButton(
+              icon: Icon(CupertinoIcons.lock,
+                  color: Color.fromRGBO(24, 115, 172, 1)),
+              onPressed: logout)
+        ],
+      ),
       body: isLoading
           ? circularProgress()
-          : ListView(
-              children: <Widget>[
-                Container(
-                  child: Column(
+          : Container(
+              child: GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 24.0, horizontal: 36),
+                  child: ListView(
                     children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: 16.0,
-                          bottom: 8.0,
-                        ),
-                        child: CachedNetworkImage(
-                            imageUrl: user.photoUrl ??
-                                "https://www.asjfkfhdgihdknjskdjfeid.com",
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                                  backgroundColor: Colors.grey,
-                                  backgroundImage: imageProvider,
-                                  radius: 50,
-                                ),
-                            errorWidget: (context, url, error) => new Icon(
-                                  CupertinoIcons.person_solid,
-                                  color: Color.fromRGBO(24, 115, 172, 1),
-                                )),
+                      SizedBox(
+                        height: 40,
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
+                      Center(
+                        child: Stack(
                           children: <Widget>[
-                            buildDisplayNameField(),
-                            buildBioField(),
+                            GestureDetector(
+                              onTap: () {
+                                if (mounted) {
+                                  setState(() {
+                                    updatedUrlPhoto =
+                                        calltheProfilePicUpoader(user.id);
+                                  });
+                                }
+                              },
+                              child: Container(
+                                width: 130,
+                                height: 130,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 4,
+                                      color: Color.fromRGBO(24, 115, 172, 1)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        spreadRadius: 2,
+                                        blurRadius: 10,
+                                        color: Colors.black.withOpacity(0.1),
+                                        offset: Offset(0, 10))
+                                  ],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CachedNetworkImage(
+                                    key: ObjectKey( updatedUrlPhoto??
+                                        (user.photoUrl ??
+                                            "https://www.asjfkfhdgihdknjskdjfeid.com")),
+                                    imageUrl: ( updatedUrlPhoto??
+                                        (user.photoUrl ??
+                                            "https://www.asjfkfhdgihdknjskdjfeid.com")),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                          backgroundColor: Colors.grey,
+                                          backgroundImage: imageProvider,
+                                        ),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                            child: Icon(
+                                          CupertinoIcons.person_solid,
+                                          color:
+                                              Color.fromRGBO(24, 115, 172, 1),
+                                        ))),
+                              ),
+                            ),
+                            Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      width: 4,
+                                      color: Colors.white,
+                                    ),
+                                    color: Color.fromRGBO(24, 115, 172, 1),
+                                  ),
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Colors.white,
+                                  ),
+                                )),
                           ],
                         ),
                       ),
-                      RaisedButton(
-                        color: Color.fromRGBO(24, 115, 172, 1),
-                        onPressed: () {
-                          updateProfileData(context);
-                        },
-                        child: Text(
-                          "  Update  ",
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        elevation: 12,
+                      SizedBox(
+                        height: 35,
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: FlatButton.icon(
-                          onPressed: logout,
-                          icon: Icon(Icons.cancel, color: Colors.red),
-                          label: Text(
-                            "Logout",
-                            style: TextStyle(color: Colors.red, fontSize: 20.0),
+                      buildDisplayName(
+                          "Your name",
+                          (user.displayName ??
+                              (user.displayName == ""
+                                  ? "Your display name"
+                                  : user.displayName)),
+                          _displayNameValid,
+                          displayNameController,
+                          "name too short"),
+                      buildBio(
+                          "Bio",
+                          (user.bio ??
+                              (user.bio == ""
+                                  ? "Your biodata here"
+                                  : user.bio)),
+                          _bioValid,
+                          bioController,
+                          "Bio too long"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            child: OutlineButton(
+                              padding: EdgeInsets.symmetric(horizontal: 50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              onPressed: () {},
+                              child: Text("CANCEL",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      letterSpacing: 2.2,
+                                      color: Colors.black)),
+                            ),
                           ),
-                        ),
-                      ),
+                          RaisedButton(
+                            onPressed: () {
+                              updateProfileData(context);
+                            },
+                            color: Color.fromRGBO(24, 115, 172, 1),
+                            padding: EdgeInsets.symmetric(horizontal: 50),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Text(
+                              "SAVE",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  letterSpacing: 2.2,
+                                  color: Colors.white),
+                            ),
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
     );
+  }
+
+  Widget buildBio(String labelText, String placeholder, bool valid,
+      TextEditingController controller, String errormsg) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 35.0),
+      child: TextField(
+        controller: controller,
+        obscureText: false,
+        decoration: InputDecoration(
+            errorText: valid ? null : errormsg,
+            suffixIcon: false
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        showPassword = !showPassword;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.remove_red_eye,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null,
+            contentPadding: EdgeInsets.only(bottom: 3),
+            labelText: "Some bio tells good things about you",
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintText: "",
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w100,
+              color: Colors.blueGrey,
+            )),
+      ),
+    );
+  }
+
+  Widget buildDisplayName(String labelText, String placeholder, bool valid,
+      TextEditingController controller, String errormsg) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 35.0),
+      child: TextField(
+        controller: controller,
+        obscureText: false,
+        decoration: InputDecoration(
+            errorText: valid ? null : errormsg,
+            suffixIcon: false
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        showPassword = !showPassword;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.remove_red_eye,
+                      color: Colors.grey,
+                    ),
+                  )
+                : null,
+            contentPadding: EdgeInsets.only(bottom: 3),
+            labelText: "The display name here",
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintText: "",
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w100,
+              color: Colors.blueGrey,
+            )),
+      ),
+    );
+  }
+}
+
+tempfn1 ()async {
+  for( var i = 0 ; i <20; i++ ) {
+    await Future.delayed(const Duration(seconds: 1), () => "1");
+    print("abji hi yaha");
+  }
+}
+
+
+tempfn2 ()async {
+  for( var i = 0 ; i <20; i++ ) {
+    await Future.delayed(const Duration(seconds: 1), () => "1");
+    print("abji hu kahi aur");
   }
 }

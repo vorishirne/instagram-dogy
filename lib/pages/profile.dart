@@ -36,6 +36,7 @@ class _ProfileState extends State<Profile> {
   int tempflrcount = 0;
   List posts = [];
   User user;
+
   @override
   void initState() {
     super.initState();
@@ -148,7 +149,7 @@ class _ProfileState extends State<Profile> {
 
   Widget buildButton({String text, Function function}) {
     return Padding(
-      padding: const EdgeInsets.only(top:12),
+      padding: const EdgeInsets.only(top: 12),
       child: SizedBox(
         height: 40,
         child: CupertinoButton(
@@ -480,6 +481,8 @@ class _ProfileState extends State<Profile> {
                 // decoration: BoxDecoration(color: Colors.black87),
                 child: GridView.count(
                   crossAxisCount: 3,
+                  crossAxisSpacing: 3,
+                  mainAxisSpacing: 3,
                   childAspectRatio: 1.0,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),

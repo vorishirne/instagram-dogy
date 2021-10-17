@@ -184,7 +184,7 @@ class MessageItem extends StatelessWidget {
                 )),
             trailing: Column(
               mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   timeago.format(DateTime.fromMillisecondsSinceEpoch(
