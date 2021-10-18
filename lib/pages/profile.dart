@@ -127,14 +127,7 @@ class _ProfileState extends State<Profile> {
 
   void viewActivity(contextx) {
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (contex) => ActivityFeed()
-            // EditProfile(
-            //         currentUserId: currentUserId,
-            //         mastercontext: contextx,
-            //       ))
-
-            ));
+        context, MaterialPageRoute(builder: (contex) => ActivityFeed()));
   }
 
   void editProfile(contextx) {
@@ -193,6 +186,7 @@ class _ProfileState extends State<Profile> {
                       builder: (contex) => Chat(
                             currentUserId: currentUserId,
                             friendId: widget.profileId,
+                            mastercontext: contex,
                           )));
             }),
         SizedBox(

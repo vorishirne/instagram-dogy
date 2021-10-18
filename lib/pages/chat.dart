@@ -6,18 +6,22 @@ import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:intl/intl.dart';
+import '../compresso.dart';
 
 class Chat extends StatefulWidget {
   final String currentUserId;
   final String friendId;
+  final BuildContext mastercontext;
 
-  Chat({this.currentUserId, this.friendId});
+  Chat({this.currentUserId, this.friendId, this.mastercontext});
 
   @override
   ChatState createState() => ChatState();
 }
 
 class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
+  MediaInteract mediaInteract;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isLoading = true;
   User friend;
@@ -35,6 +39,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     } else {
       groupChatId = '${widget.friendId}-${widget.currentUserId}';
     }
+    mediaInteract = MediaInteract(context, "Select a message !");
     getFriend();
   }
 
@@ -144,7 +149,9 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                               print(234);
                             },
                             child: IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  pikapi(context);
+                                },
                                 icon: Icon(CupertinoIcons.camera_fill,
                                     color: Color.fromRGBO(24, 115, 172, 1),
                                     size: 32))),
@@ -171,7 +178,12 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                                 size: 32,
                                 color: Color.fromRGBO(24, 115, 172, 1)),
                             onPressed: () {
-                              updateMessage(currentMessage, "text");
+                              updateMessage(
+                                  currentMessage,
+                                  "text",
+                                  DateTime.now()
+                                      .millisecondsSinceEpoch
+                                      .toString());
                             },
                           ),
                         ),
@@ -184,12 +196,12 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     );
   }
 
-  void updateMessage(String message, String kind) async {
+  void updateMessage(String message, String kind, String ts) async {
     var temp;
     var temp2;
     messageController.clear();
     currentMessage = "";
-    if (message.trim() != "") {
+    if (message.trim() != "" || kind != "text") {
       if (allTheMessages != null &&
           allTheMessages.length != null &&
           allTheMessages.length != 0) {
@@ -200,15 +212,20 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
       await chatsRef
           .document(groupChatId)
           .collection("chats")
-          .document(DateTime.now().millisecondsSinceEpoch.toString())
+          .document(ts)
           .setData({
         'from': widget.currentUserId,
         'to': widget.friendId,
         'prevMessageTimestamp': temp,
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': message.trim(),
+        "url": mediaInteract.mediaUrl,
+        "thumb": mediaInteract.thumbUrl,
+        "height": mediaInteract.heightH,
+        "width": mediaInteract.widthW,
         'kind': kind
       });
+      mediaInteract.init();
       temp = ((friend.displayName == null || friend.displayName == "")
           ? friend.username
           : friend.displayName);
@@ -228,7 +245,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
             : (kind == "pic" ? "Sent a photo." : "Sent a video."),
         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
         "name": temp,
-        "mymessage":true
+        "mymessage": true
       });
       await messagesRef
           .document(widget.friendId)
@@ -242,11 +259,11 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
             ? message.trim()
             : (kind == "pic" ? "Sent you a photo." : "Sent you a video."),
         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-        "mymessage":false
+        "mymessage": false
       });
 
-      // messagesListScrollController.animateTo(0.0,
-      //     duration: Duration(milliseconds: 300), curve: Curves.bounceInOut);
+      messagesListScrollController.animateTo(0.0,
+          duration: Duration(milliseconds: 300), curve: Curves.bounceInOut);
     }
   }
 
@@ -269,8 +286,10 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                     color: Color.fromRGBO(222, 253, 255, 1),
                     borderRadius: BorderRadius.circular(32.0)),
                 child: Text(
-                  (lastMessageDate.day - currentMessageDate.day) <= 1
-                      ? "Yesterday"
+                  (currentMessageDate.day - lastMessageDate.day) <= 2
+                      ? ((currentMessageDate.day - lastMessageDate.day) == 2
+                          ? "Yesterday"
+                          : "Today")
                       : (DateFormat('dd MMM').format(
                           DateTime.fromMillisecondsSinceEpoch(
                               int.parse(document['timestamp'])))),
@@ -280,14 +299,15 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
             )
           : SizedBox(),
       document["from"] == widget.currentUserId
-          ? buildMine(
-              document["content"], document["timestamp"], document["kind"])
-          : buildFriends(
-              document["content"], document["timestamp"], document["kind"])
+          ? buildMine(document["content"], document["timestamp"],
+              document["kind"], document)
+          : buildFriends(document["content"], document["timestamp"],
+              document["kind"], document)
     ]);
   }
 
-  Widget buildMine(String message, String timestamp, String kind) {
+  Widget buildMine(String message, String timestamp, String kind,
+      DocumentSnapshot document) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -314,38 +334,43 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                 ]),
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.7,
+              //maxHeight: MediaQuery.of(context).size.height * 0.5,
             ),
-            padding: EdgeInsets.fromLTRB(16.0, 6, 16.0, 1),
-            child: kind == "text"
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2, right: 6),
+            padding: EdgeInsets.fromLTRB(8.0, 6, 8.0, 1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                kind == "text"
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 14, right: 8),
                         child: Text(message,
                             maxLines: 75, overflow: TextOverflow.ellipsis),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                              DateFormat('h:mm').format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(timestamp))),
-                              style: TextStyle(
-                                  fontSize: 12, color: Colors.black54))
-                        ],
                       )
+                    : buildMedia(message, timestamp, kind, document),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                          DateFormat('h:mm').format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(timestamp))),
+                          style: TextStyle(fontSize: 12, color: Colors.black54))
                     ],
-                  )
-                : buildMedia(message, timestamp, kind)),
+                  ),
+                )
+              ],
+            )),
       ],
     );
   }
 
-  Widget buildFriends(String message, String timestamp, String kind) {
+  Widget buildFriends(String message, String timestamp, String kind,
+      DocumentSnapshot document) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -375,37 +400,148 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
-            padding: EdgeInsets.fromLTRB(16.0, 6, 16.0, 1),
-            child: kind == "text"
-                ? Text.rich(
-                    TextSpan(children: [
-                      WidgetSpan(
-                          child: Padding(
-                        padding: const EdgeInsets.only(bottom: 2, left: 6),
-                        child: Text(
-                          message,
-                        ),
-                      )),
-                      TextSpan(
-                          text: "\n" +
-                              DateFormat('h:mm').format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(timestamp))),
+            padding: EdgeInsets.fromLTRB(8.0, 6, 8.0, 1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                kind == "text"
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 14, right: 8),
+                        child: Text(message,
+                            maxLines: 75, overflow: TextOverflow.ellipsis),
+                      )
+                    : buildMedia(message, timestamp, kind, document),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                          DateFormat('h:mm').format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(timestamp))),
                           style: TextStyle(fontSize: 12, color: Colors.black54))
-                    ]),
-                    maxLines: 75,
-                    overflow: TextOverflow.ellipsis)
-                : buildMedia(message, timestamp, kind)),
+                    ],
+                  ),
+                )
+              ],
+            )),
       ],
     );
-  }
-
-  buildMedia(String message, String timestamp, String kind) {
-    return Text("we don't support media yet");
   }
 
   @override
   bool get wantKeepAlive {
     return false;
   }
+
+  pikapi(BuildContext context) async {
+    mediaInteract.init();
+    String number = await mediaInteract.selectImageVideo(context, "both");
+    await mediaInteract.dial(number);
+
+    if (number != "na") {
+      final snackBar = SnackBar(
+        content: Text('Our message is right on the way!'),
+        duration: Duration(seconds: 1, milliseconds: 500),
+        backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+      if (["pc", "pv"].contains(number)) {
+        number = "pic";
+        await mediaInteract.uploadPic(groupChatId + "profilePic");
+      } else {
+        number = "vid";
+        await mediaInteract.uploadVid(groupChatId + "profilePic");
+      }
+      String ts = DateTime.now().millisecondsSinceEpoch.toString();
+      await updateMessage(currentMessage, number, ts);
+    }
+  }
+
+  buildMedia(String message, String timestamp, String kind,
+      DocumentSnapshot document) {
+    return Container(
+      margin: const EdgeInsets.only(top:2),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          videoBurrow(context, document,
+              thumbUrl:
+                  document["thumb"] == "" ? document["url"] : document["thumb"]),
+          document["content"] != ""
+              ? Padding(
+            padding: EdgeInsets.only(top: 3,left: 6),
+                  child: Text(document["content"],
+                      maxLines: 75, overflow: TextOverflow.ellipsis),
+                )
+              : SizedBox(height: 0,)
+        ],
+      ),
+    );
+  }
+}
+
+Widget videoBurrow(BuildContext context, DocumentSnapshot document,
+    {String thumbUrl = ""}) {
+  double ar = 1;
+  if ((document["height"] > 0) && (document["width"] > 0)) {
+    ar = document["height"] / document["width"];
+    ar = ar * document["height"] < MediaQuery.of(context).size.height * .3
+        ? ar * document["height"]
+        : MediaQuery.of(context).size.height * .3;
+  } else {
+    ar = MediaQuery.of(context).size.height * .3;
+  }
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(22),
+    child: SizedBox(
+      height: ar,
+      width: MediaQuery.of(context).size.width * .75,
+      child: Container(
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                thumbUrl != ""
+                    ? Container(
+                        child: CachedNetworkImage(
+                            imageUrl: thumbUrl,
+                            imageBuilder: (context, imageProvider) => Container(
+                                    child: Image(
+                                  image: imageProvider,
+                                  fit: BoxFit.fill,
+                                )),
+                            errorWidget: (context, url, error) => Container(
+                                decoration:
+                                    BoxDecoration(color: Colors.black12)),
+                            placeholder: (context, url) => Container(
+                                decoration:
+                                    BoxDecoration(color: Colors.black12))),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(24))),
+                document["kind"] == "vid"
+                    ? Positioned(
+                        child: Icon(
+                        CupertinoIcons.play_arrow_solid,
+                        color: Colors.white70,
+                        size: 54,
+                      ))
+                    : Container()
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

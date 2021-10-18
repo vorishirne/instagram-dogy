@@ -66,6 +66,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   updateProfileData(BuildContext contextx) async {
+
     if (mounted) {
       setState(() {
         displayNameController.text.trim().length < 3 ||
@@ -78,6 +79,7 @@ class _EditProfileState extends State<EditProfile> {
       });
     }
     if (_displayNameValid && _bioValid) {
+      Navigator.of(widget.mastercontext).pop();
       var updatedData = {
         "displayName": displayNameController.text,
         "bio": bioController.text,
@@ -93,7 +95,7 @@ class _EditProfileState extends State<EditProfile> {
         backgroundColor: Color.fromRGBO(24, 115, 172, 1),
       );
       Scaffold.of(widget.mastercontext).showSnackBar(snackBar);
-      Navigator.of(widget.mastercontext).pop();
+
     }
   }
 

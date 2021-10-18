@@ -3,11 +3,9 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/chat.dart';
-import 'package:dodogy_challange/widgets/custom_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/homyz.dart';
-import 'package:dodogy_challange/pages/post_screen.dart';
 import 'package:dodogy_challange/pages/profile.dart';
 import 'package:dodogy_challange/widgets/header.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
@@ -128,7 +126,8 @@ class MessageItem extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => Chat(
           friendId: with_,
-          currentUserId: currentUser.id, //userId,
+          currentUserId: currentUser.id,
+          mastercontext: context,//userId,
         ),
       ),
     );
