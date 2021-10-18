@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
+import '../compresso.dart';
 
 class EditProfile extends StatefulWidget {
   final String currentUserId;
@@ -17,7 +18,7 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  String updatedUrlPhoto;
+  MediaInteract mediaInteract;
   bool showPassword = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController displayNameController = TextEditingController();
@@ -27,16 +28,27 @@ class _EditProfileState extends State<EditProfile> {
   bool _displayNameValid = true;
   bool _bioValid = true;
 
-  String calltheProfilePicUpoader(String osamaUrl) {
-    tempfn1();
-    tempfn2();
-    return "https://picsum.photos/250?image=9";
-
+  getProfile() async {
+    int count = mediaInteract.meter += 1;
+    String number = await mediaInteract.selectImageVideo(context, "pic");
+    print("damsel");
+    if (count != mediaInteract.meter) {
+      print("mine is ${count}, his is ${mediaInteract.meter}");
+      return;
+    }
+    await mediaInteract.dial(number);
+    print("dismissed");
+    if (count != mediaInteract.meter) {
+      print("mine is ${count}, his is ${mediaInteract.meter}");
+      return;
+    }
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
+    mediaInteract = MediaInteract(context, "Pic a profile pic !");
     getUser();
   }
 
@@ -53,65 +65,28 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  Column buildDisplayNameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-            padding: EdgeInsets.only(top: 12.0),
-            child: Text(
-              "Display Name",
-              style: TextStyle(color: Colors.grey),
-            )),
-        TextField(
-          controller: displayNameController,
-          decoration: InputDecoration(
-            hintText: "Update Display Name",
-            errorText: _displayNameValid ? null : "Display Name too short",
-          ),
-        )
-      ],
-    );
-  }
-
-  Column buildBioField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 12.0),
-          child: Text(
-            "Bio",
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-        TextField(
-          controller: bioController,
-          decoration: InputDecoration(
-            hintText: "Update Bio",
-            errorText: _bioValid ? null : "Bio too long",
-          ),
-        )
-      ],
-    );
-  }
-
-  updateProfileData(BuildContext contextx) {
-    setState(() {
-      displayNameController.text.trim().length < 3 ||
-              displayNameController.text.isEmpty
-          ? _displayNameValid = false
-          : _displayNameValid = true;
-      bioController.text.trim().length > 100
-          ? _bioValid = false
-          : _bioValid = true;
-    });
-
+  updateProfileData(BuildContext contextx) async {
+    if (mounted) {
+      setState(() {
+        displayNameController.text.trim().length < 3 ||
+                displayNameController.text.isEmpty
+            ? _displayNameValid = false
+            : _displayNameValid = true;
+        bioController.text.trim().length > 100
+            ? _bioValid = false
+            : _bioValid = true;
+      });
+    }
     if (_displayNameValid && _bioValid) {
-      usersRef.document(widget.currentUserId).updateData({
+      var updatedData = {
         "displayName": displayNameController.text,
         "bio": bioController.text,
-      });
+      };
+      await mediaInteract.uploadPic(user.id + "profilePic");
+      if (mediaInteract.mediaUrl != "") {
+        updatedData["photoUrl"] = mediaInteract.mediaUrl;
+      }
+      usersRef.document(widget.currentUserId).updateData(updatedData);
       final snackBar = SnackBar(
         content: Text('Profile Updated!'),
         duration: Duration(seconds: 2),
@@ -169,12 +144,7 @@ class _EditProfileState extends State<EditProfile> {
                           children: <Widget>[
                             GestureDetector(
                               onTap: () {
-                                if (mounted) {
-                                  setState(() {
-                                    updatedUrlPhoto =
-                                        calltheProfilePicUpoader(user.id);
-                                  });
-                                }
+                                getProfile();
                               },
                               child: Container(
                                 width: 130,
@@ -192,25 +162,33 @@ class _EditProfileState extends State<EditProfile> {
                                   ],
                                   shape: BoxShape.circle,
                                 ),
-                                child: CachedNetworkImage(
-                                    key: ObjectKey( updatedUrlPhoto??
-                                        (user.photoUrl ??
-                                            "https://www.asjfkfhdgihdknjskdjfeid.com")),
-                                    imageUrl: ( updatedUrlPhoto??
-                                        (user.photoUrl ??
-                                            "https://www.asjfkfhdgihdknjskdjfeid.com")),
-                                    imageBuilder: (context, imageProvider) =>
-                                        CircleAvatar(
-                                          backgroundColor: Colors.grey,
-                                          backgroundImage: imageProvider,
-                                        ),
-                                    errorWidget: (context, url, error) =>
-                                        CircleAvatar(
-                                            child: Icon(
-                                          CupertinoIcons.person_solid,
-                                          color:
-                                              Color.fromRGBO(24, 115, 172, 1),
-                                        ))),
+                                child: mediaInteract.mediaFile == null
+                                    ? CachedNetworkImage(
+                                        // key: ObjectKey(updatedUrlPhoto ??
+                                        //     (user.photoUrl ??
+                                        //         "https://www.asjfkfhdgihdknjskdjfeid.com")),
+                                        imageUrl: ( //updatedUrlPhoto ??
+                                            (user.photoUrl ??
+                                                "https://www.asjfkfhdgihdknjskdjfeid.com")),
+                                        imageBuilder: (context,
+                                                imageProvider) =>
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey,
+                                              backgroundImage: imageProvider,
+                                            ),
+                                        errorWidget: (context, url, error) =>
+                                            CircleAvatar(
+                                                child: Icon(
+                                              CupertinoIcons.person_solid,
+                                              color: Color.fromRGBO(
+                                                  24, 115, 172, 1),
+                                            )))
+                                    : CircleAvatar(
+                                        backgroundColor: Colors.grey,
+                                        backgroundImage:
+                                            Image.file(mediaInteract.mediaFile)
+                                                .image,
+                                      ),
                               ),
                             ),
                             Positioned(
@@ -255,7 +233,7 @@ class _EditProfileState extends State<EditProfile> {
                                   : user.bio)),
                           _bioValid,
                           bioController,
-                          "Bio too long"),
+                          "Bio too long..."),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -367,20 +345,5 @@ class _EditProfileState extends State<EditProfile> {
             )),
       ),
     );
-  }
-}
-
-tempfn1 ()async {
-  for( var i = 0 ; i <20; i++ ) {
-    await Future.delayed(const Duration(seconds: 1), () => "1");
-    print("abji hi yaha");
-  }
-}
-
-
-tempfn2 ()async {
-  for( var i = 0 ; i <20; i++ ) {
-    await Future.delayed(const Duration(seconds: 1), () => "1");
-    print("abji hu kahi aur");
   }
 }

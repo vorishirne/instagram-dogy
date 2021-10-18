@@ -1,16 +1,13 @@
-import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dodogy_challange/pages/create_account.dart';
-
-//import 'package:dodogy_challange/pages/home.dart';
 import 'package:dodogy_challange/homyz.dart' hide currentUser;
 import 'package:dodogy_challange/sample_pagge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:dodogy_challange/Wrapper.dart';
 import 'loginWall/LoginWidget.dart';
 import 'package:flutter_login/src/models/login_data.dart';
 import 'package:flutter_login/src/widgets/animated_text_form_field.dart';
@@ -53,6 +50,7 @@ class MyApp extends State<StatefulApp> {
   @override
   void initState() {
     super.initState();
+    Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     _auth.onAuthStateChanged.listen((FirebaseUser user) async {
       print(user);
 
