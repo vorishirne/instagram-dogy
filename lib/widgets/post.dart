@@ -99,7 +99,7 @@ class Post extends StatefulWidget {
       heightf: this.heightf);
 }
 
-class _PostState extends State<Post> {
+class _PostState extends State<Post> with TickerProviderStateMixin {
   final String currentUserId = currentUser?.id;
   final String postId;
   final String ownerId;
@@ -132,79 +132,147 @@ class _PostState extends State<Post> {
       this.widthf = 0});
 
   buildPostHeader(BuildContext context) {
+
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
+        Widget toShow=Container(
+
+          height: 80,
+        );
         if (!snapshot.hasData) {
-          return AnimatedSwitcher(
-            duration: Duration(milliseconds: 500),
-            //transitionBuilder: (Widget child,Animation<double> anim)=> ScaleTransition(scale: anim,child: child,),
-            child: SizedBox(
-              height: 72,
-            ),
+          toShow =  Container(
+
+            height: 80,
           );
         }
-        User user = User.fromDocument(snapshot.data);
-        bool isPostOwner = currentUserId == ownerId;
-        return AnimatedSwitcher(
-          // transitionBuilder: (Widget child,Animation<double> anim)=> ScaleTransition(scale: anim,child: child,),
-          duration: Duration(milliseconds: 500),
-          child: Container(
-            height: 72,
+        else{
+          User user = User.fromDocument(snapshot.data);
+          bool isPostOwner = currentUserId == ownerId;
+          toShow = Container(
             child: GestureDetector(
                 onTap: () => showProfile(context, profileId: user.id),
-                child: ListTile(
-                  leading: SizedBox(
-                    height:45,
-                    width: 45,
-                    child: CachedNetworkImage(
-                        imageUrl: user.photoUrl ??
-                            "https://www.asjfkfhdgihdknjskdjfeid.com",
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                              backgroundColor: Colors.grey,
-                              backgroundImage: imageProvider,
-                            ),
-                        errorWidget: (context, url, error) => Padding(
-                            padding: EdgeInsets.all(12), //heret
-                            child: Icon(
-                              CupertinoIcons.person_solid,
-                              color: Colors.black,
-                            ))),
-                  ),
-
-
-                  title: Container(
-                    child: widget.myPhoto
-                        ? Text(
-                            timeago.format(timestamp.toDate()),
-                            style: TextStyle(color: Colors.grey, fontSize: 12.5),
-                          )
-                        : Text(
-                            user.username,
-                            style: TextStyle(
-                                color: Color.fromRGBO(24, 115, 172, 1),
-                                fontWeight: FontWeight.w400,
-                                fontSize: 20),
-                          ),
-                  ),
-                  subtitle: Container(
-                    child: widget.myPhoto
-                        ? Text("")
-                        : Text(timeago.format(timestamp.toDate())),
-                  ),
-                  trailing: Container(
-                    child: isPostOwner
-                        ? IconButton(
-                            onPressed: () => handleDeletePost(context),
-                            icon: Icon(CupertinoIcons.delete_solid),
-                          )
-                        : Text(''),
-                  ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 80,
+                      child: Container(
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              SizedBox(
+                                height: 80,
+                                width: 80,
+                                child: CachedNetworkImage(
+                                    imageUrl: user.photoUrl ??
+                                        "https://www.asjfkfhdgihdknjskdjfeid.com",
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                          backgroundColor: Colors.grey,
+                                          backgroundImage: imageProvider,
+                                        ),
+                                    errorWidget: (context, url, error) =>
+                                        Padding(
+                                            padding: EdgeInsets.all(12),
+                                            //heret
+                                            child: Icon(
+                                              CupertinoIcons.person_solid,
+                                              color: Colors.black,
+                                            ))),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      child: Text(
+                                        user.username,
+                                        style: TextStyle(
+                                            color: Color.fromRGBO(
+                                                24, 115, 172, 1),
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 20),
+                                      ),
+                                    ),
+                                    Visibility(
+                                        visible: location.length > 0,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              child: Text(
+                                                location,
+                                              ),
+                                            ),
+                                          ],
+                                        )),
+                                    Container(
+                                      child: Text(
+                                        timeago.format(timestamp.toDate()),
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer()
+                                  ],
+                                ),
+                              ),
+                              Expanded(child: SizedBox(height: 80,),flex: 1,),
+                              Container(
+                                child: isPostOwner
+                                    ? IconButton(
+                                  onPressed: () =>
+                                      handleDeletePost(context),
+                                  icon:
+                                  Icon(CupertinoIcons.delete_solid),
+                                )
+                                    : Expanded(child: SizedBox(height: 80,)),
+                              ),
+                            ]),
+                      ),
+                    ),
+                    Visibility(
+                        visible: description.length > 0,
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              child: Text(
+                                description,
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              margin: EdgeInsets.only(
+                                  left: 26.0, bottom: 20, top: 6),
+                            )
+                          ],
+                        )),
+                  ],
                 )),
+          );
+        }
+        return AnimatedSize(
+          curve: Curves.fastOutSlowIn,
+          vsync: this,
+          duration: Duration(milliseconds: 500),
+          child:AnimatedSwitcher(
+              switchInCurve: Curves.fastOutSlowIn,
+              duration: const Duration(seconds:1),
+              child: toShow
           ),
         );
       },
     );
+
   }
 
   handleDeletePost(BuildContext parentContext) {
@@ -346,7 +414,7 @@ class _PostState extends State<Post> {
         "postId": postId,
         "mediaUrl": mediaUrl,
         "timestamp": DateTime.now(),
-        "thumb":thumb
+        "thumb": thumb
       });
     }
   }
@@ -370,46 +438,55 @@ class _PostState extends State<Post> {
   buildPostImage() {
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
     double h = 260;
+    double ar = (heightf / widthf);
     if (heightf != 0 && widthf != 0) {
-      h = (heightf / widthf) * MediaQuery.of(context).size.width;
+      h = ar * MediaQuery.of(context).size.width;
+      h = h < MediaQuery.of(context).size.height * .76
+          ? h
+          : MediaQuery.of(context).size.height * .76;
     }
 
     return GestureDetector(
       onDoubleTap: handleLikePost,
-
-        child: SizedBox(
+      child: Container(
+        margin: EdgeInsets.only(top:6),
+        decoration: BoxDecoration(
+          border: Border(top:BorderSide(width: .4,color: Colors.blueGrey.withOpacity(.5)))
+        ),
+        child: Row(children: [SizedBox(
           height: h,
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[
               vid
                   ?
-                  // Theme(
-                  //         data: ThemeData.light().copyWith(
-                  //           platform: TargetPlatform.iOS,
-                  //         ),
-                  //         child:
-                  VideoItem(mediaUrl, thumb, h)
-                  // )
+              // Theme(
+              //         data: ThemeData.light().copyWith(
+              //           platform: TargetPlatform.iOS,
+              //         ),
+              //         child:
+              VideoItem(mediaUrl, thumb, h, ar: ar)
+              // )
                   : cachedNetworkImage(mediaUrl),
               showHeart
                   ? Animator(
-                      duration: Duration(milliseconds: 300),
-                      tween: Tween(begin: 0.8, end: 1.4),
-                      curve: Curves.elasticOut,
-                      cycles: 0,
-                      builder: (anim) => Transform.scale(
-                        scale: anim.value,
-                        child: Icon(
-                          CupertinoIcons.heart,
-                          size: 80.0,
-                          color: Colors.pink,
-                        ),
-                      ),
-                    )
+                duration: Duration(milliseconds: 300),
+                tween: Tween(begin: 0.8, end: 1.4),
+                curve: Curves.elasticOut,
+                cycles: 0,
+                builder: (anim) => Transform.scale(
+                  scale: anim.value,
+                  child: Icon(
+                    CupertinoIcons.heart,
+                    size: 80.0,
+                    color: Colors.pink,
+                  ),
+                ),
+              )
                   : Text(""),
             ],
-        ),
+          ),
+        ),],mainAxisSize: MainAxisSize.max,mainAxisAlignment: MainAxisAlignment.center,)
       ),
     );
   }
@@ -431,13 +508,11 @@ class _PostState extends State<Post> {
             ),
             Padding(padding: EdgeInsets.only(right: 20.0)),
             GestureDetector(
-              onTap: () => showComments(
-                context,
-                postId: postId,
-                ownerId: ownerId,
-                mediaUrl: mediaUrl,
-                thumb: thumb
-              ),
+              onTap: () => showComments(context,
+                  postId: postId,
+                  ownerId: ownerId,
+                  mediaUrl: mediaUrl,
+                  thumb: thumb),
               child: Icon(
                 CupertinoIcons.conversation_bubble,
                 size: 34.0,
@@ -446,36 +521,6 @@ class _PostState extends State<Post> {
             ),
           ],
         ),
-        Visibility(
-            visible: description.length > 0,
-            child: Row(
-              children: <Widget>[
-                Container(
-                  child: Text(
-                    description,
-                    style: TextStyle(fontWeight: FontWeight.w400),
-                  ),
-                  margin: EdgeInsets.only(left: 20.0),
-                )
-              ],
-            )),
-        Visibility(
-            visible: location.length > 0,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(left: 20.0),
-                  child: Text(
-                    location,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ),
-              ],
-            )),
         Row(
           children: <Widget>[
             Container(
@@ -523,7 +568,7 @@ class _PostState extends State<Post> {
 }
 
 showComments(BuildContext context,
-    {String postId, String ownerId, String mediaUrl,String thumb}) {
+    {String postId, String ownerId, String mediaUrl, String thumb}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Comments(
       postId: postId,
@@ -538,8 +583,9 @@ class VideoItem extends StatefulWidget {
   final String url;
   final String thumbUrl;
   final double h;
+  final double ar;
 
-  VideoItem(this.url, this.thumbUrl, this.h);
+  VideoItem(this.url, this.thumbUrl, this.h, {this.ar = 1});
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -571,11 +617,9 @@ class _VideoItemState extends State<VideoItem> {
     //   _controller = null;
     // });
     _videoController?.dispose()?.then((_) {
-
-        readycontroller = false;
-        _videoController = null;
-        videoPlayerInitialized = Completer(); // resets the Completer
-
+      readycontroller = false;
+      _videoController = null;
+      videoPlayerInitialized = Completer(); // resets the Completer
     });
     super.dispose();
   }
@@ -586,92 +630,100 @@ class _VideoItemState extends State<VideoItem> {
         // width: 200,
         // height: 200,
         child: VisibilityDetector(
-      key: stickyKey,
-      onVisibilityChanged: (VisibilityInfo info) {
-        print("meri jung one man army");
-        print(info.visibleFraction);
-        if (info.visibleFraction > 0.70) {
-          play = playAtFirst == 2;
-          if (play) {
-            playAtFirst = 1;
-          }
-          if (_videoController == null) {
-            _videoController = CachedVideoPlayerController.network(widget.url);
-            _videoController.initialize().then((_) {
-              videoPlayerInitialized.complete(true);
-              setState(() {
-                readycontroller = true;
-              });
-              _videoController.setLooping(true);
+          key: stickyKey,
+          onVisibilityChanged: (VisibilityInfo info) {
+            print("meri jung one man army");
+            print(info.visibleFraction);
+            if (info.visibleFraction > 0.70) {
+              play = playAtFirst == 2;
               if (play) {
-                _videoController.play();
+                playAtFirst = 1;
               }
-            });
-          }
-        } else if (info.visibleFraction < 0.30) {
-          setState(() {
-            readycontroller = false;
-          });
-          if (playAtFirst == 1) {
-            playAtFirst = 2;
-          }
-          _videoController?.pause();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _videoController?.dispose()?.then((_) {
-              setState(() {
-                _videoController = null;
-                videoPlayerInitialized = Completer(); // resets the Completer
-              });
-            });
-          });
-        }
-      },
-      child: FutureBuilder(
-        future: videoPlayerInitialized.future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              _videoController != null &&
-              readycontroller) {
-            // should also check that the video has not been disposed
-            return GestureDetector(
-                onTap: () {
+              if (_videoController == null) {
+                _videoController =
+                    CachedVideoPlayerController.network(widget.url);
+                _videoController.initialize().then((_) {
+                  videoPlayerInitialized.complete(true);
+                  if(mounted){
+                    setState(() {
+                      readycontroller = true;
+                    });
+                  }
+                  _videoController.setLooping(true);
+                  if (play) {
+                    _videoController.play();
+                  }
+                });
+              }
+            } else if (info.visibleFraction < 0.30) {
+              if(mounted){
+                setState(() {
+                  readycontroller = false;
+                });
+              }
+              if (playAtFirst == 1) {
+                playAtFirst = 2;
+              }
+              _videoController?.pause();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _videoController?.dispose()?.then((_) {
                   setState(() {
-                    if (_videoController?.value?.isPlaying) {
-                      _videoController?.pause();
-                      setState(() {
-                        print("google stole my data");
-                        play = false;
-                      });
-                      playAtFirst = 0;
-                    } else {
-                      _videoController?.play();
-                      playAtFirst = 1;
-                      setState(() {
-                        print("being played now");
-                        play = true;
-                      });
-                    }
+                    _videoController = null;
+                    videoPlayerInitialized =
+                        Completer(); // resets the Completer
                   });
-                },
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    CachedVideoPlayer(_videoController),
-                    !play
-                        ? Icon(
-                            CupertinoIcons.paw_solid,
-                            color: Colors.white70,
-                            size: 126,
-                          )
-                        : Text("")
-                  ],
-                )); // display the video
-          }
+                });
+              });
+            }
+          },
+          child: FutureBuilder(
+            future: videoPlayerInitialized.future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  _videoController != null &&
+                  readycontroller) {
+                // should also check that the video has not been disposed
+                return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_videoController?.value?.isPlaying) {
+                          _videoController?.pause();
+                          setState(() {
+                            play = false;
+                          });
+                          playAtFirst = 0;
+                        } else {
+                          _videoController?.play();
+                          playAtFirst = 1;
+                          setState(() {
+                            play = true;
+                          });
+                        }
+                      });
+                    },
+                    child: Stack(
+                      alignment: AlignmentDirectional.center,
+                      children: [
+                        AspectRatio(
+                          child: CachedVideoPlayer(_videoController),
+                          aspectRatio: 1 / widget.ar,
+                        ),
+                        !play
+                            ? Icon(
+                                CupertinoIcons.paw_solid,
+                                color: Colors.white70,
+                                size: 126,
+                              )
+                            : Text("")
+                      ],
+                    )); // display the video
+              }
 
-          return videoBurrow(context, thumbUrl: widget.thumbUrl, h: widget.h);
-        },
-      ),
-    ));
+              return videoBurrow(context,
+                  thumbUrl: widget.thumbUrl, h: widget.h);
+            },
+          ),
+        ));
   }
 }
 
@@ -679,7 +731,7 @@ Widget videoBurrow(BuildContext context, {String thumbUrl = "", double h}) {
   return SizedBox(
 //    height: h,
     child: Container(
-      color: Colors.black,
+      //color: Colors.pink,
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
@@ -699,7 +751,7 @@ Widget videoBurrow(BuildContext context, {String thumbUrl = "", double h}) {
                       errorWidget: (context, url, error) => Container(
                           decoration: BoxDecoration(color: Colors.black87)),
                       placeholder: (context, url) => Container(
-                          decoration: BoxDecoration(color: Colors.black87))),
+                          decoration: BoxDecoration(color: Colors.black12))),
                 )))
               : Container(decoration: BoxDecoration(color: Colors.black87)),
           Positioned(

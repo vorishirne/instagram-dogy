@@ -318,7 +318,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     Future<QuerySnapshot> users =
-        usersRef.where("username", isGreaterThanOrEqualTo: "a").getDocuments();
+        usersRef.getDocuments();
     print("me got that " + query);
     return buildSearchResults(users, query);
   }

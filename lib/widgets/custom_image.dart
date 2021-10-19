@@ -10,10 +10,8 @@ Widget cachedNetworkImage(String mediaUrl) {
     imageUrl: mediaUrl ??
         "https://www.asjfkfhdgihdknjskdjfeid.com",
     fit: BoxFit.cover,
-    placeholder: (context, url) => Padding(
-      child: circularProgress(),//Container(height: 200, color: Colors.black12,child: SizedBox(height: 200,),),
-      padding: EdgeInsets.symmetric(vertical:5.0),
-    ),
+      placeholder: (context, url) => Container(
+          decoration: BoxDecoration(color: Colors.black12.withOpacity(.04))),
     errorWidget: (context, url, error) => Icon(Icons.error),
   );
 }

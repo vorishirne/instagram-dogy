@@ -275,6 +275,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     DateTime currentMessageDate =
         DateTime.fromMillisecondsSinceEpoch(int.parse(document['timestamp']))
             .toUtc();
+    DateTime presentTime = DateTime.now().toUtc();
 
     return Column(children: [
       (lastMessageDate.day - currentMessageDate.day) != 0
@@ -287,7 +288,7 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                     borderRadius: BorderRadius.circular(32.0)),
                 child: Text(
                   (currentMessageDate.day - lastMessageDate.day) <= 2
-                      ? ((currentMessageDate.day - lastMessageDate.day) == 2
+                      ? ((presentTime.day - lastMessageDate.day) == 2
                           ? "Yesterday"
                           : "Today")
                       : (DateFormat('dd MMM').format(
@@ -443,21 +444,27 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     String number = await mediaInteract.selectImageVideo(context, "both");
     await mediaInteract.dial(number);
 
-    if (number != "na") {
+    if (["pc", "pg", "vc", "vg"].contains(number)) {
       final snackBar = SnackBar(
         content: Text('Our message is right on the way!'),
         duration: Duration(seconds: 1, milliseconds: 500),
         backgroundColor: Color.fromRGBO(24, 115, 172, 1),
       );
       _scaffoldKey.currentState.showSnackBar(snackBar);
-      if (["pc", "pv"].contains(number)) {
+      String ts = DateTime.now().millisecondsSinceEpoch.toString();
+      if (["pc", "pg"].contains(number)) {
         number = "pic";
-        await mediaInteract.uploadPic(groupChatId + "profilePic");
+        await mediaInteract.uploadPic(groupChatId +
+            ts); //when this was condition, every photo was same in the entire chat, obv,
+        //but while uploading they were differing. lol cahing!!
       } else {
         number = "vid";
-        await mediaInteract.uploadVid(groupChatId + "profilePic");
+        await mediaInteract.uploadVid(groupChatId + ts);
       }
-      String ts = DateTime.now().millisecondsSinceEpoch.toString();
+      if (mediaInteract.mediaUrl == "") {
+        return;
+      }
+
       await updateMessage(currentMessage, number, ts);
     }
   }
@@ -465,20 +472,23 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
   buildMedia(String message, String timestamp, String kind,
       DocumentSnapshot document) {
     return Container(
-      margin: const EdgeInsets.only(top:2),
+      margin: const EdgeInsets.only(top: 2),
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           videoBurrow(context, document,
-              thumbUrl:
-                  document["thumb"] == "" ? document["url"] : document["thumb"]),
+              thumbUrl: document["thumb"] == ""
+                  ? document["url"]
+                  : document["thumb"]),
           document["content"] != ""
               ? Padding(
-            padding: EdgeInsets.only(top: 3,left: 6),
+                  padding: EdgeInsets.only(top: 3, left: 6),
                   child: Text(document["content"],
                       maxLines: 75, overflow: TextOverflow.ellipsis),
                 )
-              : SizedBox(height: 0,)
+              : SizedBox(
+                  height: 0,
+                )
         ],
       ),
     );
@@ -488,56 +498,57 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
 Widget videoBurrow(BuildContext context, DocumentSnapshot document,
     {String thumbUrl = ""}) {
   double ar = 1;
+  double h = MediaQuery.of(context).size.height * .3;
   if ((document["height"] > 0) && (document["width"] > 0)) {
     ar = document["height"] / document["width"];
-    ar = ar * document["height"] < MediaQuery.of(context).size.height * .3
-        ? ar * document["height"]
+    h = ar * MediaQuery.of(context).size.width * .75 < MediaQuery.of(context).size.height * .3
+        ? ar * MediaQuery.of(context).size.width * .75
         : MediaQuery.of(context).size.height * .3;
-  } else {
-    ar = MediaQuery.of(context).size.height * .3;
   }
-  return ClipRRect(
-    borderRadius: BorderRadius.circular(22),
-    child: SizedBox(
-      height: ar,
-      width: MediaQuery.of(context).size.width * .75,
-      child: Container(
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                thumbUrl != ""
-                    ? Container(
-                        child: CachedNetworkImage(
-                            imageUrl: thumbUrl,
-                            imageBuilder: (context, imageProvider) => Container(
-                                    child: Image(
-                                  image: imageProvider,
-                                  fit: BoxFit.fill,
-                                )),
-                            errorWidget: (context, url, error) => Container(
-                                decoration:
-                                    BoxDecoration(color: Colors.black12)),
-                            placeholder: (context, url) => Container(
-                                decoration:
-                                    BoxDecoration(color: Colors.black12))),
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                            color: Colors.black12,
-                            borderRadius: BorderRadius.circular(24))),
-                document["kind"] == "vid"
-                    ? Positioned(
-                        child: Icon(
-                        CupertinoIcons.play_arrow_solid,
-                        color: Colors.white70,
-                        size: 54,
-                      ))
-                    : Container()
-              ],
+  return SizedBox(
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: SizedBox(
+        height: h,
+        width: MediaQuery.of(context).size.width * .75,
+        child: Container(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: Container(
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  thumbUrl != ""
+                      ? Container(
+                          child: CachedNetworkImage(
+                              imageUrl: thumbUrl,
+                              imageBuilder: (context, imageProvider) => Container(
+                                      child: Image(
+                                    image: imageProvider,
+                                    fit: BoxFit.fill,
+                                  )),
+                              errorWidget: (context, url, error) => Container(
+                                  decoration:
+                                      BoxDecoration(color: Colors.black12)),
+                              placeholder: (context, url) => Container(
+                                  decoration:
+                                      BoxDecoration(color: Colors.black12))),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                              color: Colors.black12,
+                              borderRadius: BorderRadius.circular(24))),
+                  document["kind"] == "vid"
+                      ? Positioned(
+                          child: Icon(
+                          CupertinoIcons.play_arrow_solid,
+                          color: Colors.white70,
+                          size: 54,
+                        ))
+                      : Container()
+                ],
+              ),
             ),
           ),
         ),

@@ -41,7 +41,7 @@ class MessagesState extends State<Messages> {
         }
         if (snapshot.data.documents.length < 1) {
           print("khali nikla");
-          return buildNoContent("Waiting for some activity to happen!");
+          return buildNoContent("No barks to my guys!");
         }
         print("are yr hai to sahi");
         return ListView.separated(
