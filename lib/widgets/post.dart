@@ -132,21 +132,17 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
       this.widthf = 0});
 
   buildPostHeader(BuildContext context) {
-
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
-        Widget toShow=Container(
-
+        Widget toShow = Container(
           height: 80,
         );
         if (!snapshot.hasData) {
-          toShow =  Container(
-
+          toShow = Container(
             height: 80,
           );
-        }
-        else{
+        } else {
           User user = User.fromDocument(snapshot.data);
           bool isPostOwner = currentUserId == ownerId;
           toShow = Container(
@@ -158,7 +154,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
                       height: 80,
                       child: Container(
                         padding:
-                        EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                            EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             mainAxisSize: MainAxisSize.max,
@@ -188,15 +184,14 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
                                       child: Text(
                                         user.username,
                                         style: TextStyle(
-                                            color: Color.fromRGBO(
-                                                24, 115, 172, 1),
+                                            color:
+                                                Color.fromRGBO(24, 115, 172, 1),
                                             fontWeight: FontWeight.w400,
                                             fontSize: 20),
                                       ),
@@ -205,7 +200,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
                                         visible: location.length > 0,
                                         child: Row(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Container(
                                               child: Text(
@@ -228,16 +223,23 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
                                   ],
                                 ),
                               ),
-                              Expanded(child: SizedBox(height: 80,),flex: 1,),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 80,
+                                ),
+                                flex: 1,
+                              ),
                               Container(
                                 child: isPostOwner
                                     ? IconButton(
-                                  onPressed: () =>
-                                      handleDeletePost(context),
-                                  icon:
-                                  Icon(CupertinoIcons.delete_solid),
-                                )
-                                    : Expanded(child: SizedBox(height: 80,)),
+                                        onPressed: () =>
+                                            handleDeletePost(context),
+                                        icon: Icon(CupertinoIcons.delete_solid),
+                                      )
+                                    : Expanded(
+                                        child: SizedBox(
+                                        height: 80,
+                                      )),
                               ),
                             ]),
                       ),
@@ -264,15 +266,13 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
           curve: Curves.fastOutSlowIn,
           vsync: this,
           duration: Duration(milliseconds: 500),
-          child:AnimatedSwitcher(
+          child: AnimatedSwitcher(
               switchInCurve: Curves.fastOutSlowIn,
-              duration: const Duration(seconds:1),
-              child: toShow
-          ),
+              duration: const Duration(seconds: 1),
+              child: toShow),
         );
       },
     );
-
   }
 
   handleDeletePost(BuildContext parentContext) {
@@ -436,6 +436,9 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
   }
 
   buildPostImage() {
+    if (mediaUrl == "") {
+      return Container();
+    }
     bool vid = mediaUrl.toLowerCase().contains(".mp4");
     double h = 260;
     double ar = (heightf / widthf);
@@ -445,49 +448,54 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
           ? h
           : MediaQuery.of(context).size.height * .76;
     }
-
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Container(
-        margin: EdgeInsets.only(top:6),
-        decoration: BoxDecoration(
-          border: Border(top:BorderSide(width: .4,color: Colors.blueGrey.withOpacity(.5)))
-        ),
-        child: Row(children: [SizedBox(
-          height: h,
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              vid
-                  ?
-              // Theme(
-              //         data: ThemeData.light().copyWith(
-              //           platform: TargetPlatform.iOS,
-              //         ),
-              //         child:
-              VideoItem(mediaUrl, thumb, h, ar: ar)
-              // )
-                  : cachedNetworkImage(mediaUrl),
-              showHeart
-                  ? Animator(
-                duration: Duration(milliseconds: 300),
-                tween: Tween(begin: 0.8, end: 1.4),
-                curve: Curves.elasticOut,
-                cycles: 0,
-                builder: (anim) => Transform.scale(
-                  scale: anim.value,
-                  child: Icon(
-                    CupertinoIcons.heart,
-                    size: 80.0,
-                    color: Colors.pink,
-                  ),
+          margin: EdgeInsets.only(top: 6),
+          decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                      width: .4, color: Colors.blueGrey.withOpacity(.5)))),
+          child: Row(
+            children: [
+              SizedBox(
+                height: h,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    vid
+                        ?
+                        // Theme(
+                        //         data: ThemeData.light().copyWith(
+                        //           platform: TargetPlatform.iOS,
+                        //         ),
+                        //         child:
+                        VideoItem(mediaUrl, thumb, h, ar: ar)
+                        // )
+                        : cachedNetworkImage(mediaUrl),
+                    showHeart
+                        ? Animator(
+                            duration: Duration(milliseconds: 300),
+                            tween: Tween(begin: 0.8, end: 1.4),
+                            curve: Curves.elasticOut,
+                            cycles: 0,
+                            builder: (anim) => Transform.scale(
+                              scale: anim.value,
+                              child: Icon(
+                                CupertinoIcons.heart,
+                                size: 80.0,
+                                color: Colors.pink,
+                              ),
+                            ),
+                          )
+                        : Text(""),
+                  ],
                 ),
-              )
-                  : Text(""),
+              ),
             ],
-          ),
-        ),],mainAxisSize: MainAxisSize.max,mainAxisAlignment: MainAxisAlignment.center,)
-      ),
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+          )),
     );
   }
 
@@ -630,100 +638,97 @@ class _VideoItemState extends State<VideoItem> {
         // width: 200,
         // height: 200,
         child: VisibilityDetector(
-          key: stickyKey,
-          onVisibilityChanged: (VisibilityInfo info) {
-            print("meri jung one man army");
-            print(info.visibleFraction);
-            if (info.visibleFraction > 0.70) {
-              play = playAtFirst == 2;
-              if (play) {
-                playAtFirst = 1;
-              }
-              if (_videoController == null) {
-                _videoController =
-                    CachedVideoPlayerController.network(widget.url);
-                _videoController.initialize().then((_) {
-                  videoPlayerInitialized.complete(true);
-                  if(mounted){
-                    setState(() {
-                      readycontroller = true;
-                    });
-                  }
-                  _videoController.setLooping(true);
-                  if (play) {
-                    _videoController.play();
-                  }
-                });
-              }
-            } else if (info.visibleFraction < 0.30) {
-              if(mounted){
+      key: stickyKey,
+      onVisibilityChanged: (VisibilityInfo info) {
+        print("meri jung one man army");
+        print(info.visibleFraction);
+        if (info.visibleFraction > 0.70) {
+          play = playAtFirst == 2;
+          if (play) {
+            playAtFirst = 1;
+          }
+          if (_videoController == null) {
+            _videoController = CachedVideoPlayerController.network(widget.url);
+            _videoController.initialize().then((_) {
+              videoPlayerInitialized.complete(true);
+              if (mounted) {
                 setState(() {
-                  readycontroller = false;
+                  readycontroller = true;
                 });
               }
-              if (playAtFirst == 1) {
-                playAtFirst = 2;
+              _videoController.setLooping(true);
+              if (play) {
+                _videoController.play();
               }
-              _videoController?.pause();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _videoController?.dispose()?.then((_) {
-                  setState(() {
-                    _videoController = null;
-                    videoPlayerInitialized =
-                        Completer(); // resets the Completer
-                  });
-                });
+            });
+          }
+        } else if (info.visibleFraction < 0.30) {
+          if (mounted) {
+            setState(() {
+              readycontroller = false;
+            });
+          }
+          if (playAtFirst == 1) {
+            playAtFirst = 2;
+          }
+          _videoController?.pause();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _videoController?.dispose()?.then((_) {
+              setState(() {
+                _videoController = null;
+                videoPlayerInitialized = Completer(); // resets the Completer
               });
-            }
-          },
-          child: FutureBuilder(
-            future: videoPlayerInitialized.future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done &&
-                  _videoController != null &&
-                  readycontroller) {
-                // should also check that the video has not been disposed
-                return GestureDetector(
-                    onTap: () {
+            });
+          });
+        }
+      },
+      child: FutureBuilder(
+        future: videoPlayerInitialized.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              _videoController != null &&
+              readycontroller) {
+            // should also check that the video has not been disposed
+            return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (_videoController?.value?.isPlaying) {
+                      _videoController?.pause();
                       setState(() {
-                        if (_videoController?.value?.isPlaying) {
-                          _videoController?.pause();
-                          setState(() {
-                            play = false;
-                          });
-                          playAtFirst = 0;
-                        } else {
-                          _videoController?.play();
-                          playAtFirst = 1;
-                          setState(() {
-                            play = true;
-                          });
-                        }
+                        play = false;
                       });
-                    },
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: [
-                        AspectRatio(
-                          child: CachedVideoPlayer(_videoController),
-                          aspectRatio: 1 / widget.ar,
-                        ),
-                        !play
-                            ? Icon(
-                                CupertinoIcons.paw_solid,
-                                color: Colors.white70,
-                                size: 126,
-                              )
-                            : Text("")
-                      ],
-                    )); // display the video
-              }
+                      playAtFirst = 0;
+                    } else {
+                      _videoController?.play();
+                      playAtFirst = 1;
+                      setState(() {
+                        play = true;
+                      });
+                    }
+                  });
+                },
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    AspectRatio(
+                      child: CachedVideoPlayer(_videoController),
+                      aspectRatio: 1 / widget.ar,
+                    ),
+                    !play
+                        ? Icon(
+                            CupertinoIcons.paw_solid,
+                            color: Colors.white70,
+                            size: 126,
+                          )
+                        : Text("")
+                  ],
+                )); // display the video
+          }
 
-              return videoBurrow(context,
-                  thumbUrl: widget.thumbUrl, h: widget.h);
-            },
-          ),
-        ));
+          return videoBurrow(context, thumbUrl: widget.thumbUrl, h: widget.h);
+        },
+      ),
+    ));
   }
 }
 

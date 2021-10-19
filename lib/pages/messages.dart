@@ -127,7 +127,7 @@ class MessageItem extends StatelessWidget {
         builder: (context) => Chat(
           friendId: with_,
           currentUserId: currentUser.id,
-          mastercontext: context,//userId,
+          mastercontext: context, //userId,
         ),
       ),
     );
@@ -142,17 +142,16 @@ class MessageItem extends StatelessWidget {
       child: Container(
         color: Colors.white10,
         child: GestureDetector(
-          onTap: ()=>showChat(context),
+          onTap: () => showChat(context),
           child: ListTile(
             title: Text(
               name,
-              style: TextStyle(fontWeight: FontWeight.w400,letterSpacing: 1.5),
+              style: TextStyle(fontWeight: FontWeight.w400, letterSpacing: 1.5),
             ),
             subtitle: Text.rich(
               TextSpan(children: [
                 !mymessage ? TextSpan(text: "") : TextSpan(text: "You: "),
-                TextSpan(
-                    text: message, style: TextStyle(color: Colors.black54))
+                TextSpan(text: message, style: TextStyle(color: Colors.black54))
               ]),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -170,16 +169,15 @@ class MessageItem extends StatelessWidget {
                             backgroundImage: imageProvider,
                           ),
                       errorWidget: (context, url, error) => CircleAvatar(
-                        backgroundColor: Color.fromRGBO(222, 253, 255, 1),
-                        child: CircleAvatar(
-                          radius: 21.25,
-                          child: Icon(
+                            backgroundColor: Color.fromRGBO(222, 253, 255, 1),
+                            child: CircleAvatar(
+                              radius: 21.25,
+                              child: Icon(
                                 CupertinoIcons.person_solid,
                                 color: Color.fromRGBO(24, 115, 172, 1),
                               ),
-                        ),
-
-                      )),
+                            ),
+                          )),
                 )),
             trailing: Column(
               mainAxisSize: MainAxisSize.max,

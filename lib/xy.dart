@@ -1,1 +1,3 @@
-void main(){print("value||||".replaceAll('|', '').length);}
+void main() {
+  print("value||||".replaceAll('|', '').length);
+}

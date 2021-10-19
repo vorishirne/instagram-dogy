@@ -13,13 +13,17 @@ class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
   String username;
   bool isButtonPressed = false;
+
   submit() {
-    isButtonPressed =true;
+    isButtonPressed = true;
     final form = _formKey.currentState;
 
     if (form.validate()) {
       form.save();
-      SnackBar snackbar = SnackBar(content: Text("Welcome $username!"),backgroundColor: Color.fromRGBO(24, 115, 172, 1),);
+      SnackBar snackbar = SnackBar(
+        content: Text("Welcome $username!"),
+        backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+      );
       _scaffoldKey.currentState.showSnackBar(snackbar);
       Timer(Duration(seconds: 2), () {
         Navigator.pop(context, username);
@@ -67,16 +71,18 @@ class _CreateAccountState extends State<CreateAccount> {
                       key: _formKey,
                       autovalidate: true,
                       child: TextFormField(
-                        onChanged: (value) => isButtonPressed =false ,
+                        onChanged: (value) => isButtonPressed = false,
                         keyboardType: TextInputType.text,
                         autofocus: true,
                         textCapitalization: TextCapitalization.sentences,
                         validator: (val) {
-                          if (!isButtonPressed){
+                          if (!isButtonPressed) {
                             return null;
                           }
                           if (val.isEmpty || val.trim().length < 3) {
-                            return isButtonPressed ? "button is pressed": "Username too short";
+                            return isButtonPressed
+                                ? "button is pressed"
+                                : "Username too short";
                           } else if (val.trim().length > 12) {
                             return "Username too long";
                           } else {

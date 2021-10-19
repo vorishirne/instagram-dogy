@@ -445,6 +445,9 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     await mediaInteract.dial(number);
 
     if (["pc", "pg", "vc", "vg"].contains(number)) {
+      if (mediaInteract.mediaFile == null) {
+        return;
+      }
       final snackBar = SnackBar(
         content: Text('Our message is right on the way!'),
         duration: Duration(seconds: 1, milliseconds: 500),
@@ -501,7 +504,8 @@ Widget videoBurrow(BuildContext context, DocumentSnapshot document,
   double h = MediaQuery.of(context).size.height * .3;
   if ((document["height"] > 0) && (document["width"] > 0)) {
     ar = document["height"] / document["width"];
-    h = ar * MediaQuery.of(context).size.width * .75 < MediaQuery.of(context).size.height * .3
+    h = ar * MediaQuery.of(context).size.width * .75 <
+            MediaQuery.of(context).size.height * .3
         ? ar * MediaQuery.of(context).size.width * .75
         : MediaQuery.of(context).size.height * .3;
   }
@@ -523,7 +527,8 @@ Widget videoBurrow(BuildContext context, DocumentSnapshot document,
                       ? Container(
                           child: CachedNetworkImage(
                               imageUrl: thumbUrl,
-                              imageBuilder: (context, imageProvider) => Container(
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
                                       child: Image(
                                     image: imageProvider,
                                     fit: BoxFit.fill,

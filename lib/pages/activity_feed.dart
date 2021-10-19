@@ -104,17 +104,16 @@ class ActivityFeedItem extends StatelessWidget {
   final Timestamp timestamp;
   final String thumb;
 
-  ActivityFeedItem({
-    this.username,
-    this.userId,
-    this.type,
-    this.mediaUrl,
-    this.postId,
-    this.userProfileImg,
-    this.commentData,
-    this.timestamp,
-    this.thumb =""
-  });
+  ActivityFeedItem(
+      {this.username,
+      this.userId,
+      this.type,
+      this.mediaUrl,
+      this.postId,
+      this.userProfileImg,
+      this.commentData,
+      this.timestamp,
+      this.thumb = ""});
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
     return ActivityFeedItem(
@@ -151,14 +150,13 @@ class ActivityFeedItem extends StatelessWidget {
           onTap: () => showPost(context),
           child: Container(
             child: AspectRatio(
-                aspectRatio: 1, child: cachedNetworkImageLead(context,mediaUrl,thumb)),
+                aspectRatio: 1,
+                child: cachedNetworkImageLead(context, mediaUrl, thumb)),
           ),
         ),
       );
     } else {
-      mediaPreview = SizedBox(
-        height: 50.0,
-        width: 50.0);
+      mediaPreview = SizedBox(height: 50.0, width: 50.0);
     }
 
     if (type == 'like') {
@@ -219,7 +217,10 @@ class ActivityFeedItem extends StatelessWidget {
                 timeago.format(timestamp.toDate()),
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: FittedBox(alignment: Alignment.center,child: mediaPreview,),
+              trailing: FittedBox(
+                alignment: Alignment.center,
+                child: mediaPreview,
+              ),
             ),
           ),
         ));

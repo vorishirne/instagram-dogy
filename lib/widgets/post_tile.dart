@@ -25,8 +25,7 @@ class PostTile extends StatelessWidget {
   Widget build(BuildContext context) {
     bool vid = post.mediaUrl.toLowerCase().contains(".mp4");
     return Container(
-      decoration: BoxDecoration(
-      ),
+      decoration: BoxDecoration(),
       child: GestureDetector(
         onTap: () => showPost(context),
         child: vid

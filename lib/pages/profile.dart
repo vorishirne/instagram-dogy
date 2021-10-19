@@ -24,7 +24,7 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
+class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   final String currentUserId = currentUser?.id;
 
   String postOrientation = "grid";
@@ -76,10 +76,12 @@ class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
         .collection('userFollowing')
         .snapshots()
         .listen((event) {
-      setState(() {
-        print("olka");
-        followingCount = event.documents.length;
-      });
+      if (mounted) {
+        setState(() {
+          print("olka");
+          followingCount = event.documents.length;
+        });
+      }
     });
   }
 
@@ -89,10 +91,12 @@ class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
         .collection('userPosts')
         .snapshots()
         .listen((event) {
-      setState(() {
-        print("i made a mistake");
-        postCount = event.documents.length;
-      });
+      if (mounted) {
+        setState(() {
+          print("i made a mistake");
+          postCount = event.documents.length;
+        });
+      }
     });
   }
 
@@ -346,7 +350,8 @@ class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-                                      buildCountColumn("posts", postCount, null),
+                                      buildCountColumn(
+                                          "posts", postCount, null),
                                       buildCountColumn(
                                           "followers", followerCount - 1, () {
                                         if (widget.profileId == currentUserId) {
@@ -358,8 +363,8 @@ class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
                                             print("applied page index");
                                             miniPageController.animateTo(1);
                                           });
-                                          Navigator.of(context)
-                                              .popUntil((route) => route.isFirst);
+                                          Navigator.of(context).popUntil(
+                                              (route) => route.isFirst);
                                         }
                                       }),
                                       buildCountColumn(
@@ -373,8 +378,8 @@ class _ProfileState extends State<Profile>  with TickerProviderStateMixin{
                                             //miniPageIndex = 0;
                                             miniPageController.animateTo(0);
                                           });
-                                          Navigator.of(context)
-                                              .popUntil((route) => route.isFirst);
+                                          Navigator.of(context).popUntil(
+                                              (route) => route.isFirst);
                                         }
                                       }),
                                     ],

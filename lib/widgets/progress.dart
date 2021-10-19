@@ -8,12 +8,3 @@ Container circularProgress() {
         valueColor: AlwaysStoppedAnimation(Color.fromRGBO(24, 115, 172, 1)),
       ));
 }
-
-Container linearProgress() {
-  return Container(
-    padding: EdgeInsets.only(bottom: 10.0),
-    child: LinearProgressIndicator(
-      valueColor: AlwaysStoppedAnimation(Color.fromRGBO(24, 115, 172, 1)),
-    ),
-  );
-}

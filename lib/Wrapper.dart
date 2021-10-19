@@ -82,25 +82,23 @@ class _PhoneSignInSectionState extends State<PhoneSignInSection> {
       _message = '';
     });
 
-
     final PhoneVerificationCompleted verificationCompleted = null;
-      var a=  (FirebaseUser phoneAuthCredential) async{
-          print(await _auth.currentUser());
+    var a = (FirebaseUser phoneAuthCredential) async {
+      print(await _auth.currentUser());
 
       setState(() {
-        _message ="The message from ready made function"+ 'Received phone auth credential: $phoneAuthCredential';
+        _message = "The message from ready made function" +
+            'Received phone auth credential: $phoneAuthCredential';
         print("The message from ready made function");
         print(phoneAuthCredential);
       });
-
     };
 
     final PhoneVerificationFailed verificationFailed =
         (AuthException authException) {
       setState(() {
         _message =
-        'Oh yes Phone number verification failed. Code: ${authException
-            .code}. Message: ${authException.message}';
+            'Oh yes Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}';
         print(authException);
       });
     };
@@ -135,23 +133,20 @@ class _PhoneSignInSectionState extends State<PhoneSignInSection> {
 
   // Example code of how to sign in with phone.
   void _signInWithPhoneNumber() async {
-
     final AuthCredential credential = PhoneAuthProvider.getCredential(
       verificationId: _verificationId,
       smsCode: _smsController.text,
     );
     print("precious creds");
     print(credential);
-    final FirebaseUser user =
-    (await _auth.signInWithCredential(credential));
+    final FirebaseUser user = (await _auth.signInWithCredential(credential));
     print("precious user <3");
     print(user);
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
     print("toka more");
-    var om=(await user.getIdToken());
+    var om = (await user.getIdToken());
     print(om);
-    
 
     setState(() {
       if (user != null) {

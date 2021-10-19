@@ -66,7 +66,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   updateProfileData(BuildContext contextx) async {
-
     if (mounted) {
       setState(() {
         displayNameController.text.trim().length < 3 ||
@@ -95,7 +94,6 @@ class _EditProfileState extends State<EditProfile> {
         backgroundColor: Color.fromRGBO(24, 115, 172, 1),
       );
       Scaffold.of(widget.mastercontext).showSnackBar(snackBar);
-
     }
   }
 
@@ -244,7 +242,9 @@ class _EditProfileState extends State<EditProfile> {
                               padding: EdgeInsets.symmetric(horizontal: 50),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20)),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                               child: Text("CANCEL",
                                   style: TextStyle(
                                       fontSize: 14,

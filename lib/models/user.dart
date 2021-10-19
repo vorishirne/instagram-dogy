@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 int playAtFirst = 0;
+
 // int howmanyVideo=0;
 class User {
   final String id;
@@ -19,7 +21,6 @@ class User {
   });
 
   factory User.fromDocument(DocumentSnapshot doc) {
-
     return User(
       id: doc['id'],
       email: doc['email'],

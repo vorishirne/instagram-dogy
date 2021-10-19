@@ -1,18 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:dodogy_challange/models/user.dart';
 import 'package:dodogy_challange/pages/activity_feed.dart';
 import 'package:dodogy_challange/pages/create_account.dart';
 import 'package:dodogy_challange/pages/profile.dart';
-import 'package:dodogy_challange/pages/search.dart';
 import 'package:dodogy_challange/pages/timeline.dart';
-import 'package:dodogy_challange/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
-
-
 
 class Home extends StatefulWidget {
   @override
@@ -93,8 +88,6 @@ class _HomeState extends State<Home> {
   logout() {
     googleSignIn.signOut();
   }
-
-
 
   Scaffold buildAuthScreen() {
     return Scaffold(

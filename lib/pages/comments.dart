@@ -56,9 +56,9 @@ class CommentsState extends State<Comments> {
   }
 
   addComment() {
-    if (commentController.text.trim() == ""){
+    if (commentController.text.trim() == "") {
       return;
-     }
+    }
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
       "comment": commentController.text,
@@ -77,7 +77,7 @@ class CommentsState extends State<Comments> {
         "username": currentUser.username,
         "userProfileImg": currentUser.photoUrl,
         "mediaUrl": postMediaUrl,
-        "thumb":thumb
+        "thumb": thumb
       });
     }
     commentController.clear();

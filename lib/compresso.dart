@@ -140,7 +140,6 @@ class MediaInteract {
     file = await file.copy("$path/xcv.mp4");
     mediaFile = file;
     await getThumbnail();
-
   }
 
   Future handleChooseFromGallery() async {
@@ -152,14 +151,14 @@ class MediaInteract {
     }
     await cropImage(file);
     print("badtameez");
-
   }
 
   getThumbnail() async {
-    thumbnailFile = await flutterVideoCompress.getThumbnailWithFile(mediaFile.path,
-        quality: 35, // default(100)
-        position: -1 // default(-1)
-        );
+    thumbnailFile =
+        await flutterVideoCompress.getThumbnailWithFile(mediaFile.path,
+            quality: 35, // default(100)
+            position: -1 // default(-1)
+            );
     var decodedImage =
         await decodeImageFromList(thumbnailFile.readAsBytesSync());
     heightH = decodedImage.height;
@@ -202,7 +201,7 @@ class MediaInteract {
     print("meet the cropped version");
     var decodedImage = await decodeImageFromList(mediaFile.readAsBytesSync());
     heightH = decodedImage.height;
-    widthW= decodedImage.width;
+    widthW = decodedImage.width;
   }
 
   uploadPic(String mediaid) async {
@@ -210,7 +209,8 @@ class MediaInteract {
       init();
       return;
     }
-    StorageUploadTask uploadTask = storageRef.child(mediaid+".jpg").putFile(mediaFile);
+    StorageUploadTask uploadTask =
+        storageRef.child(mediaid + ".jpg").putFile(mediaFile);
     print("golanf");
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
     print("bolla");
@@ -222,12 +222,12 @@ class MediaInteract {
   }
 
   uploadVid(String mediaid) async {
-    if(thumbnailFile==null || mediaFile==null){
+    if (thumbnailFile == null || mediaFile == null) {
       init();
       return;
     }
     StorageUploadTask uploadTask =
-    storageRef.child(mediaid+"thumb.jpg").putFile(thumbnailFile);
+        storageRef.child(mediaid + "thumb.jpg").putFile(thumbnailFile);
     StorageTaskSnapshot storageSnap = await uploadTask.onComplete;
     thumbUrl = await storageSnap.ref.getDownloadURL();
 
@@ -235,22 +235,23 @@ class MediaInteract {
       mediaFile.path,
       deleteOrigin: true,
       quality: VideoQuality.HighestQuality,
-    )).file;
+    ))
+        .file;
 
     StorageUploadTask uploadTaskV =
-    storageRef.child(mediaid+".mp4").putFile(thumbnailFile);
+        storageRef.child(mediaid + ".mp4").putFile(mediaFile);
     StorageTaskSnapshot storageSnapV = await uploadTaskV.onComplete;
     mediaUrl = await storageSnapV.ref.getDownloadURL();
 
     await flutterVideoCompress.deleteAllCache();
   }
 
-  init (){
-    mediaFile=null;
-    mediaUrl="";
-    thumbnailFile=null;
-    thumbUrl="";
-    heightH=0;
-    widthW=0;
+  init() {
+    mediaFile = null;
+    mediaUrl = "";
+    thumbnailFile = null;
+    thumbUrl = "";
+    heightH = 0;
+    widthW = 0;
   }
 }
