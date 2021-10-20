@@ -194,58 +194,60 @@ class MediaShareState extends State<MediaShare>
   }
 
   upy() async {
-    if (mediaInteract.mediaFile != null || captionController.text != "") {
-      final snackBar = SnackBar(
-        content: Text('Our message is right on the way!'),
-        duration: Duration(seconds: 1000, milliseconds: 500),
-        backgroundColor: Color.fromRGBO(24, 115, 172, 1),
-      );
-      _scaffoldKey.currentState.showSnackBar(snackBar);
-      String ts = DateTime.now().millisecondsSinceEpoch.toString();
-      if (mediaInteract.mediaFile != null) {
-        if (mediaInteract.isPic) {
-          await mediaInteract.uploadPic("post" +
-              currentUser.id +
-              ts); //when this was condition, every photo was same in the entire chat, obv,
-          //but while uploading they were differing. lol cahing!!
-        } else {
-          await mediaInteract.uploadVid("post" + currentUser.id + ts);
-        }
-        if (mediaInteract.mediaUrl == "") {
-          if (mounted) {
-            setState(() {
-              mediaInteract.init();
-            });
+    if (!mediaInteract.uploading) {
+      if (mediaInteract.mediaFile != null || captionController.text != "") {
+        mediaInteract.uploading = true;
+        final snackBar = SnackBar(
+          content: Text('Our message is right on the way!'),
+          duration: Duration(seconds: 1000, milliseconds: 500),
+          backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+        );
+        _scaffoldKey.currentState.showSnackBar(snackBar);
+        String ts = DateTime.now().millisecondsSinceEpoch.toString();
+        if (mediaInteract.mediaFile != null) {
+          if (mediaInteract.isPic) {
+            await mediaInteract.uploadPic("post" +
+                currentUser.id +
+                ts); //when this was condition, every photo was same in the entire chat, obv,
+            //but while uploading they were differing. lol cahing!!
+          } else {
+            await mediaInteract.uploadVid("post" + currentUser.id + ts);
           }
-          _scaffoldKey.currentState.hideCurrentSnackBar();
-          return;
+          if (mediaInteract.mediaUrl == "") {
+            if (mounted) {
+              setState(() {
+                mediaInteract.init();
+              });
+            }
+            _scaffoldKey.currentState.hideCurrentSnackBar();
+            return;
+          }
         }
-      }
-      var temp = {
-        "postId": currentUser.id + ts,
-        "thumb": mediaInteract.thumbUrl,
-        "ownerId": currentUser.id,
-        "username": currentUser.username,
-        "mediaUrl": mediaInteract.mediaUrl,
-        "description": captionController.text,
-        "location": locationController.text,
-        "timestamp": DateTime.now(),
-        "likes": {},
-        "height": mediaInteract.heightH,
-        "width": mediaInteract.widthW
-      };
-      postsRef
-          .document(currentUser.id)
-          .collection("userPosts")
-          .document(currentUser.id + ts)
-          .setData(temp);
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      if (mounted) {
-        setState(() {
-          mediaInteract.init();
-          locationController.clear();
-          captionController.clear();
-        });
+        var temp = {
+          "postId": currentUser.id + ts,
+          "thumb": mediaInteract.thumbUrl,
+          "ownerId": currentUser.id,
+          "username": currentUser.username,
+          "mediaUrl": mediaInteract.mediaUrl,
+          "description": captionController.text,
+          "location": locationController.text,
+          "timestamp": DateTime.now(),
+          "likes": {},
+          "height": mediaInteract.heightH,
+          "width": mediaInteract.widthW
+        };
+        postsRef
+            .document(currentUser.id)
+            .collection("userPosts")
+            .document(currentUser.id + ts)
+            .setData(temp);
+        _scaffoldKey.currentState.hideCurrentSnackBar();
+        mediaInteract.init();
+        locationController.clear();
+        captionController.clear();
+        if (mounted) {
+          setState(() {});
+        }
       }
     }
   }

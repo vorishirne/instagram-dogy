@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dodogy_challange/widgets/custom_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dodogy_challange/models/user.dart';
@@ -12,6 +13,7 @@ import 'package:dodogy_challange/widgets/post.dart';
 import 'package:dodogy_challange/widgets/post_tile.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'dart:math';
+import 'MediaPreview.dart';
 import 'activity_feed.dart';
 import 'chat.dart';
 
@@ -134,14 +136,17 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
         context, MaterialPageRoute(builder: (contex) => ActivityFeed()));
   }
 
-  void editProfile(contextx) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (contex) => EditProfile(
-                  currentUserId: currentUserId,
-                  mastercontext: contextx,
-                )));
+  void editProfile(contextx, String url) {
+    Navigator.push(context, MaterialPageRoute(builder: (contex) {
+      if (currentUserId == widget.profileId) {
+        return EditProfile(
+          currentUserId: currentUserId,
+          mastercontext: contextx,
+        );
+      } else {
+        return MediaPreview(cachedNetworkImage(url));
+      }
+    }));
   }
 
   Widget buildButton({String text, Function function}) {
@@ -319,7 +324,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                         Row(
                           children: <Widget>[
                             GestureDetector(
-                              onTap: () => editProfile(context),
+                              onTap: () => editProfile(context, user.photoUrl),
                               child: SizedBox(
                                 height: 75,
                                 width: 75,
@@ -482,10 +487,9 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
             if (postOrientation == "grid") {
               List<GridTile> gridTiles = [];
               snapshot.data.documents.forEach((post) {
-
                 if (postmini.fromDocument(post).mediaUrl != "")
-                gridTiles.add(
-                    GridTile(child: PostTile(postmini.fromDocument(post))));
+                  gridTiles.add(
+                      GridTile(child: PostTile(postmini.fromDocument(post))));
               });
               return Container(
                 child: GridView.count(

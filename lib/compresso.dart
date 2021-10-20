@@ -15,6 +15,7 @@ class MediaInteract {
   final TextEditingController captionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
+  bool uploading=false;
   bool onGoing=false;
   int meter = 0;
   bool isPic = true;
@@ -255,5 +256,6 @@ class MediaInteract {
     heightH = 0;
     widthW = 0;
     onGoing=false;
+    uploading=false;
   }
 }
