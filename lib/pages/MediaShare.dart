@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../compresso.dart';
+import 'MediaPreview.dart';
 
 class MediaShare extends StatefulWidget {
   final String currentUserId;
@@ -41,7 +42,7 @@ class MediaShareState extends State<MediaShare>
   @override
   void initState() {
     super.initState();
-    mediaInteract = MediaInteract(context, "Share a post !");
+    mediaInteract = MediaInteract(context, "Share a post!");
   }
 
   @override
@@ -65,7 +66,25 @@ class MediaShareState extends State<MediaShare>
               children: [
                 GestureDetector(
                   onTap: () {
-                    pikapi();
+                    FocusScope.of(context).unfocus();
+                    mediaInteract.mediaFile == null
+                        ? pikapi()
+                        : Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                MediaPreview(mediaInteract.isPic
+                                    ? (Image.file(
+                                        mediaInteract.mediaFile,
+                                        fit: BoxFit.contain,
+                                      ))
+                                    : videoFile(
+                                        mediaInteract.mediaFile,
+                                        mediaInteract.thumbnailFile,
+                                        (MediaQuery.of(context).size.height *
+                                            .9),
+                                        ar: mediaInteract.heightH /
+                                            mediaInteract.widthW,
+                                        stop: .05,
+                                      ))));
                   },
                   child: SizedBox(
                       //height: uploadBoxHeight,
@@ -127,6 +146,7 @@ class MediaShareState extends State<MediaShare>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
                         onPressed: () {
+                          FocusScope.of(context).unfocus();
                           setState(() {
                             mediaInteract.init();
                             locationController.clear();
@@ -142,6 +162,7 @@ class MediaShareState extends State<MediaShare>
                     ),
                     RaisedButton(
                       onPressed: () {
+                        FocusScope.of(context).unfocus();
                         upy(); //       updateProfileData(context);
                       },
                       color: Color.fromRGBO(24, 115, 172, 1),
@@ -183,11 +204,12 @@ class MediaShareState extends State<MediaShare>
       String ts = DateTime.now().millisecondsSinceEpoch.toString();
       if (mediaInteract.mediaFile != null) {
         if (mediaInteract.isPic) {
-          await mediaInteract.uploadPic(currentUser.id +
+          await mediaInteract.uploadPic("post" +
+              currentUser.id +
               ts); //when this was condition, every photo was same in the entire chat, obv,
           //but while uploading they were differing. lol cahing!!
         } else {
-          await mediaInteract.uploadVid(currentUser.id + ts);
+          await mediaInteract.uploadVid("post" + currentUser.id + ts);
         }
         if (mediaInteract.mediaUrl == "") {
           if (mounted) {
@@ -217,7 +239,7 @@ class MediaShareState extends State<MediaShare>
           .collection("userPosts")
           .document(currentUser.id + ts)
           .setData(temp);
-
+      _scaffoldKey.currentState.hideCurrentSnackBar();
       if (mounted) {
         setState(() {
           mediaInteract.init();
@@ -268,8 +290,11 @@ class videoFile extends StatefulWidget {
   final File thumbUrl;
   final double h;
   final double ar;
+  final double start;
+  final double stop;
 
-  videoFile(this.url, this.thumbUrl, this.h, {this.ar = 1});
+  videoFile(this.url, this.thumbUrl, this.h,
+      {this.ar = 1, this.start = .7, this.stop = .3});
 
   @override
   videoFileState createState() => videoFileState();
@@ -307,7 +332,7 @@ class videoFileState extends State<videoFile> {
       onVisibilityChanged: (VisibilityInfo info) {
         print("meri jung one man army");
         print(info.visibleFraction);
-        if (info.visibleFraction > 0.70) {
+        if (info.visibleFraction > widget.start) {
           play = false;
           if (_videoController == null) {
             _videoController = CachedVideoPlayerController.file(widget.url);
@@ -324,7 +349,7 @@ class videoFileState extends State<videoFile> {
               }
             });
           }
-        } else if (info.visibleFraction < 0.30) {
+        } else if (info.visibleFraction < widget.stop) {
           if (mounted) {
             setState(() {
               readycontroller = false;
@@ -370,8 +395,8 @@ class videoFileState extends State<videoFile> {
                   alignment: AlignmentDirectional.center,
                   children: [
                     AspectRatio(
-                      child: CachedVideoPlayer(_videoController),
                       aspectRatio: 1 / widget.ar,
+                      child: CachedVideoPlayer(_videoController),
                     ),
                     !play
                         ? Icon(
@@ -396,7 +421,6 @@ Widget videoBurrowFile(BuildContext context, {File thumbFile, double h}) {
   return SizedBox(
     height: h,
     child: Container(
-      //color: Colors.pink,
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
@@ -407,16 +431,16 @@ Widget videoBurrowFile(BuildContext context, {File thumbFile, double h}) {
                       child: Container(
                   child: Image.file(
                     thumbFile,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     height: h,
                   ),
                 )))
               : Container(decoration: BoxDecoration(color: Colors.black87)),
           Positioned(
               child: Icon(
-            CupertinoIcons.play_arrow_solid,
+            CupertinoIcons.paw,
             color: Colors.white70,
-            size: 102,
+            size: 126,
           ))
         ],
       ),

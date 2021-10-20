@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dodogy_challange/widgets/custom_image.dart';
+import 'package:dodogy_challange/widgets/post.dart';
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:dodogy_challange/models/user.dart';
@@ -7,6 +9,7 @@ import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:dodogy_challange/homyz.dart';
 import 'package:intl/intl.dart';
 import '../compresso.dart';
+import 'MediaPreview.dart';
 
 class Chat extends StatefulWidget {
   final String currentUserId;
@@ -20,8 +23,6 @@ class Chat extends StatefulWidget {
 }
 
 class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
-  MediaInteract mediaInteract;
-
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isLoading = true;
   User friend;
@@ -39,7 +40,6 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     } else {
       groupChatId = '${widget.friendId}-${widget.currentUserId}';
     }
-    mediaInteract = MediaInteract(context, "Select a message !");
     getFriend();
   }
 
@@ -196,7 +196,11 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
     );
   }
 
-  void updateMessage(String message, String kind, String ts) async {
+  void updateMessage(String message, String kind, String ts,
+      {String mediaU = "",
+      String thumbU = "",
+      int heightH = 0,
+      int widthW = 0}) async {
     var temp;
     var temp2;
     messageController.clear();
@@ -219,13 +223,13 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
         'prevMessageTimestamp': temp,
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': message.trim(),
-        "url": mediaInteract.mediaUrl,
-        "thumb": mediaInteract.thumbUrl,
-        "height": mediaInteract.heightH,
-        "width": mediaInteract.widthW,
+        "url": mediaU,
+        "thumb": thumbU,
+        "height": heightH,
+        "width": widthW,
         'kind': kind
       });
-      mediaInteract.init();
+
       temp = ((friend.displayName == null || friend.displayName == "")
           ? friend.username
           : friend.displayName);
@@ -440,12 +444,24 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
   }
 
   pikapi(BuildContext context) async {
+    MediaInteract mediaInteract = MediaInteract(context, "Select a message !");
+    if (mediaInteract.onGoing) {
+      final snackBar = SnackBar(
+        content: Text('Message is already uploading'),
+        duration: Duration(seconds: 1, milliseconds: 500),
+        backgroundColor: Color.fromRGBO(24, 115, 172, 1),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+      return;
+    }
     mediaInteract.init();
+    mediaInteract.onGoing = true;
     String number = await mediaInteract.selectImageVideo(context, "both");
     await mediaInteract.dial(number);
 
     if (["pc", "pg", "vc", "vg"].contains(number)) {
       if (mediaInteract.mediaFile == null) {
+        mediaInteract.init();
         return;
       }
       final snackBar = SnackBar(
@@ -457,42 +473,64 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
       String ts = DateTime.now().millisecondsSinceEpoch.toString();
       if (["pc", "pg"].contains(number)) {
         number = "pic";
-        await mediaInteract.uploadPic(groupChatId +
+        await mediaInteract.uploadPic("chat" +
+            groupChatId +
             ts); //when this was condition, every photo was same in the entire chat, obv,
         //but while uploading they were differing. lol cahing!!
       } else {
         number = "vid";
-        await mediaInteract.uploadVid(groupChatId + ts);
+        await mediaInteract.uploadVid("chat" + groupChatId + ts);
       }
       if (mediaInteract.mediaUrl == "") {
+        mediaInteract.init();
         return;
       }
 
-      await updateMessage(currentMessage, number, ts);
+      updateMessage(currentMessage, number, ts,
+          heightH: mediaInteract.heightH,
+          widthW: mediaInteract.widthW,
+          mediaU: mediaInteract.mediaUrl,
+          thumbU: mediaInteract.thumbUrl);
+
     }
+    mediaInteract.init();
   }
 
   buildMedia(String message, String timestamp, String kind,
       DocumentSnapshot document) {
-    return Container(
-      margin: const EdgeInsets.only(top: 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          videoBurrow(context, document,
-              thumbUrl: document["thumb"] == ""
-                  ? document["url"]
-                  : document["thumb"]),
-          document["content"] != ""
-              ? Padding(
-                  padding: EdgeInsets.only(top: 3, left: 6),
-                  child: Text(document["content"],
-                      maxLines: 75, overflow: TextOverflow.ellipsis),
-                )
-              : SizedBox(
-                  height: 0,
-                )
-        ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => MediaPreview(document["kind"] == "vid"
+                ? VideoItem(
+                    document["url"],
+                    document["thumb"],
+                    (MediaQuery.of(context).size.height * .9),
+                    ar: (document["height"] / document["width"]),
+                    start: .05,
+                  )
+                : cachedNetworkImage(document["url"]))));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(top: 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            videoBurrow(context, document,
+                thumbUrl: document["thumb"] == ""
+                    ? document["url"]
+                    : document["thumb"]),
+            document["content"] != ""
+                ? Padding(
+                    padding: EdgeInsets.only(top: 3, left: 6),
+                    child: Text(document["content"],
+                        maxLines: 75, overflow: TextOverflow.ellipsis),
+                  )
+                : SizedBox(
+                    height: 0,
+                  )
+          ],
+        ),
       ),
     );
   }
@@ -509,55 +547,61 @@ Widget videoBurrow(BuildContext context, DocumentSnapshot document,
         ? ar * MediaQuery.of(context).size.width * .75
         : MediaQuery.of(context).size.height * .3;
   }
-  return SizedBox(
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: SizedBox(
-        height: h,
-        width: MediaQuery.of(context).size.width * .75,
-        child: Container(
-          child: FittedBox(
-            fit: BoxFit.cover,
+  return Stack(
+    alignment: AlignmentDirectional.center,
+    children: [
+      SizedBox(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          child: SizedBox(
+            height: h,
+            width: MediaQuery.of(context).size.width * .75,
             child: Container(
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  thumbUrl != ""
-                      ? Container(
-                          child: CachedNetworkImage(
-                              imageUrl: thumbUrl,
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                      child: Image(
-                                    image: imageProvider,
-                                    fit: BoxFit.fill,
-                                  )),
-                              errorWidget: (context, url, error) => Container(
-                                  decoration:
-                                      BoxDecoration(color: Colors.black12)),
-                              placeholder: (context, url) => Container(
-                                  decoration:
-                                      BoxDecoration(color: Colors.black12))),
-                        )
-                      : Container(
-                          decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.circular(24))),
-                  document["kind"] == "vid"
-                      ? Positioned(
-                          child: Icon(
-                          CupertinoIcons.play_arrow_solid,
-                          color: Colors.white70,
-                          size: 54,
-                        ))
-                      : Container()
-                ],
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Container(
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      thumbUrl != ""
+                          ? Container(
+                              child: CachedNetworkImage(
+                                  imageUrl: thumbUrl,
+                                  imageBuilder: (context, imageProvider) =>
+                                      Container(
+                                          child: Image(
+                                        image: imageProvider,
+                                        fit: BoxFit.fill,
+                                      )),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.black12)),
+                                  placeholder: (context, url) => Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.black12))),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(24))),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
+      document["kind"] == "vid"
+          ? Positioned(
+              child: Icon(
+              CupertinoIcons.play_arrow_solid,
+              color: Colors.white70,
+              size: 42,
+            ))
+          : Container()
+    ],
   );
 }

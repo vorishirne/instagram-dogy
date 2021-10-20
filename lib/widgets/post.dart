@@ -149,6 +149,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
             child: GestureDetector(
                 onTap: () => showProfile(context, profileId: user.id),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       height: 80,
@@ -246,17 +247,16 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
                     ),
                     Visibility(
                         visible: description.length > 0,
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              child: Text(
-                                description,
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              margin: EdgeInsets.only(
-                                  left: 26.0, bottom: 20, top: 6),
-                            )
-                          ],
+                        child: Container(
+                          child: Text(
+                            description,
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            maxLines: 9,
+                          ),
+                          margin: EdgeInsets.only(
+                              left: 26.0, bottom: 6, top: 6),
                         )),
                   ],
                 )),
@@ -451,7 +451,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
     return GestureDetector(
       onDoubleTap: handleLikePost,
       child: Container(
-          margin: EdgeInsets.only(top: 6),
+          margin: EdgeInsets.only(top: 6,bottom: 6),
           decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
@@ -505,7 +505,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Padding(padding: EdgeInsets.only(top: 40.0, left: 20.0)),
+            Padding(padding: EdgeInsets.only(top: 0, left: 30.0)),
             GestureDetector(
               onTap: handleLikePost,
               child: Icon(
@@ -532,7 +532,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
         Row(
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(left: 20.0),
+              margin: EdgeInsets.only(left: 30.0),
               child: Text(
                 "$likeCount likes",
                 style: TextStyle(
@@ -562,7 +562,7 @@ class _PostState extends State<Post> with TickerProviderStateMixin {
             (widget.addDivider)
                 ? Padding(
                     padding: const EdgeInsets.only(
-                        right: 75.0, left: 75, top: 10, bottom: 10),
+                        right: 75.0, left: 75, top: 20, bottom: 20),
                     child: Divider(
                       height: 8.0,
                       color: Color.fromRGBO(24, 115, 172, .6),
@@ -592,8 +592,10 @@ class VideoItem extends StatefulWidget {
   final String thumbUrl;
   final double h;
   final double ar;
+  final double start;
+  final double stop;
 
-  VideoItem(this.url, this.thumbUrl, this.h, {this.ar = 1});
+  VideoItem(this.url, this.thumbUrl, this.h, {this.ar = 1,this.start = .7, this.stop = .3});
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -642,7 +644,7 @@ class _VideoItemState extends State<VideoItem> {
       onVisibilityChanged: (VisibilityInfo info) {
         print("meri jung one man army");
         print(info.visibleFraction);
-        if (info.visibleFraction > 0.70) {
+        if (info.visibleFraction > widget.start) {
           play = playAtFirst == 2;
           if (play) {
             playAtFirst = 1;
@@ -662,7 +664,7 @@ class _VideoItemState extends State<VideoItem> {
               }
             });
           }
-        } else if (info.visibleFraction < 0.30) {
+        } else if (info.visibleFraction < widget.stop) {
           if (mounted) {
             setState(() {
               readycontroller = false;
@@ -750,7 +752,7 @@ Widget videoBurrow(BuildContext context, {String thumbUrl = "", double h}) {
                       imageBuilder: (context, imageProvider) => SizedBox(
                               child: Image(
                             image: imageProvider,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                             height: h,
                           )),
                       errorWidget: (context, url, error) => Container(

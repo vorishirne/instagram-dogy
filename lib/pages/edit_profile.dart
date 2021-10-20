@@ -83,7 +83,7 @@ class _EditProfileState extends State<EditProfile> {
         "displayName": displayNameController.text,
         "bio": bioController.text,
       };
-      await mediaInteract.uploadPic(user.id + "profilePic");
+      await mediaInteract.uploadPic("profile"+user.id);
       if (mediaInteract.mediaUrl != "") {
         updatedData["photoUrl"] = mediaInteract.mediaUrl;
       }
@@ -164,10 +164,7 @@ class _EditProfileState extends State<EditProfile> {
                                 ),
                                 child: mediaInteract.mediaFile == null
                                     ? CachedNetworkImage(
-                                        // key: ObjectKey(updatedUrlPhoto ??
-                                        //     (user.photoUrl ??
-                                        //         "https://www.asjfkfhdgihdknjskdjfeid.com")),
-                                        imageUrl: ( //updatedUrlPhoto ??
+                                        imageUrl: (
                                             (user.photoUrl ??
                                                 "https://www.asjfkfhdgihdknjskdjfeid.com")),
                                         imageBuilder: (context,

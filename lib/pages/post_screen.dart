@@ -26,7 +26,7 @@ class PostScreen extends StatelessWidget {
         return Center(
           child: Scaffold(
             appBar: header(context,
-                titleText: post.description == "" ? "Post" : post.description),
+                titleText: post.username == "" ? "Post" : post.username + "'s post"),
             body: ListView(
               children: <Widget>[
                 Container(

@@ -482,11 +482,12 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
             if (postOrientation == "grid") {
               List<GridTile> gridTiles = [];
               snapshot.data.documents.forEach((post) {
+
+                if (postmini.fromDocument(post).mediaUrl != "")
                 gridTiles.add(
                     GridTile(child: PostTile(postmini.fromDocument(post))));
               });
               return Container(
-                // decoration: BoxDecoration(color: Colors.black87),
                 child: GridView.count(
                   crossAxisCount: 3,
                   crossAxisSpacing: 3,

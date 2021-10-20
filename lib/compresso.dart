@@ -15,6 +15,7 @@ class MediaInteract {
   final TextEditingController captionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
+  bool onGoing=false;
   int meter = 0;
   bool isPic = true;
   File mediaFile;
@@ -253,5 +254,6 @@ class MediaInteract {
     thumbUrl = "";
     heightH = 0;
     widthW = 0;
+    onGoing=false;
   }
 }

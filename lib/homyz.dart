@@ -31,6 +31,7 @@ CollectionReference messagesRef;
 CollectionReference chatsRef;
 
 FirebaseUser user;
+FirebaseUser currentFUser;
 User curruser;
 User currentUser;
 int pageIndex = 0;
@@ -56,6 +57,7 @@ class homystate extends State<homy> {
     super.initState();
     pageIndex = 0;
     user = widget.userx;
+    currentFUser = user;
     curruser = widget.curruserx;
     currentUser = widget.curruserx;
     pageController = PageController();
@@ -102,7 +104,7 @@ class homystate extends State<homy> {
     );
 
     firebaseMessaging.getToken().then((token) {
-      print('token: $token');
+      //print("token: $token");
       print("uid is ${user.uid}");
       Firestore.instance
           .collection('users')

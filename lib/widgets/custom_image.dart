@@ -1,20 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dodogy_challange/widgets/post.dart';
-import 'package:video_player/video_player.dart';
 import 'package:dodogy_challange/widgets/progress.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+//mainPhotoWidget
 Widget cachedNetworkImage(String mediaUrl) {
   return CachedNetworkImage(
     imageUrl: mediaUrl ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
     fit: BoxFit.cover,
-    placeholder: (context, url) => Container(
-        decoration: BoxDecoration(color: Colors.black12.withOpacity(.04))),
-    errorWidget: (context, url, error) => Icon(Icons.error),
+    placeholder: (context, url) => circularProgress(),
+    errorWidget: (context, url, error) => Icon(Icons.error,size:32),
   );
 }
-
+//for activity feed
 Widget cachedNetworkImageLead(
     BuildContext context, String mediaUrl, String thumb) {
   bool vid = mediaUrl.toLowerCase().contains(".mp4");
@@ -73,3 +71,24 @@ Widget videoBurrowCustom(BuildContext context,
     ),
   );
 }
+
+
+//Widget kheechMeriPhoto
+// Widget profileImage(double height, String url, {bool light = true}) {
+//   Color borderC = light
+//       ? Color.fromRGBO(222, 253, 255, 1)
+//       : Color.fromRGBO(24, 115, 172, 1);
+//   if (url != "" && url != null) {
+//     return FutureBuilder(
+//       builder: (context, snapshot) {
+//         if (!snapshot.hasData){
+//           return SizedBox(height: height,width: height );
+//         }
+//         return widget;
+//       },
+//       future: currentFUser.getIdToken(),
+//     );
+//   }
+//   return loader;
+// }
+
