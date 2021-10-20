@@ -137,16 +137,19 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
   }
 
   void editProfile(contextx, String url) {
-    Navigator.push(context, MaterialPageRoute(builder: (contex) {
-      if (currentUserId == widget.profileId) {
+    if (currentUserId == widget.profileId) {
+      Navigator.push(context, MaterialPageRoute(builder: (contex) {
         return EditProfile(
           currentUserId: currentUserId,
           mastercontext: contextx,
         );
-      } else {
-        return MediaPreview(Hero(tag:url+"profilephoto",child: cachedNetworkImage(url)));
-      }
-    }));
+      }));
+    } else if (url != "" && url != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (contex) {
+        return MediaPreview(
+            Hero(tag: url + "profilephoto", child: cachedNetworkImage(url)));
+      }));
+    }
   }
 
   Widget buildButton({String text, Function function}) {
@@ -333,7 +336,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                                         "https://www.asjfkfhdgihdknjskdjfeid.com",
                                     imageBuilder: (context, imageProvider) =>
                                         Hero(
-                                          tag:user.photoUrl+"profilephoto",
+                                          tag: user.photoUrl + "profilephoto",
                                           child: CircleAvatar(
                                             backgroundColor: Colors.grey,
                                             backgroundImage: imageProvider,

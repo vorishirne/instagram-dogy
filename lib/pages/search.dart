@@ -220,7 +220,7 @@ class _SearchState extends State<Search> with TickerProviderStateMixin<Search> {
 class UserResult extends StatelessWidget {
   final User user;
 
-  UserResult(this.user);
+  UserResult(this.user):super(key:ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -234,19 +234,22 @@ class UserResult extends StatelessWidget {
               leading: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: SizedBox(
-                  height: 45,
-                  width: 45,
-                  child: CachedNetworkImage(
+                    height: 45,
+                    width: 45,
+                    child: CachedNetworkImage(
                       imageUrl: user.photoUrl ??
                           "https://www.asjfkfhdgihdknjskdjfeid.com",
                       imageBuilder: (context, imageProvider) => CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage: imageProvider,
-                          ),
-                      errorWidget: (context, url, error) => Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Icon(CupertinoIcons.person_solid))),
-                ),
+                        backgroundColor: Colors.grey,
+                        backgroundImage: imageProvider,
+                      ),
+                      errorWidget: (context, url, error) {
+                        print("error was ${error}");
+                        return Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(CupertinoIcons.person_solid));
+                      },
+                    )),
               ),
               title: Text(
                 user.username,
