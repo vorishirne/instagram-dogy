@@ -164,10 +164,13 @@ class MessageItem extends StatelessWidget {
                   child: CachedNetworkImage(
                       imageUrl:
                           tosphoto ?? "https://www.asjfkfhdgihdknjskdjfeid.com",
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage: imageProvider,
-                          ),
+                      imageBuilder: (context, imageProvider) => Hero(
+                        tag:tosphoto,
+                        child: CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              backgroundImage: imageProvider,
+                            ),
+                      ),
                       errorWidget: (context, url, error) => CircleAvatar(
                             backgroundColor: Color.fromRGBO(222, 253, 255, 1),
                             child: CircleAvatar(

@@ -72,11 +72,14 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                           ? (friend.photoUrl ??
                               "https://www.asjfkfhdgihdknjskdjfeid.com")
                           : "https://www.asjfkfhdgihdknjskdjfeid.com",
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage: imageProvider,
-                            radius: 50,
-                          ),
+                      imageBuilder: (context, imageProvider) => Hero(
+                        tag:friend.photoUrl,
+                        child: CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              backgroundImage: imageProvider,
+                              radius: 50,
+                            ),
+                      ),
                       placeholder: (context, url) => Icon(
                             CupertinoIcons.person,
                             color: Color.fromRGBO(24, 115, 172, 1),

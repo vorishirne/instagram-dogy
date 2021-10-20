@@ -169,9 +169,12 @@ class _EditProfileState extends State<EditProfile> {
                                                 "https://www.asjfkfhdgihdknjskdjfeid.com")),
                                         imageBuilder: (context,
                                                 imageProvider) =>
-                                            CircleAvatar(
-                                              backgroundColor: Colors.grey,
-                                              backgroundImage: imageProvider,
+                                            Hero(
+                                              tag: user.photoUrl,
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.grey,
+                                                backgroundImage: imageProvider,
+                                              ),
                                             ),
                                         errorWidget: (context, url, error) =>
                                             CircleAvatar(

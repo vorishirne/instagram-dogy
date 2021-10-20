@@ -332,10 +332,13 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                                     imageUrl: user.photoUrl ??
                                         "https://www.asjfkfhdgihdknjskdjfeid.com",
                                     imageBuilder: (context, imageProvider) =>
-                                        CircleAvatar(
-                                          backgroundColor: Colors.grey,
-                                          backgroundImage: imageProvider,
-                                          radius: 40,
+                                        Hero(
+                                          tag:user.photoUrl,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.grey,
+                                            backgroundImage: imageProvider,
+                                            radius: 40,
+                                          ),
                                         ),
                                     errorWidget: (context, url, error) =>
                                         Container(
