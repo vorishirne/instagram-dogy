@@ -144,7 +144,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
           mastercontext: contextx,
         );
       } else {
-        return MediaPreview(cachedNetworkImage(url));
+        return MediaPreview(Hero(tag:url+"profilephoto",child: cachedNetworkImage(url)));
       }
     }));
   }
@@ -333,7 +333,7 @@ class _ProfileState extends State<Profile> with TickerProviderStateMixin {
                                         "https://www.asjfkfhdgihdknjskdjfeid.com",
                                     imageBuilder: (context, imageProvider) =>
                                         Hero(
-                                          tag:user.photoUrl,
+                                          tag:user.photoUrl+"profilephoto",
                                           child: CircleAvatar(
                                             backgroundColor: Colors.grey,
                                             backgroundImage: imageProvider,

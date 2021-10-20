@@ -170,7 +170,7 @@ class _EditProfileState extends State<EditProfile> {
                                         imageBuilder: (context,
                                                 imageProvider) =>
                                             Hero(
-                                              tag: user.photoUrl,
+                                              tag: user.photoUrl+"profilephoto",
                                               child: CircleAvatar(
                                                 backgroundColor: Colors.grey,
                                                 backgroundImage: imageProvider,

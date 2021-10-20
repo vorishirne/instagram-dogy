@@ -72,18 +72,24 @@ class MediaShareState extends State<MediaShare>
                         : Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
                                 MediaPreview(mediaInteract.isPic
-                                    ? (Image.file(
-                                        mediaInteract.mediaFile,
-                                        fit: BoxFit.contain,
-                                      ))
-                                    : videoFile(
-                                        mediaInteract.mediaFile,
-                                        mediaInteract.thumbnailFile,
-                                        (MediaQuery.of(context).size.height *
-                                            .9),
-                                        ar: mediaInteract.heightH /
-                                            mediaInteract.widthW,
-                                        stop: .05,
+                                    ? Hero(
+                                        tag: currentUser.id + "chat",
+                                        child: (Image.file(
+                                          mediaInteract.mediaFile,
+                                          fit: BoxFit.contain,
+                                        )),
+                                      )
+                                    : Hero(
+                                        tag: currentUser.id + "chat",
+                                        child: videoFile(
+                                          mediaInteract.mediaFile,
+                                          mediaInteract.thumbnailFile,
+                                          (MediaQuery.of(context).size.height *
+                                              .9),
+                                          ar: mediaInteract.heightH /
+                                              mediaInteract.widthW,
+                                          stop: .05,
+                                        ),
                                       ))));
                   },
                   child: SizedBox(
@@ -119,13 +125,16 @@ class MediaShareState extends State<MediaShare>
                               ),
                             ],
                           )
-                        : SizedBox(
-                            height: uploadBoxHeight,
-                            child: (mediaInteract.isPic
-                                ? Image.file(mediaInteract.mediaFile)
-                                : videoBurrowFile(context,
-                                    thumbFile: mediaInteract.thumbnailFile,
-                                    h: uploadBoxHeight)),
+                        : Hero(
+                            tag: currentUser.id + "post",
+                            child: SizedBox(
+                              height: uploadBoxHeight,
+                              child: (mediaInteract.isPic
+                                  ? Image.file(mediaInteract.mediaFile)
+                                  : videoBurrowFile(context,
+                                      thumbFile: mediaInteract.thumbnailFile,
+                                      h: uploadBoxHeight)),
+                            ),
                           ),
                   )),
                 ),

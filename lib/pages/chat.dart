@@ -73,13 +73,13 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
                               "https://www.asjfkfhdgihdknjskdjfeid.com")
                           : "https://www.asjfkfhdgihdknjskdjfeid.com",
                       imageBuilder: (context, imageProvider) => Hero(
-                        tag:friend.photoUrl,
-                        child: CircleAvatar(
+                            tag: friend.photoUrl,
+                            child: CircleAvatar(
                               backgroundColor: Colors.grey,
                               backgroundImage: imageProvider,
                               radius: 50,
                             ),
-                      ),
+                          ),
                       placeholder: (context, url) => Icon(
                             CupertinoIcons.person,
                             color: Color.fromRGBO(24, 115, 172, 1),
@@ -494,7 +494,6 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
           widthW: mediaInteract.widthW,
           mediaU: mediaInteract.mediaUrl,
           thumbU: mediaInteract.thumbUrl);
-
     }
     mediaInteract.init();
   }
@@ -505,24 +504,32 @@ class ChatState extends State<Chat> with AutomaticKeepAliveClientMixin<Chat> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => MediaPreview(document["kind"] == "vid"
-                ? VideoItem(
-                    document["url"],
-                    document["thumb"],
-                    (MediaQuery.of(context).size.height * .9),
-                    ar: (document["height"] / document["width"]),
-                    start: .05,
+                ? Hero(
+                    tag: document["url"],
+                    child: VideoItem(
+                      document["url"],
+                      document["thumb"],
+                      (MediaQuery.of(context).size.height * .9),
+                      ar: (document["height"] / document["width"]),
+                      start: .05,
+                    ),
                   )
-                : cachedNetworkImage(document["url"]))));
+                : Hero(
+                    tag: document["url"],
+                    child: cachedNetworkImage(document["url"])))));
       },
       child: Container(
         margin: const EdgeInsets.only(top: 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            videoBurrow(context, document,
-                thumbUrl: document["thumb"] == ""
-                    ? document["url"]
-                    : document["thumb"]),
+            Hero(
+              tag: document["url"],
+              child: videoBurrow(context, document,
+                  thumbUrl: document["thumb"] == ""
+                      ? document["url"]
+                      : document["thumb"]),
+            ),
             document["content"] != ""
                 ? Padding(
                     padding: EdgeInsets.only(top: 3, left: 6),
@@ -581,9 +588,8 @@ Widget videoBurrow(BuildContext context, DocumentSnapshot document,
                                       Container(
                                           decoration: BoxDecoration(
                                               color: Colors.black12)),
-                                  placeholder: (context, url) => Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.black12))),
+                                  placeholder: (context, url) =>
+                                      circularProgress()),
                             )
                           : Container(
                               decoration: BoxDecoration(
